@@ -234,32 +234,41 @@ async function updateTicker() {
         headlines.push(forecastText);
     }
 
-    //// 2. Fetch the RTS news feeds
+    // 2. Fetch the RTS news feeds using AllOrigins JSON endpoint
     for (const feed of feeds) {
         try {
-            // Updated CORS proxy URL:
-            const response = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(feed.url)}`);
-            const xml = await response.text();
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(feed.url)}`;
+            const response = await fetch(proxyUrl);
+            const data = await response.json();
             
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xml, "text/xml");
-            const items = xmlDoc.querySelectorAll("item");
+            if (data && data.contents) {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+                const items = xmlDoc.querySelectorAll("item");
 
-            let count = 0;
-            items.forEach(item => {
-                if (count < 5) {
-                    const title = item.querySelector("title")?.textContent.trim();
-                    if (title) {
-                        headlines.push(`${feed.name}: ${title}`);
-                        count++;
+                let count = 0;
+                items.forEach(item => {
+                    if (count < 5) {
+                        const title = item.querySelector("title")?.textContent.trim();
+                        if (title) {
+                            headlines.push(`${feed.name}: ${title}`);
+                            count++;
+                        }
                     }
-                }
-            });
+                });
+            }
         } catch (err) {
             console.log("Ticker error for feed:", feed.name, err);
         }
-    
     }
+
+    if (headlines.length > 0) {
+        ticker.textContent = headlines.join("   •   ");
+        startTicker();
+    } else {
+        ticker.textContent = "Could not load ticker content";
+    }
+
 
     if (headlines.length > 0) {
         ticker.textContent = headlines.join("   •   ");
