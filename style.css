@@ -21,14 +21,17 @@ h1 {
     display: none;
 }
 
-/* Desktop sizing */
+/* ==========================================
+   DESKTOP / LANDSCAPE MODE (Reduced by 50%)
+   ========================================== */
+
 #logoBox {
     position: fixed;
     top: 22px;
     left: 20px;
-    width: 490px;
-    height: 273px;
-    padding: 20px;
+    width: 245px;
+    height: 136px;
+    padding: 10px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -36,21 +39,21 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 12px;
+    gap: 6px;
     z-index: 9999;
 }
 
 #logo {
-    width: 270px;
+    width: 135px;
     display: block;
 }
 
 .power-btn {
     background: transparent;
-    border: 3px solid rgba(255, 255, 255, 0.85);
+    border: 2px solid rgba(255, 255, 255, 0.85);
     border-radius: 50%;
-    width: 42px;
-    height: 42px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -71,8 +74,8 @@ h1 {
 }
 
 .power-icon {
-    width: 22px;
-    height: 22px;
+    width: 14px;
+    height: 14px;
     fill: #ffffff;
     transition: fill 0.2s ease;
 }
@@ -86,7 +89,7 @@ h1 {
 }
 
 .power-label {
-    font-size: 0.95rem;
+    font-size: 0.65rem;
     font-weight: bold;
     letter-spacing: 0.5px;
     color: #ffffff;
@@ -97,8 +100,8 @@ h1 {
     position: fixed;
     top: 22px;
     right: 20px;
-    width: 623px;
-    height: 273px;
+    width: 311px;
+    height: 136px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -107,26 +110,26 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 20px;
+    padding: 10px;
     z-index: 9999;
 }
 
 #clock {
-    font-size: 56px;
+    font-size: 28px;
     font-weight: bold;
     line-height: 1.1;
     color: #ffffff;
 }
 
 #date {
-    font-size: 24px;
-    margin-top: 6px;
+    font-size: 12px;
+    margin-top: 3px;
     color: #ffffff;
 }
 
 #temperature {
-    font-size: 21px;
-    margin-top: 8px;
+    font-size: 11px;
+    margin-top: 4px;
     font-weight: 600;
     color: #ffffff;
 }
@@ -162,17 +165,17 @@ h1 {
 }
 
 /* ==========================================
-   PHONE & PORTRAIT MODE (Combined on Left: Clock First, Radio Lac Underneath, 40vw wide, 20vh down)
+   PHONE & PORTRAIT MODE (Top Left, Stacked Clock then Radio Lac, 40vw wide)
    ========================================== */
 
 @media screen and (orientation: portrait) {
 
 #clockBox {
     position: fixed;
-    top: 20vh;
+    top: 10px;
     left: 10px;
     width: 40vw;
-    height: 18vh;
+    height: 16vh;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -181,13 +184,13 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 8px;
+    padding: 6px;
     z-index: 9999;
     right: auto;
 }
 
 #clock {
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.1;
     white-space: nowrap;
 }
@@ -195,24 +198,24 @@ h1 {
 #date {
     display: block;
     color: white;
-    font-size: 9px;
-    margin-top: 2px;
+    font-size: 8px;
+    margin-top: 1px;
     line-height: 1.1;
 }
 
 #temperature {
-    font-size: 9px;
-    margin-top: 2px;
+    font-size: 8px;
+    margin-top: 1px;
     white-space: nowrap;
 }
 
 #logoBox {
     position: fixed;
-    top: calc(20vh + 19vh);
+    top: calc(10px + 16vh + 6px);
     left: 10px;
     width: 40vw;
-    height: 16vh;
-    padding: 6px;
+    height: 14vh;
+    padding: 4px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -220,29 +223,29 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     z-index: 9999;
     right: auto;
 }
 
 #logo {
-    width: 75px;
+    width: 70px;
     display: block;
 }
 
 .power-btn {
-    width: 18px;
-    height: 18px;
-    border-width: 1.5px;
+    width: 16px;
+    height: 16px;
+    border-width: 1px;
 }
 
 .power-icon {
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
 }
 
 .power-label {
-    font-size: 0.4rem;
+    font-size: 0.35rem;
 }
 
 #weather {
@@ -251,11 +254,4 @@ h1 {
 
 #tickerContainer {
     height: 50px;
-}
-
-#ticker {
-    line-height: 50px;
-    font-size: 20px;
-}
-
 }
