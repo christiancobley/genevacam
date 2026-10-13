@@ -14,16 +14,18 @@ video.src = "https://edge16.vedge.infomaniak.com/livecast/ik:sig2/chunklist_w138
 const radio = document.getElementById("radio");
 const radioToggle = document.getElementById("radio-toggle");
 
-radio.src = "https://radiolac.ice.infomaniak.ch/radiolac-high.mp3";
-
 radioToggle.addEventListener("click", () => {
     if (radio.paused) {
         radio.play()
-            .then(() => radioToggle.classList.add("active"))
+            .then(() => {
+                radioToggle.classList.add("active");
+                console.log("Radio playing");
+            })
             .catch(err => console.log("Radio playback error:", err));
     } else {
         radio.pause();
         radioToggle.classList.remove("active");
+        console.log("Radio paused");
     }
 });
 
@@ -193,7 +195,7 @@ async function updateTicker() {
 function startTicker() {
     const width = ticker.offsetWidth;
     const distance = width + window.innerWidth;
-    const duration = distance * 15;
+    const duration = distance * 12; // Adjusted speed for larger text
 
     ticker.animate(
         [

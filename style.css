@@ -21,14 +21,14 @@ h1 {
     display: none;
 }
 
-/* Radio Lac Container Box (+20% width -> 300px, +15% height -> 167px) */
+/* Further increased Radio Lac Container Box */
 #logoBox {
     position: fixed;
     top: 22px;
     left: 20px;
-    width: 300px;
-    height: 167px;
-    padding: 12px;
+    width: 350px;
+    height: 195px;
+    padding: 14px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -41,17 +41,17 @@ h1 {
 }
 
 #logo {
-    width: 165px;
+    width: 195px;
     display: block;
 }
 
-/* White Power Button Styling */
+/* Power Button Styling */
 .power-btn {
     background: transparent;
     border: 2px solid rgba(255, 255, 255, 0.85);
     border-radius: 50%;
-    width: 26px;
-    height: 26px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -72,8 +72,8 @@ h1 {
 }
 
 .power-icon {
-    width: 13px;
-    height: 13px;
+    width: 16px;
+    height: 16px;
     fill: #ffffff;
     transition: fill 0.2s ease;
 }
@@ -87,20 +87,20 @@ h1 {
 }
 
 .power-label {
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: bold;
     letter-spacing: 0.5px;
     color: #ffffff;
     text-transform: uppercase;
 }
 
-/* Clock Container Box (Level top & bottom at 167px height, 384px width) */
+/* Clock Container Box (Matched top/bottom level, width 445px) */
 #clockBox {
     position: fixed;
     top: 22px;
     right: 20px;
-    width: 384px;
-    height: 167px;
+    width: 445px;
+    height: 195px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -109,26 +109,26 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 14px;
+    padding: 16px;
     z-index: 9999;
 }
 
 #clock {
-    font-size: 34px;
+    font-size: 40px;
     font-weight: bold;
     line-height: 1.1;
     color: #ffffff;
 }
 
 #date {
-    font-size: 15px;
-    margin-top: 3px;
+    font-size: 17px;
+    margin-top: 4px;
     color: #ffffff;
 }
 
 #temperature {
-    font-size: 13px;
-    margin-top: 4px;
+    font-size: 15px;
+    margin-top: 6px;
     font-weight: 600;
     color: #ffffff;
 }
@@ -137,13 +137,13 @@ h1 {
     display: none;
 }
 
-/* Ticker Styling */
+/* Ticker increased by 40% (Height: 68px, Font: 28px) */
 #tickerContainer {
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100vw;
-    height: 48px;
+    height: 68px;
     overflow: hidden;
     background: rgba(0,0,0,0.70);
     z-index: 9999;
@@ -154,9 +154,9 @@ h1 {
     left: 0;
     top: 0;
     white-space: nowrap;
-    line-height: 48px;
+    line-height: 68px;
     color: white;
-    font-size: 20px;
+    font-size: 28px;
     font-weight: bold;
 }
 
@@ -173,26 +173,26 @@ h1 {
 #logoBox {
     top: 10px;
     left: 10px;
-    width: 200px;
-    height: 135px;
+    width: 210px;
+    height: 145px;
     padding: 6px;
 }
 
 #logo {
-    width: 120px;
+    width: 130px;
 }
 
 #clockBox {
     top: 10px;
     right: 10px;
-    width: 256px;
-    height: 135px;
+    width: 270px;
+    height: 145px;
     padding: 8px;
     justify-content: center;
 }
 
 #clock {
-    font-size: 20px;
+    font-size: 22px;
     line-height: 1;
     white-space: nowrap;
 }
@@ -216,12 +216,12 @@ h1 {
 }
 
 #tickerContainer {
-    height: 48px;
+    height: 68px;
 }
 
 #ticker {
-    line-height: 48px;
-    font-size: 20px;
+    line-height: 68px;
+    font-size: 28px;
 }
 
 }
