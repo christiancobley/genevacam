@@ -162,51 +162,33 @@ h1 {
 }
 
 /* ==========================================
-   PHONE & PORTRAIT MODE (Separated Containers with Center Gap for Fountain)
+   PHONE & PORTRAIT MODE (Combined on Left: Clock First, Radio Lac Underneath, 40vw wide, 20vh down)
    ========================================== */
 
 @media screen and (orientation: portrait) {
 
-#logoBox {
-    top: 10px;
-    left: 10px;
-    width: 155px;
-    height: 105px;
-    padding: 4px;
-    gap: 4px;
-}
-
-#logo {
-    width: 95px;
-}
-
-.power-btn {
-    width: 20px;
-    height: 20px;
-    border-width: 1.5px;
-}
-
-.power-icon {
-    width: 10px;
-    height: 10px;
-}
-
-.power-label {
-    font-size: 0.45rem;
-}
-
 #clockBox {
-    top: 10px;
-    right: 10px;
-    width: 195px;
-    height: 105px;
-    padding: 4px;
+    position: fixed;
+    top: 20vh;
+    left: 10px;
+    width: 40vw;
+    height: 18vh;
+    box-sizing: border-box;
+    background: #48bcc7;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
+    padding: 8px;
+    z-index: 9999;
+    right: auto;
 }
 
 #clock {
     font-size: 16px;
-    line-height: 1;
+    line-height: 1.1;
     white-space: nowrap;
 }
 
@@ -214,14 +196,53 @@ h1 {
     display: block;
     color: white;
     font-size: 9px;
-    margin-top: 1px;
+    margin-top: 2px;
     line-height: 1.1;
 }
 
 #temperature {
     font-size: 9px;
-    margin-top: 1px;
+    margin-top: 2px;
     white-space: nowrap;
+}
+
+#logoBox {
+    position: fixed;
+    top: calc(20vh + 19vh);
+    left: 10px;
+    width: 40vw;
+    height: 16vh;
+    padding: 6px;
+    box-sizing: border-box;
+    background: #48bcc7;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    z-index: 9999;
+    right: auto;
+}
+
+#logo {
+    width: 75px;
+    display: block;
+}
+
+.power-btn {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+}
+
+.power-icon {
+    width: 9px;
+    height: 9px;
+}
+
+.power-label {
+    font-size: 0.4rem;
 }
 
 #weather {
