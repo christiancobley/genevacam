@@ -1,56 +1,50 @@
+html,
 body {
-    font-family: Arial, sans-serif;
-    background-color: #121212;
-    color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     margin: 0;
-    padding: 20px;
-}
-
-h1 {
-    margin-bottom: 20px;
-    font-size: 1.5rem;
-    letter-spacing: 1px;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: black;
 }
 
 #video {
-    max-width: 800px;
-    width: 100%;
-    border-radius: 4px;
-    background: #000;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
 }
 
-#mobileHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 800px;
-    margin-top: 15px;
+h1 {
+    display: none;
 }
 
-/* Left Cyan Card for Radio & Power Button */
 #logoBox {
-    background-color: #4ed5d1;
+    position: fixed;
+    top: 22px;
+    left: 20px;
+    width: 220px;
+    height: 135px;
+    padding: 8px;
+    box-sizing: border-box;
+    background: #48bcc7;
     border-radius: 8px;
-    padding: 15px 25px;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
-    gap: 8px;
-    width: 45%;
-    max-height: 110px;
+    align-items: center;
+    gap: 6px;
+    z-index: 9999;
 }
 
 #logo {
-    max-width: 110px;
-    height: auto;
+    width: 130px;
     display: block;
 }
 
+/* Power button styling inside #logoBox */
 .power-btn {
     background: transparent;
     border: 2px solid rgba(0, 0, 0, 0.4);
@@ -99,56 +93,143 @@ h1 {
     text-transform: uppercase;
 }
 
-/* Right Cyan Card for Clock & Weather */
 #clockBox {
-    background-color: #4ed5d1;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    height: 120px;
+    box-sizing: border-box;
+    background: #48bcc7;
     border-radius: 8px;
-    padding: 15px 25px;
-    text-align: right;
-    color: #121212;
-    width: 45%;
-    max-height: 110px;
+    color: white;
+    text-align: center;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    padding: 12px;
+    z-index: 9999;
 }
 
 #clock {
-    font-size: 1.4rem;
+    font-size: 28px;
     font-weight: bold;
-    color: #121212;
+    line-height: 1.0;
 }
 
 #date {
-    font-size: 0.85rem;
-    color: #222222;
+    font-size: 12px;
+    margin-top: 2px;
 }
 
 #temperature {
-    font-size: 0.85rem;
-    font-weight: bold;
-    color: #121212;
+    font-size: 11px;
     margin-top: 2px;
+    font-weight: normal;
 }
 
 #weather {
     display: none;
 }
 
-/* Ticker */
 #tickerContainer {
-    width: 100%;
-    max-width: 800px;
-    margin-top: 15px;
-    background: #1e1e1e;
-    border-radius: 8px;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 32px;
     overflow: hidden;
-    white-space: nowrap;
-    padding: 10px 0;
+    background: rgba(0,0,0,0.60);
+    z-index: 9999;
 }
 
 #ticker {
-    display: inline-block;
-    font-size: 0.9rem;
-    color: #e1e1e1;
+    position: absolute;
+    left: 0;
+    top: 0;
+    white-space: nowrap;
+    line-height: 32px;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#radio {
+    display: none;
+}
+
+/* ==========================================
+   PHONE & TABLET PORTRAIT
+   ========================================== */
+
+@media screen and (orientation: portrait) {
+
+#logoBox {
+    top: 10px;
+    left: 10px;
+    width: 150px;
+    height: 115px;
+    padding: 6px;
+}
+
+#logo {
+    width: 95px;
+}
+
+.power-btn {
+    width: 24px;
+    height: 24px;
+}
+
+.power-icon {
+    width: 12px;
+    height: 12px;
+}
+
+.power-label {
+    font-size: 0.55rem;
+}
+
+#clockBox {
+    top: 10px;
+    right: 10px;
+    width: 210px;
+    height: 115px;
+    padding: 8px;
+    justify-content: center;
+}
+
+#clock {
+    font-size: 18px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+#date {
+    display: block;
+    color: white;
+    font-size: 10px;
+    margin-top: 2px;
+    line-height: 1.1;
+}
+
+#temperature {
+    font-size: 10px;
+    margin-top: 2px;
+    white-space: nowrap;
+}
+
+#weather {
+    display: none;
+}
+
+#tickerContainer {
+    height: 50px;
+}
+
+#ticker {
+    line-height: 50px;
+    font-size: 18px;
+}
+
 }
