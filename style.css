@@ -25,9 +25,9 @@ h1 {
     position: fixed;
     top: 22px;
     left: 20px;
-    width: 220px;
-    height: 120px;
-    padding: 6px;
+    width: 240px;
+    height: 140px;
+    padding: 10px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -35,12 +35,12 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 3px;
+    gap: 6px;
     z-index: 9999;
 }
 
 #logo {
-    width: 120px;
+    width: 135px;
     display: block;
 }
 
@@ -137,9 +137,9 @@ h1 {
     left: 0;
     bottom: 0;
     width: 100vw;
-    height: 32px;
+    height: 38px;
     overflow: hidden;
-    background: rgba(0,0,0,0.60);
+    background: rgba(0,0,0,0.70);
     z-index: 9999;
 }
 
@@ -148,9 +148,9 @@ h1 {
     left: 0;
     top: 0;
     white-space: nowrap;
-    line-height: 32px;
+    line-height: 38px;
     color: white;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: bold;
 }
 
@@ -167,13 +167,13 @@ h1 {
 #logoBox {
     top: 10px;
     left: 10px;
-    width: 150px;
-    height: 105px;
+    width: 160px;
+    height: 120px;
     padding: 6px;
 }
 
 #logo {
-    width: 95px;
+    width: 105px;
 }
 
 #clockBox {
@@ -210,12 +210,12 @@ h1 {
 }
 
 #tickerContainer {
-    height: 32px;
+    height: 38px;
 }
 
 #ticker {
-    line-height: 32px;
-    font-size: 15px;
+    line-height: 38px;
+    font-size: 16px;
 }
 
 }
