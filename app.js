@@ -129,17 +129,25 @@ async function updateTicker() {
 
     for (const feed of feeds) {
         try {
-            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`;
-            const response = await fetch(apiUrl);
-            const data = await response.json();
+            // Using AllOrigins raw proxy to parse standard RSS XML reliably
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feed.url)}`;
+            const response = await fetch(proxyUrl);
+            const xml = await response.text();
+            
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xml, "text/xml");
+            const items = xmlDoc.querySelectorAll("item");
 
-            if (data.status === 'ok' && data.items) {
-                data.items.slice(0, 5).forEach(item => {
-                    if (item.title) {
-                        headlines.push(`${feed.name}: ${item.title}`);
+            let count = 0;
+            items.forEach(item => {
+                if (count < 5) {
+                    const title = item.querySelector("title")?.textContent.trim();
+                    if (title) {
+                        headlines.push(`${feed.name}: ${title}`);
+                        count++;
                     }
-                });
-            }
+                }
+            });
         } catch (err) {
             console.log("Ticker error for feed:", feed.name, err);
         }
