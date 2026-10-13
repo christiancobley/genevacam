@@ -22,7 +22,7 @@ h1 {
 }
 
 /* ==========================================
-   DESKTOP / LANDSCAPE MODE (Reduced by 50%)
+   DESKTOP & MOBILE LANDSCAPE MODE
    ========================================== */
 
 #logoBox {
@@ -165,17 +165,17 @@ h1 {
 }
 
 /* ==========================================
-   PHONE & PORTRAIT MODE (Top Left, Stacked Clock then Radio Lac, 40vw wide)
+   MOBILE PORTRAIT MODE ONLY (Max Width 768px + Portrait)
    ========================================== */
 
-@media screen and (orientation: portrait) {
+@media screen and (max-width: 768px) and (orientation: portrait) {
 
 #clockBox {
     position: fixed;
     top: 10px;
     left: 10px;
-    width: 40vw;
-    height: 16vh;
+    width: 42vw;
+    height: 14vh;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -211,10 +211,10 @@ h1 {
 
 #logoBox {
     position: fixed;
-    top: calc(10px + 16vh + 6px);
+    top: calc(10px + 14vh + 6px);
     left: 10px;
-    width: 40vw;
-    height: 14vh;
+    width: 42vw;
+    height: 13vh;
     padding: 4px;
     box-sizing: border-box;
     background: #48bcc7;
@@ -229,7 +229,7 @@ h1 {
 }
 
 #logo {
-    width: 70px;
+    width: 65px;
     display: block;
 }
 
@@ -254,4 +254,11 @@ h1 {
 
 #tickerContainer {
     height: 50px;
+}
+
+#ticker {
+    line-height: 50px;
+    font-size: 20px;
+}
+
 }
