@@ -21,14 +21,13 @@ h1 {
     display: none;
 }
 
-/* Matched exactly to Netlify box width (220px) */
 #logoBox {
     position: fixed;
     top: 22px;
     left: 20px;
     width: 220px;
     height: 120px;
-    padding: 8px;
+    padding: 6px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -36,22 +35,22 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     z-index: 9999;
 }
 
 #logo {
-    width: 135px;
+    width: 120px;
     display: block;
 }
 
-/* Bolder power button styling */
+/* Power button styling with white icon and text */
 .power-btn {
     background: transparent;
-    border: 2px solid rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.7);
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -62,39 +61,38 @@ h1 {
 }
 
 .power-btn:hover {
-    border-color: #000000;
-    background: rgba(0, 0, 0, 0.15);
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .power-btn.active {
-    border-color: #0b6623;
-    background: rgba(11, 102, 35, 0.25);
+    border-color: #2ed573;
+    background: rgba(46, 213, 115, 0.3);
 }
 
 .power-icon {
-    width: 13px;
-    height: 13px;
-    fill: rgba(0, 0, 0, 0.9); /* Made darker and bolder */
+    width: 12px;
+    height: 12px;
+    fill: #ffffff;
     transition: fill 0.2s ease;
 }
 
 .power-btn:hover .power-icon {
-    fill: #000000;
+    fill: #ffffff;
 }
 
 .power-btn.active .power-icon {
-    fill: #0b6623;
+    fill: #2ed573;
 }
 
 .power-label {
-    font-size: 0.55rem;
-    font-weight: 800;
+    font-size: 0.5rem;
+    font-weight: bold;
     letter-spacing: 0.5px;
-    color: rgba(0, 0, 0, 0.85);
+    color: #ffffff;
     text-transform: uppercase;
 }
 
-/* Matched exactly to Netlify clock box dimensions */
 #clockBox {
     position: fixed;
     top: 20px;
@@ -134,7 +132,6 @@ h1 {
     display: none;
 }
 
-/* Matched exactly to Netlify ticker height (32px) */
 #tickerContainer {
     position: fixed;
     left: 0;
@@ -176,7 +173,7 @@ h1 {
 }
 
 #logo {
-    width: 105px;
+    width: 95px;
 }
 
 #clockBox {
