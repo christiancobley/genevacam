@@ -4,18 +4,15 @@ console.log("GenevaCam loaded");
 // Webcam
 //
 
-const video =
-    document.getElementById("video");
-
-video.src =
-    "https://edge16.vedge.infomaniak.com/livecast/ik:sig2/chunklist_w1380254353.m3u8";
+const video = document.getElementById("video");
+video.src = "https://edge16.vedge.infomaniak.com/livecast/ik:sig2/chunklist_w1380254353.m3u8";
 
 //
-const radio =
-    document.getElementById("radio");
+// Radio
+//
 
-radio.src =
-    "https://radiolac.ice.infomaniak.ch/radiolac-high.mp3";
+const radio = document.getElementById("radio");
+radio.src = "https://radiolac.ice.infomaniak.ch/radiolac-high.mp3";
 
 document.addEventListener(
     "click",
@@ -25,23 +22,22 @@ document.addEventListener(
     { once: true }
 );
 
-
+//
 // Clock
 //
 
 function updateClock() {
-
     const now = new Date();
 
-   document.getElementById("clock").textContent =
-    now.toLocaleTimeString(
-        "en-GB",
-        {
-            hour: "2-digit",
-            minute: "2-digit",
-            timeZone: "Europe/Zurich"
-        }
-    ) + " • Geneva";
+    document.getElementById("clock").textContent =
+        now.toLocaleTimeString(
+            "en-GB",
+            {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: "Europe/Zurich"
+            }
+        ) + " • Geneva";
 
     document.getElementById("date").textContent =
         now.toLocaleDateString(
@@ -56,121 +52,61 @@ function updateClock() {
 }
 
 updateClock();
-
-setInterval(
-    updateClock,
-    1000
-);
+setInterval(updateClock, 1000);
 
 //
-//
-// Weather
+// Weather (Current)
 //
 
 async function updateWeather() {
-
     try {
+        const response = await fetch(
+            "https://api.open-meteo.com/v1/forecast?latitude=46.2044&longitude=6.1432&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe/Zurich"
+        );
+        const data = await response.json();
 
-        const response =
-            await fetch(
-                "https://api.open-meteo.com/v1/forecast?latitude=46.2044&longitude=6.1432&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe/Zurich"
-            );
+        let condition = "Unknown";
+        switch (data.current.weather_code) {
+            case 0: condition = "Clear"; break;
+            case 1:
+            case 2:
+            case 3: condition = "Partly cloudy"; break;
+            case 45:
+            case 48: condition = "Fog"; break;
+            case 51:
+            case 53:
+            case 55: condition = "Drizzle"; break;
+            case 61:
+            case 63:
+            case 65: condition = "Rain"; break;
+            case 71:
+            case 73:
+            case 75: condition = "Snow"; break;
+            case 95: condition = "Thunderstorm"; break;
+        }
 
-        const data =
-            await response.json();
-
- let condition =
-    "Unknown";
-
-switch (
-    data.current.weather_code
-) {
-
-    case 0:
-        condition = "Clear";
-        break;
-
-    case 1:
-    case 2:
-    case 3:
-        condition = "Partly cloudy";
-        break;
-
-    case 45:
-    case 48:
-        condition = "Fog";
-        break;
-
-    case 51:
-    case 53:
-    case 55:
-        condition = "Drizzle";
-        break;
-
-    case 61:
-    case 63:
-    case 65:
-        condition = "Rain";
-        break;
-
-    case 71:
-    case 73:
-    case 75:
-        condition = "Snow";
-        break;
-
-    case 95:
-        condition = "Thunderstorm";
-        break;
-}
-
-document.getElementById(
-    "temperature"
-).textContent =
-    Math.round(
-        data.current.temperature_2m
-    ) +
-    "°C • " +
-    condition +
-    " • " +
-    Math.round(
-        data.current.wind_speed_10m
-    ) +
-    " km/h";
-
-document.getElementById(
-    "weather"
-).textContent = "";
-
-document.getElementById(
-    "weather"
-).textContent = "";
+        document.getElementById("temperature").textContent =
+            Math.round(data.current.temperature_2m) +
+            "°C • " +
+            condition +
+            " • " +
+            Math.round(data.current.wind_speed_10m) +
+            " km/h";
 
     } catch (error) {
-
-        console.log(
-            "Weather error:",
-            error
-        );
-
+        console.log("Weather error:", error);
     }
 }
 
 updateWeather();
+setInterval(updateWeather, 600000);
 
-setInterval(
-    updateWeather,
-    600000
-);
 //
-// //
-// RTS ticker & Weather Forecast (Direct fetch for GitHub Pages)
+// RTS Ticker & Weather Forecast
 //
 
-const ticker =
-    document.getElementById("ticker");
+const ticker = document.getElementById("ticker");
 
-// Helper to translate Open-Meteo weather codes into French
 const describeWeatherFr = (code) => {
     if (code === 0) return 'Ciel dégagé';
     if (code === 1) return 'Plutôt dégagé';
@@ -190,7 +126,6 @@ const describeWeatherFr = (code) => {
     return '';
 };
 
-// Fetch 3-day forecast for Geneva
 const getForecast = async () => {
     try {
         const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=46.2044&longitude=6.1432&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=Europe%2FZurich');
@@ -211,7 +146,7 @@ const getForecast = async () => {
                 Math.round(d.temperature_2m_min[i]) + ' à ' +
                 Math.round(d.temperature_2m_max[i]) + ' °C';
         });
-        return 'Prévisions pour Genève : ' + parts.join('  |  ');
+        return 'Prévisions pour Genève : ' + parts.join('   |   ');
     } catch (e) {
         console.log('Forecast fetch error:', e);
         return null;
@@ -234,29 +169,27 @@ async function updateTicker() {
         headlines.push(forecastText);
     }
 
-    // 2. Fetch the RTS news feeds using AllOrigins JSON endpoint
+    // 2. Fetch the RTS news feeds using raw AllOrigins endpoint
     for (const feed of feeds) {
         try {
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(feed.url)}`;
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feed.url)}`;
             const response = await fetch(proxyUrl);
-            const data = await response.json();
+            const xml = await response.text();
             
-            if (data && data.contents) {
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(data.contents, "text/xml");
-                const items = xmlDoc.querySelectorAll("item");
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xml, "text/xml");
+            const items = xmlDoc.querySelectorAll("item");
 
-                let count = 0;
-                items.forEach(item => {
-                    if (count < 5) {
-                        const title = item.querySelector("title")?.textContent.trim();
-                        if (title) {
-                            headlines.push(`${feed.name}: ${title}`);
-                            count++;
-                        }
+            let count = 0;
+            items.forEach(item => {
+                if (count < 5) {
+                    const title = item.querySelector("title")?.textContent.trim();
+                    if (title) {
+                        headlines.push(`${feed.name}: ${title}`);
+                        count++;
                     }
-                });
-            }
+                }
+            });
         } catch (err) {
             console.log("Ticker error for feed:", feed.name, err);
         }
@@ -268,38 +201,17 @@ async function updateTicker() {
     } else {
         ticker.textContent = "Could not load ticker content";
     }
-
-
-    if (headlines.length > 0) {
-        ticker.textContent = headlines.join("   •   ");
-        startTicker();
-    } else {
-        ticker.textContent = "Could not load ticker content";
-    }
 }
 
 function startTicker() {
-
-    const width =
-        ticker.offsetWidth;
-
-    const distance =
-        width +
-        window.innerWidth;
-
-    const duration =
-        distance * 15;
+    const width = ticker.offsetWidth;
+    const distance = width + window.innerWidth;
+    const duration = distance * 15;
 
     ticker.animate(
         [
-            {
-                transform:
-                    `translateX(${window.innerWidth}px)`
-            },
-            {
-                transform:
-                    `translateX(-${width}px)`
-            }
+            { transform: `translateX(${window.innerWidth}px)` },
+            { transform: `translateX(-${width}px)` }
         ],
         {
             duration: duration,
@@ -310,8 +222,4 @@ function startTicker() {
 }
 
 updateTicker();
-
-setInterval(
-    updateTicker,
-    600000
-);
+setInterval(updateTicker, 600000);
