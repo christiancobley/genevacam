@@ -102,7 +102,7 @@ updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// RTS Ticker & Weather Forecast
+// News Ticker & Weather Forecast
 //
 
 const ticker = document.getElementById("ticker");
@@ -155,41 +155,41 @@ const getForecast = async () => {
 
 async function updateTicker() {
     const feeds = [
-        { name: "Genève", url: "https://www.rts.ch/info/regions/geneve/?format=rss/news" },
-        { name: "Suisse", url: "https://www.rts.ch/info/suisse?format=rss/news" },
-        { name: "RTS Info", url: "https://www.rts.ch/info/toute-info/?format=rss/news" },
-        { name: "Sport", url: "https://www.rts.ch/sport/tout-le-sport/?format=rss/news" }
+        { name: "Suisse", url: "https://www.swissinfo.ch/fre/rss" },
+        { name: "20 Minutes", url: "https://www.20min.ch/rss/fr" }
     ];
 
     const headlines = [];
 
-    // 1. Fetch and prepend the weather forecast first
+    // 1. Weather forecast
     const forecastText = await getForecast();
     if (forecastText) {
         headlines.push(forecastText);
     }
 
-    // 2. Fetch the RTS news feeds using raw AllOrigins endpoint
+    // 2. Fetch Swiss French news RSS feeds
     for (const feed of feeds) {
         try {
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feed.url)}`;
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(feed.url)}`;
             const response = await fetch(proxyUrl);
-            const xml = await response.text();
+            const data = await response.json();
             
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xml, "text/xml");
-            const items = xmlDoc.querySelectorAll("item");
+            if (data && data.contents) {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+                const items = xmlDoc.querySelectorAll("item");
 
-            let count = 0;
-            items.forEach(item => {
-                if (count < 5) {
-                    const title = item.querySelector("title")?.textContent.trim();
-                    if (title) {
-                        headlines.push(`${feed.name}: ${title}`);
-                        count++;
+                let count = 0;
+                items.forEach(item => {
+                    if (count < 5) {
+                        const title = item.querySelector("title")?.textContent.trim();
+                        if (title) {
+                            headlines.push(`${feed.name}: ${title}`);
+                            count++;
+                        }
                     }
-                }
-            });
+                });
+            }
         } catch (err) {
             console.log("Ticker error for feed:", feed.name, err);
         }
