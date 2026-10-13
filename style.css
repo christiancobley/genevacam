@@ -21,14 +21,14 @@ h1 {
     display: none;
 }
 
-/* Restored fixed container sizes to prevent layout explosion */
+/* Expanded Logo Container Box */
 #logoBox {
     position: fixed;
     top: 22px;
     left: 20px;
-    width: 250px;
-    height: 145px;
-    padding: 10px;
+    width: 304px;
+    height: 177px;
+    padding: 12px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -36,22 +36,22 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     z-index: 9999;
 }
 
 #logo {
-    width: 140px;
+    width: 170px;
     display: block;
 }
 
-/* White power button styling */
+/* White Power Button Styling */
 .power-btn {
     background: transparent;
     border: 2px solid rgba(255, 255, 255, 0.85);
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -72,8 +72,8 @@ h1 {
 }
 
 .power-icon {
-    width: 13px;
-    height: 13px;
+    width: 14px;
+    height: 14px;
     fill: #ffffff;
     transition: fill 0.2s ease;
 }
@@ -87,19 +87,20 @@ h1 {
 }
 
 .power-label {
-    font-size: 0.55rem;
+    font-size: 0.65rem;
     font-weight: bold;
     letter-spacing: 0.5px;
     color: #ffffff;
     text-transform: uppercase;
 }
 
+/* Expanded Clock & Weather Container Box */
 #clockBox {
     position: fixed;
     top: 22px;
     right: 20px;
-    width: 320px;
-    height: 145px;
+    width: 380px;
+    height: 177px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -108,27 +109,27 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 12px;
+    padding: 15px;
     z-index: 9999;
 }
 
 #clock {
-    font-size: 30px;
+    font-size: 34px;
     font-weight: bold;
     line-height: 1.1;
     color: #ffffff;
 }
 
 #date {
-    font-size: 13px;
-    margin-top: 3px;
+    font-size: 15px;
+    margin-top: 4px;
     color: #ffffff;
 }
 
 #temperature {
-    font-size: 12px;
-    margin-top: 4px;
-    font-weight: normal;
+    font-size: 14px;
+    margin-top: 6px;
+    font-weight: 600;
     color: #ffffff;
 }
 
@@ -136,12 +137,13 @@ h1 {
     display: none;
 }
 
+/* Expanded Ticker Container & Text */
 #tickerContainer {
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100vw;
-    height: 40px;
+    height: 53px;
     overflow: hidden;
     background: rgba(0,0,0,0.70);
     z-index: 9999;
@@ -152,9 +154,9 @@ h1 {
     left: 0;
     top: 0;
     white-space: nowrap;
-    line-height: 40px;
+    line-height: 53px;
     color: white;
-    font-size: 17px;
+    font-size: 22px;
     font-weight: bold;
 }
 
@@ -171,26 +173,26 @@ h1 {
 #logoBox {
     top: 10px;
     left: 10px;
-    width: 160px;
-    height: 115px;
+    width: 202px;
+    height: 152px;
     padding: 6px;
 }
 
 #logo {
-    width: 105px;
+    width: 130px;
 }
 
 #clockBox {
     top: 10px;
     right: 10px;
-    width: 210px;
-    height: 115px;
+    width: 265px;
+    height: 152px;
     padding: 8px;
     justify-content: center;
 }
 
 #clock {
-    font-size: 18px;
+    font-size: 22px;
     line-height: 1;
     white-space: nowrap;
 }
@@ -198,13 +200,13 @@ h1 {
 #date {
     display: block;
     color: white;
-    font-size: 10px;
+    font-size: 13px;
     margin-top: 2px;
     line-height: 1.1;
 }
 
 #temperature {
-    font-size: 10px;
+    font-size: 12px;
     margin-top: 2px;
     white-space: nowrap;
 }
@@ -214,12 +216,12 @@ h1 {
 }
 
 #tickerContainer {
-    height: 40px;
+    height: 53px;
 }
 
 #ticker {
-    line-height: 40px;
-    font-size: 17px;
+    line-height: 53px;
+    font-size: 22px;
 }
 
 }

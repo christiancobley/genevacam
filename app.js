@@ -1,10 +1,20 @@
 console.log("GenevaCam loaded");
 
+//
+// Webcam
+//
+
 const video = document.getElementById("video");
 video.src = "https://edge16.vedge.infomaniak.com/livecast/ik:sig2/chunklist_w1380254353.m3u8";
 
+//
+// Radio & Power Toggle
+//
+
 const radio = document.getElementById("radio");
 const radioToggle = document.getElementById("radio-toggle");
+
+radio.src = "https://radiolac.ice.infomaniak.ch/radiolac-high.mp3";
 
 radioToggle.addEventListener("click", () => {
     if (radio.paused) {
@@ -17,20 +27,47 @@ radioToggle.addEventListener("click", () => {
     }
 });
 
+//
+// Clock
+//
+
 function updateClock() {
     const now = new Date();
+
     document.getElementById("clock").textContent =
-        now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Zurich" }) + " • Geneva";
+        now.toLocaleTimeString(
+            "en-GB",
+            {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: "Europe/Zurich"
+            }
+        ) + " • Geneva";
+
     document.getElementById("date").textContent =
-        now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Zurich" });
+        now.toLocaleDateString(
+            "en-GB",
+            {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                timeZone: "Europe/Zurich"
+            }
+        );
 }
 
 updateClock();
 setInterval(updateClock, 1000);
 
+//
+// Weather
+//
+
 async function updateWeather() {
     try {
-        const response = await fetch("https://api.open-meteo.com/v1/forecast?latitude=46.2044&longitude=6.1432&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe/Zurich");
+        const response = await fetch(
+            "https://api.open-meteo.com/v1/forecast?latitude=46.2044&longitude=6.1432&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe/Zurich"
+        );
         const data = await response.json();
 
         let condition = "Unknown";
@@ -45,7 +82,15 @@ async function updateWeather() {
         }
 
         document.getElementById("temperature").textContent =
-            Math.round(data.current.temperature_2m) + "°C • " + condition + " • " + Math.round(data.current.wind_speed_10m) + " km/h";
+            Math.round(data.current.temperature_2m) +
+            "°C • " +
+            condition +
+            " • " +
+            Math.round(data.current.wind_speed_10m) +
+            " km/h";
+
+        document.getElementById("weather").textContent = "";
+
     } catch (error) {
         console.log("Weather error:", error);
     }
@@ -53,6 +98,10 @@ async function updateWeather() {
 
 updateWeather();
 setInterval(updateWeather, 600000);
+
+//
+// News Ticker & Weather Forecast (20 Minutes feeds only)
+//
 
 const ticker = document.getElementById("ticker");
 
@@ -94,8 +143,11 @@ const getForecast = async () => {
 
 async function updateTicker() {
     const feeds = [
-        { name: "Swissinfo", url: "https://cdn.prod.swi-services.ch/rss/fre/rssxml/top-news/rss" },
-        { name: "20 Minutes", url: "https://www.20min.ch/rss/fr" }
+        { name: "20 Minutes", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
+        { name: "20 Minutes", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse" },
+        { name: "20 Minutes", url: "https://partner-feeds.20min.ch/rss/20minutes/monde" },
+        { name: "20 Minutes", url: "https://partner-feeds.20min.ch/rss/20minutes/economie" },
+        { name: "20 Minutes", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
     ];
 
     const headlines = [];
@@ -112,7 +164,7 @@ async function updateTicker() {
             const data = await response.json();
 
             if (data.status === 'ok' && data.items) {
-                data.items.slice(0, 5).forEach(item => {
+                data.items.slice(0, 4).forEach(item => {
                     if (item.title) {
                         headlines.push(`${feed.name}: ${item.title}`);
                     }
