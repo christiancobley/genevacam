@@ -1,24 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 
 <head>
-
     <meta charset="utf-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Geneva Cam</title>
-
     <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
     <h1>Geneva Cam</h1>
 
+    <!-- Live Webcam -->
     <video
         id="video"
         controls
@@ -27,48 +21,42 @@
         width="800">
     </video>
 
-    <audio
-        id="radio"
-        controls
-        autoplay>
-    </audio>
-
+    <!-- Mobile / Top Header Box -->
     <div id="mobileHeader">
 
-        <div id="logoBox">
-
+        <!-- Logo & Power Toggle Container -->
+        <div id="logoBox" class="radio-container">
             <img
                 id="logo"
                 src="radiolac-logo.png"
                 alt="Radio Lac">
 
+            <button id="radio-toggle" class="power-btn" aria-label="Toggle Radio">
+                <svg viewBox="0 0 24 24" class="power-icon">
+                    <path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
+                </svg>
+            </button>
+            <span class="power-label">On/ Off</span>
+
+            <!-- Audio element controlled by app.js -->
+            <audio id="radio" src="https://radiolac.ice.infomaniak.ch/radiolac-high.mp3"></audio>
         </div>
 
-   <div id="clockBox">
+        <!-- Clock & Weather Box -->
+        <div id="clockBox">
+            <div id="clock">00:00</div>
+            <div id="date">Loading...</div>
+            <div id="temperature">--°C</div>
+            <div id="weather"></div>
+        </div>
 
-    <div id="clock">
-        00:00
-    </div>
+    </div> <!-- End of mobileHeader -->
 
-    <div id="date">
-        Loading...
-    </div>
-
-    <div id="temperature">
-        --°C
-    </div>
-
-    <div id="weather">
-    </div>
-
-</div>
-
+    <!-- Scrolling Ticker Container -->
     <div id="tickerContainer">
-
         <div id="ticker">
-            Loading Updates...
+            Updating...
         </div>
-
     </div>
 
     <script src="app.js"></script>
