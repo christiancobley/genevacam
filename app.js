@@ -1,9 +1,5 @@
 console.log("GenevaCam loaded");
 
-//
-// Webcam & Radio
-//
-
 const video = document.getElementById("video");
 video.src = "https://edge16.vedge.infomaniak.com/livecast/ik:sig2/chunklist_w1380254353.m3u8";
 
@@ -21,10 +17,6 @@ radioToggle.addEventListener("click", () => {
     }
 });
 
-//
-// Clock
-//
-
 function updateClock() {
     const now = new Date();
     document.getElementById("clock").textContent =
@@ -35,10 +27,6 @@ function updateClock() {
 
 updateClock();
 setInterval(updateClock, 1000);
-
-//
-// Weather (Current)
-//
 
 async function updateWeather() {
     try {
@@ -66,10 +54,6 @@ async function updateWeather() {
 updateWeather();
 setInterval(updateWeather, 600000);
 
-//
-// News Ticker & Weather Forecast
-//
-
 const ticker = document.getElementById("ticker");
 
 const describeWeatherFr = (code) => {
@@ -79,15 +63,9 @@ const describeWeatherFr = (code) => {
     if (code === 3) return 'Couvert';
     if (code === 45 || code === 48) return 'Brouillard';
     if (code >= 51 && code <= 55) return 'Bruine';
-    if (code === 56 || code === 57) return 'Bruine verglaçante';
     if (code >= 61 && code <= 65) return 'Pluie';
-    if (code === 66 || code === 67) return 'Pluie verglaçante';
     if (code >= 71 && code <= 75) return 'Neige';
-    if (code === 77) return 'Grains de neige';
-    if (code >= 80 && code <= 82) return 'Averses';
-    if (code === 85 || code === 86) return 'Averses de neige';
     if (code === 95) return 'Orage';
-    if (code === 96 || code === 99) return 'Orage avec grêle';
     return '';
 };
 
@@ -116,7 +94,7 @@ const getForecast = async () => {
 
 async function updateTicker() {
     const feeds = [
-        { name: "Suisse", url: "https://www.swissinfo.ch/fre/rss" },
+        { name: "Swissinfo", url: "https://cdn.prod.swi-services.ch/rss/fre/rssxml/top-news/rss" },
         { name: "20 Minutes", url: "https://www.20min.ch/rss/fr" }
     ];
 
@@ -129,25 +107,17 @@ async function updateTicker() {
 
     for (const feed of feeds) {
         try {
-            // Using AllOrigins raw proxy to parse standard RSS XML reliably
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feed.url)}`;
-            const response = await fetch(proxyUrl);
-            const xml = await response.text();
-            
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xml, "text/xml");
-            const items = xmlDoc.querySelectorAll("item");
+            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`;
+            const response = await fetch(apiUrl);
+            const data = await response.json();
 
-            let count = 0;
-            items.forEach(item => {
-                if (count < 5) {
-                    const title = item.querySelector("title")?.textContent.trim();
-                    if (title) {
-                        headlines.push(`${feed.name}: ${title}`);
-                        count++;
+            if (data.status === 'ok' && data.items) {
+                data.items.slice(0, 5).forEach(item => {
+                    if (item.title) {
+                        headlines.push(`${feed.name}: ${item.title}`);
                     }
-                }
-            });
+                });
+            }
         } catch (err) {
             console.log("Ticker error for feed:", feed.name, err);
         }
