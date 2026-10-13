@@ -37,7 +37,7 @@ updateClock();
 setInterval(updateClock, 1000);
 
 //
-// Current Weather
+// Weather (Current)
 //
 
 async function updateWeather() {
