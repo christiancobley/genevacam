@@ -100,7 +100,7 @@ updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// News Ticker & Weather Forecast (20 Minutes feeds only)
+// News Ticker & Weather Forecast
 //
 
 const ticker = document.getElementById("ticker");
@@ -159,19 +159,26 @@ async function updateTicker() {
 
     for (const feed of feeds) {
         try {
-            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`;
-            const response = await fetch(apiUrl);
-            const data = await response.json();
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feed.url)}`;
+            const response = await fetch(proxyUrl);
+            const xmlText = await response.text();
 
-            if (data.status === 'ok' && data.items) {
-                data.items.slice(0, 4).forEach(item => {
-                    if (item.title) {
-                        headlines.push(`${feed.name}: ${item.title}`);
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+            const items = xmlDoc.querySelectorAll("item");
+
+            let count = 0;
+            items.forEach(item => {
+                if (count < 4) {
+                    const titleEl = item.querySelector("title");
+                    if (titleEl && titleEl.textContent) {
+                        headlines.push(`${feed.name}: ${titleEl.textContent.trim()}`);
+                        count++;
                     }
-                });
-            }
+                }
+            });
         } catch (err) {
-            console.log("Ticker error for feed:", feed.name, err);
+            console.log("Ticker fetch error for feed:", feed.name, err);
         }
     }
 
