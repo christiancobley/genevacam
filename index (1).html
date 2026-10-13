@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1">
+
+    <title>Geneva Cam</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <h1>Geneva Cam</h1>
+
+    <video
+        id="video"
+        controls
+        autoplay
+        muted
+        width="800">
+    </video>
+
+    <audio
+        id="radio"
+        controls
+        autoplay>
+    </audio>
+
+    <div id="mobileHeader">
+
+        <div id="logoBox">
+
+            <img
+                id="logo"
+                src="radiolac-logo.png"
+                alt="Radio Lac">
+
+        </div>
+
+   <div id="clockBox">
+
+    <div id="clock">
+        00:00
+    </div>
+
+    <div id="date">
+        Loading...
+    </div>
+
+    <div id="temperature">
+        --°C
+    </div>
+
+    <div id="weather">
+    </div>
+
+</div>
+
+    <div id="tickerContainer">
+
+        <div id="ticker">
+            Loading RTS headlines...
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
