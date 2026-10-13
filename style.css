@@ -21,14 +21,14 @@ h1 {
     display: none;
 }
 
-/* Further increased Radio Lac Container Box */
+/* Increased by 40% (Width: 490px, Height: 273px) */
 #logoBox {
     position: fixed;
     top: 22px;
     left: 20px;
-    width: 350px;
-    height: 195px;
-    padding: 14px;
+    width: 490px;
+    height: 273px;
+    padding: 20px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -36,22 +36,22 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     z-index: 9999;
 }
 
 #logo {
-    width: 195px;
+    width: 270px;
     display: block;
 }
 
 /* Power Button Styling */
 .power-btn {
     background: transparent;
-    border: 2px solid rgba(255, 255, 255, 0.85);
+    border: 3px solid rgba(255, 255, 255, 0.85);
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    width: 42px;
+    height: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -72,8 +72,8 @@ h1 {
 }
 
 .power-icon {
-    width: 16px;
-    height: 16px;
+    width: 22px;
+    height: 22px;
     fill: #ffffff;
     transition: fill 0.2s ease;
 }
@@ -87,20 +87,20 @@ h1 {
 }
 
 .power-label {
-    font-size: 0.7rem;
+    font-size: 0.95rem;
     font-weight: bold;
     letter-spacing: 0.5px;
     color: #ffffff;
     text-transform: uppercase;
 }
 
-/* Clock Container Box (Matched top/bottom level, width 445px) */
+/* Clock Container Box (Increased by 40%: Width: 623px, Height: 273px, perfectly level top/bottom) */
 #clockBox {
     position: fixed;
     top: 22px;
     right: 20px;
-    width: 445px;
-    height: 195px;
+    width: 623px;
+    height: 273px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -109,26 +109,26 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 16px;
+    padding: 20px;
     z-index: 9999;
 }
 
 #clock {
-    font-size: 40px;
+    font-size: 56px;
     font-weight: bold;
     line-height: 1.1;
     color: #ffffff;
 }
 
 #date {
-    font-size: 17px;
-    margin-top: 4px;
+    font-size: 24px;
+    margin-top: 6px;
     color: #ffffff;
 }
 
 #temperature {
-    font-size: 15px;
-    margin-top: 6px;
+    font-size: 21px;
+    margin-top: 8px;
     font-weight: 600;
     color: #ffffff;
 }
@@ -137,7 +137,7 @@ h1 {
     display: none;
 }
 
-/* Ticker increased by 40% (Height: 68px, Font: 28px) */
+/* Ticker */
 #tickerContainer {
     position: fixed;
     left: 0;
