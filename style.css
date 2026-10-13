@@ -21,12 +21,13 @@ h1 {
     display: none;
 }
 
+/* Increased width (276px -> 304px) and height (161px -> 177px) by another 10% */
 #logoBox {
     position: fixed;
     top: 22px;
     left: 20px;
-    width: 276px; /* Increased 240px by 15% */
-    height: 161px; /* Increased 140px by 15% */
+    width: 304px;
+    height: 177px;
     padding: 12px;
     box-sizing: border-box;
     background: #48bcc7;
@@ -40,17 +41,17 @@ h1 {
 }
 
 #logo {
-    width: 155px;
+    width: 170px;
     display: block;
 }
 
 /* Power button styling with white icon and text */
 .power-btn {
     background: transparent;
-    border: 2px solid rgba(255, 255, 255, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.85);
     border-radius: 50%;
-    width: 25px;
-    height: 25px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -62,17 +63,17 @@ h1 {
 
 .power-btn:hover {
     border-color: #ffffff;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25);
 }
 
 .power-btn.active {
     border-color: #2ed573;
-    background: rgba(46, 213, 115, 0.3);
+    background: rgba(46, 213, 115, 0.35);
 }
 
 .power-icon {
-    width: 13px;
-    height: 13px;
+    width: 14px;
+    height: 14px;
     fill: #ffffff;
     transition: fill 0.2s ease;
 }
@@ -86,19 +87,20 @@ h1 {
 }
 
 .power-label {
-    font-size: 0.58rem;
+    font-size: 0.65rem;
     font-weight: bold;
     letter-spacing: 0.5px;
     color: #ffffff;
     text-transform: uppercase;
 }
 
+/* Level top and bottom with logoBox (380px width, 177px height) */
 #clockBox {
     position: fixed;
-    top: 22px; /* Matched to logoBox top */
+    top: 22px;
     right: 20px;
-    width: 345px; /* Scaled proportionally to match width expansion */
-    height: 161px; /* Level top and bottom with logoBox */
+    width: 380px;
+    height: 177px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -107,25 +109,28 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 12px;
+    padding: 15px;
     z-index: 9999;
 }
 
 #clock {
-    font-size: 32px;
+    font-size: 34px;
     font-weight: bold;
-    line-height: 1.0;
+    line-height: 1.1;
+    color: #ffffff;
 }
 
 #date {
-    font-size: 14px;
-    margin-top: 3px;
+    font-size: 15px;
+    margin-top: 4px;
+    color: #ffffff;
 }
 
 #temperature {
-    font-size: 13px;
-    margin-top: 3px;
-    font-weight: normal;
+    font-size: 14px;
+    margin-top: 6px;
+    font-weight: 600;
+    color: #ffffff;
 }
 
 #weather {
@@ -137,7 +142,7 @@ h1 {
     left: 0;
     bottom: 0;
     width: 100vw;
-    height: 53px; /* Increased 38px by 40% */
+    height: 53px;
     overflow: hidden;
     background: rgba(0,0,0,0.70);
     z-index: 9999;
@@ -148,9 +153,9 @@ h1 {
     left: 0;
     top: 0;
     white-space: nowrap;
-    line-height: 53px; /* Matched to container height */
+    line-height: 53px;
     color: white;
-    font-size: 22px; /* Increased 16px by 40% */
+    font-size: 22px;
     font-weight: bold;
 }
 
@@ -167,26 +172,26 @@ h1 {
 #logoBox {
     top: 10px;
     left: 10px;
-    width: 184px;
-    height: 138px;
+    width: 202px;
+    height: 152px;
     padding: 6px;
 }
 
 #logo {
-    width: 120px;
+    width: 130px;
 }
 
 #clockBox {
     top: 10px;
     right: 10px;
-    width: 241px;
-    height: 138px;
+    width: 265px;
+    height: 152px;
     padding: 8px;
     justify-content: center;
 }
 
 #clock {
-    font-size: 21px;
+    font-size: 22px;
     line-height: 1;
     white-space: nowrap;
 }
@@ -194,7 +199,7 @@ h1 {
 #date {
     display: block;
     color: white;
-    font-size: 12px;
+    font-size: 13px;
     margin-top: 2px;
     line-height: 1.1;
 }
