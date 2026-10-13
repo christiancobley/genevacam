@@ -234,10 +234,11 @@ async function updateTicker() {
         headlines.push(forecastText);
     }
 
-    // 2. Fetch the RTS news feeds
+    //// 2. Fetch the RTS news feeds
     for (const feed of feeds) {
         try {
-            const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(feed.url)}`);
+            // Updated CORS proxy URL:
+            const response = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(feed.url)}`);
             const xml = await response.text();
             
             const parser = new DOMParser();
@@ -257,6 +258,7 @@ async function updateTicker() {
         } catch (err) {
             console.log("Ticker error for feed:", feed.name, err);
         }
+    
     }
 
     if (headlines.length > 0) {
