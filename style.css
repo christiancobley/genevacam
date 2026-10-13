@@ -21,7 +21,7 @@ h1 {
     display: none;
 }
 
-/* Increased by 40% (Width: 490px, Height: 273px) */
+/* Desktop sizing */
 #logoBox {
     position: fixed;
     top: 22px;
@@ -45,7 +45,6 @@ h1 {
     display: block;
 }
 
-/* Power Button Styling */
 .power-btn {
     background: transparent;
     border: 3px solid rgba(255, 255, 255, 0.85);
@@ -94,7 +93,6 @@ h1 {
     text-transform: uppercase;
 }
 
-/* Clock Container Box (Increased by 40%: Width: 623px, Height: 273px, perfectly level top/bottom) */
 #clockBox {
     position: fixed;
     top: 22px;
@@ -137,7 +135,6 @@ h1 {
     display: none;
 }
 
-/* Ticker */
 #tickerContainer {
     position: fixed;
     left: 0;
@@ -165,7 +162,7 @@ h1 {
 }
 
 /* ==========================================
-   PHONE & TABLET PORTRAIT
+   PHONE & PORTRAIT MODE (Separated Containers with Center Gap for Fountain)
    ========================================== */
 
 @media screen and (orientation: portrait) {
@@ -173,26 +170,42 @@ h1 {
 #logoBox {
     top: 10px;
     left: 10px;
-    width: 210px;
-    height: 145px;
-    padding: 6px;
+    width: 155px;
+    height: 105px;
+    padding: 4px;
+    gap: 4px;
 }
 
 #logo {
-    width: 130px;
+    width: 95px;
+}
+
+.power-btn {
+    width: 20px;
+    height: 20px;
+    border-width: 1.5px;
+}
+
+.power-icon {
+    width: 10px;
+    height: 10px;
+}
+
+.power-label {
+    font-size: 0.45rem;
 }
 
 #clockBox {
     top: 10px;
     right: 10px;
-    width: 270px;
-    height: 145px;
-    padding: 8px;
+    width: 195px;
+    height: 105px;
+    padding: 4px;
     justify-content: center;
 }
 
 #clock {
-    font-size: 22px;
+    font-size: 16px;
     line-height: 1;
     white-space: nowrap;
 }
@@ -200,14 +213,14 @@ h1 {
 #date {
     display: block;
     color: white;
-    font-size: 11px;
-    margin-top: 2px;
+    font-size: 9px;
+    margin-top: 1px;
     line-height: 1.1;
 }
 
 #temperature {
-    font-size: 11px;
-    margin-top: 2px;
+    font-size: 9px;
+    margin-top: 1px;
     white-space: nowrap;
 }
 
@@ -216,12 +229,12 @@ h1 {
 }
 
 #tickerContainer {
-    height: 68px;
+    height: 50px;
 }
 
 #ticker {
-    line-height: 68px;
-    font-size: 28px;
+    line-height: 50px;
+    font-size: 20px;
 }
 
 }
