@@ -164,7 +164,6 @@ async function fetchFeedXml(url) {
 let feedBatches = [];
 let rotationOffset = 0;
 let cachedForecastText = "";
-let currentAnimation = null;
 
 async function updateTicker() {
     const feeds = [
@@ -185,11 +184,11 @@ async function updateTicker() {
     cachedForecastText = forecastResult.status === 'fulfilled' ? (forecastResult.value || "") : "";
     feedBatches = [];
 
-    // Welcome batch with Geneva, Switzerland, and additional info
+    // Welcome batch with exact translated French message right after Bienvenue sur Geneva Cam
     feedBatches.push({
         name: "Genève Cam",
         titles: [
-            "Bienvenue sur Geneva Cam",
+            "Bienvenue sur Geneva Cam. Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
             "Actualités en direct de Genève et de la Suisse, et autres actualités et informations"
         ]
     });
@@ -226,46 +225,10 @@ function renderNextRotationBatch() {
     rotationOffset = (rotationOffset + 3) % 10;
 
     if (headlines.length > 0) {
-        // Keep ticker hidden while updating text to prevent render flash
-        ticker.style.visibility = "hidden";
         ticker.textContent = headlines.join("   •   ");
-        
-        requestAnimationFrame(() => {
-            ticker.style.visibility = "visible";
-            startTicker();
-        });
     } else {
         ticker.textContent = "Impossible de charger le flux d'actualités";
     }
-}
-
-function startTicker() {
-    if (currentAnimation) {
-        currentAnimation.cancel();
-    }
-
-    requestAnimationFrame(() => {
-        const width = ticker.offsetWidth;
-        const distance = width + window.innerWidth;
-        const isMobilePortrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
-        const duration = isMobilePortrait ? distance * 11.4 : distance * 6.4;
-
-        currentAnimation = ticker.animate(
-            [
-                { transform: `translateX(${window.innerWidth}px)` },
-                { transform: `translateX(-${width}px)` }
-            ],
-            {
-                duration: duration,
-                iterations: 1,
-                easing: "linear"
-            }
-        );
-
-        currentAnimation.onfinish = () => {
-            renderNextRotationBatch();
-        };
-    });
 }
 
 updateTicker();
