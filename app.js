@@ -152,7 +152,12 @@ async function fetchFeedXml(url) {
 
     for (const proxy of proxies) {
         try {
-            const response = await fetch(proxy);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+            const response = await fetch(proxy, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
             if (!response.ok) continue;
 
             let xmlText = "";
@@ -182,7 +187,7 @@ async function fetchFeedXml(url) {
                 return titles;
             }
         } catch (e) {
-            console.log("Proxy fetch error for:", url, e);
+            console.log("Proxy fetch timeout or error for:", url, e);
         }
     }
     return [];
@@ -204,18 +209,23 @@ async function updateTicker() {
         { name: "20 Minutes Sports", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
     ];
 
-    cachedForecastText = await getForecast() || "";
+    // Fetch forecast and all feeds in parallel for maximum speed
+    const [forecastResult, ...feedResults] = await Promise.allSettled([
+        getForecast(),
+        ...feeds.map(feed => fetchFeedXml(feed.url))
+    ]);
+
+    cachedForecastText = forecastResult.status === 'fulfilled' ? (forecastResult.value || "") : "";
     feedBatches = [];
 
-    for (const feed of feeds) {
-        const titles = await fetchFeedXml(feed.url);
-        if (titles.length > 0) {
+    feedResults.forEach((result, idx) => {
+        if (result.status === 'fulfilled' && result.value && result.value.length > 0) {
             feedBatches.push({
-                name: feed.name,
-                titles: titles
+                name: feeds[idx].name,
+                titles: result.value
             });
         }
-    }
+    });
 
     renderNextRotationBatch();
 }
@@ -252,7 +262,6 @@ function startTicker() {
         currentAnimation.cancel();
     }
 
-    // Wait for the DOM to update text content so offsetWidth is accurate
     requestAnimationFrame(() => {
         const width = ticker.offsetWidth;
         const distance = width + window.innerWidth;
