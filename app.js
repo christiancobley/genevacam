@@ -152,11 +152,11 @@ async function fetchFeedXml(url) {
         if (!response.ok) return [];
 
         const data = await response.json();
-        if (data.status === 'ok' && data.items && data.items.length > 0) {
-            return data.items.map(item => item.title.trim());
+        if (data.status === 'ok' && Array.isArray(data.items) && data.items.length > 0) {
+            return data.items.map(item => item.title ? item.title.trim() : "").filter(Boolean);
         }
     } catch (e) {
-        console.log("Safely caught feed error for:", url, e);
+        // Silently capture errors
     }
     return [];
 }
@@ -167,7 +167,6 @@ let cachedForecastText = "";
 let currentAnimation = null;
 
 async function updateTicker() {
-    // Le Temps feeds first
     const leTempsFeeds = [
         { name: "Le Temps Suisse", url: "https://www.letemps.ch/suisse.rss" },
         { name: "Le Temps Articles", url: "https://www.letemps.ch/articles.rss" },
@@ -176,7 +175,6 @@ async function updateTicker() {
         { name: "Le Temps Sport", url: "https://www.letemps.ch/sport.rss" }
     ];
 
-    // 20 Minutes feeds with Geneva reinstated first
     const twentyMinFeeds = [
         { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande/geneve" },
         { name: "20 Minutes Principal", url: "https://partner-feeds.20min.ch/rss/20minutes" },
@@ -216,7 +214,7 @@ async function updateTicker() {
         }
     });
 
-    // 3. 20 Minutes batches (starting with Geneva)
+    // 3. 20 Minutes batches
     twentyMinResults.forEach((titles, idx) => {
         if (titles && titles.length > 0) {
             feedBatches.push({
@@ -232,7 +230,26 @@ async function updateTicker() {
 function renderNextRotationBatch() {
     const headlines = [];
 
-    feedBatches.forEach(batch => {
+    // 1. Push Welcome messages first
+    if (feedBatches.length > 0) {
+        const welcomeBatch = feedBatches[0];
+        const total = welcomeBatch.titles.length;
+        if (total > 0) {
+            for (let i = 0; i < Math.min(2, total); i++) {
+                const storyIndex = (rotationOffset + i) % total;
+                headlines.push(`${welcomeBatch.name}: ${welcomeBatch.titles[storyIndex]}`);
+            }
+        }
+    }
+
+    // 2. Push Weather forecast directly after welcome messages
+    if (cachedForecastText) {
+        headlines.push(cachedForecastText);
+    }
+
+    // 3. Push all news batches (Le Temps & 20 Minutes) after the weather
+    for (let b = 1; b < feedBatches.length; b++) {
+        const batch = feedBatches[b];
         const total = batch.titles.length;
         if (total > 0) {
             for (let i = 0; i < Math.min(3, total); i++) {
@@ -240,11 +257,6 @@ function renderNextRotationBatch() {
                 headlines.push(`${batch.name}: ${batch.titles[storyIndex]}`);
             }
         }
-    });
-
-    // Weather forecast positioned right between Le Temps and 20 Minutes news blocks
-    if (cachedForecastText) {
-        headlines.push(cachedForecastText);
     }
 
     rotationOffset = (rotationOffset + 3) % 10;
