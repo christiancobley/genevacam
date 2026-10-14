@@ -177,9 +177,9 @@ async function updateTicker() {
 
     const twentyMinFeeds = [
         { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande/geneve" },
-        { name: "20 Minutes Principal", url: "https://partner-feeds.20min.ch/rss/20minutes" },
         { name: "20 Minutes Suisse Romande", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
         { name: "20 Minutes Suisse", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse" },
+        { name: "20 Minutes Principal", url: "https://partner-feeds.20min.ch/rss/20minutes" },
         { name: "20 Minutes Monde", url: "https://partner-feeds.20min.ch/rss/20minutes/monde" },
         { name: "20 Minutes Économie", url: "https://partner-feeds.20min.ch/rss/20minutes/economie" },
         { name: "20 Minutes Sports", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
