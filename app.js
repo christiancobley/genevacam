@@ -144,23 +144,64 @@ const getForecast = async () => {
     }
 };
 
-const feedBatches = [
-    {
-        name: "Genève Cam",
-        titles: [
-            "Bienvenue sur Geneva Cam",
-            "Actualités en direct de Genève et de la Suisse"
-        ]
-    }
-];
+async function fetchFeedXml(url) {
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
 
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) return [];
+
+        const data = await response.json();
+        if (data.status === 'ok' && data.items && data.items.length > 0) {
+            return data.items.map(item => item.title.trim());
+        }
+    } catch (e) {
+        console.log("RSS2JSON error for:", url, e);
+    }
+    return [];
+}
+
+let feedBatches = [];
 let rotationOffset = 0;
 let cachedForecastText = "";
 let currentAnimation = null;
 
 async function updateTicker() {
-    const forecastResult = await Promise.allSettled([getForecast()]);
-    cachedForecastText = forecastResult[0].status === 'fulfilled' ? (forecastResult[0].value || "") : "";
+    const feeds = [
+        { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande/geneve" },
+        { name: "20 Minutes Principal", url: "https://partner-feeds.20min.ch/rss/20minutes" },
+        { name: "20 Minutes Suisse Romande", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
+        { name: "20 Minutes Suisse", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse" },
+        { name: "20 Minutes Monde", url: "https://partner-feeds.20min.ch/rss/20minutes/monde" },
+        { name: "20 Minutes Economie", url: "https://partner-feeds.20min.ch/rss/20minutes/economie" },
+        { name: "20 Minutes Sports", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
+    ];
+
+    const [forecastResult, ...feedResults] = await Promise.allSettled([
+        getForecast(),
+        ...feeds.map(feed => fetchFeedXml(feed.url))
+    ]);
+
+    cachedForecastText = forecastResult.status === 'fulfilled' ? (forecastResult.value || "") : "";
+    feedBatches = [];
+
+    // Always include your preferred welcome batch at the start
+    feedBatches.push({
+        name: "Genève Cam",
+        titles: [
+            "Bienvenue sur Geneva Cam",
+            "Actualités en direct de Genève et de la Suisse"
+        ]
+    });
+
+    feedResults.forEach((result, idx) => {
+        if (result.status === 'fulfilled' && result.value && result.value.length > 0) {
+            feedBatches.push({
+                name: feeds[idx].name,
+                titles: result.value
+            });
+        }
+    });
 
     renderNextRotationBatch();
 }
@@ -171,7 +212,7 @@ function renderNextRotationBatch() {
     feedBatches.forEach(batch => {
         const total = batch.titles.length;
         if (total > 0) {
-            for (let i = 0; i < Math.min(2, total); i++) {
+            for (let i = 0; i < Math.min(3, total); i++) {
                 const storyIndex = (rotationOffset + i) % total;
                 headlines.push(`${batch.name}: ${batch.titles[storyIndex]}`);
             }
@@ -182,13 +223,18 @@ function renderNextRotationBatch() {
         headlines.push(cachedForecastText);
     }
 
-    rotationOffset = (rotationOffset + 2) % 10;
+    rotationOffset = (rotationOffset + 3) % 10;
 
     if (headlines.length > 0) {
+        ticker.style.visibility = "hidden";
         ticker.textContent = headlines.join("   •   ");
-        startTicker();
+        
+        requestAnimationFrame(() => {
+            ticker.style.visibility = "visible";
+            startTicker();
+        });
     } else {
-        ticker.textContent = "Genève Cam • Information en continu";
+        ticker.textContent = "Impossible de charger le flux d'actualités";
     }
 }
 
