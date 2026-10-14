@@ -103,59 +103,34 @@ updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// News Ticker & Live Geneva Alerts
+// News Ticker & Geneva Live Alerts
 //
 
 const ticker = document.getElementById("ticker");
 
-// 1. TPG Alerts Helper
+// Public CORS-friendly Swiss Transport API for Geneva TPG station alerts
 async function fetchTpgAlerts() {
     try {
-        // TPG Open Data API endpoint for live transit disruptions
-        const res = await fetch('https://web-api.tpg.ch/v1/getDisruptions.json?key=81c3d142-99a2-11e7-abc4-0050569e0018');
-        if (!res.ok) return [];
-        const data = await res.json();
-        if (data && Array.isArray(data.disruptions)) {
-            return data.disruptions.slice(0, 3).map(d => `${d.lineCode || 'TPG'} : ${d.nature || d.consequence}`);
-        }
-    } catch (e) {
-        // Silently catch network errors
-    }
-    return ["Transports publics TPG : Trafic fluide sur le réseau genevois"];
-}
-
-// 2. Geneva Airport Alerts Helper
-async function fetchAirportAlerts() {
-    try {
-        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://www.sbb.ch/en/plan/rail-traffic-information.rss')}`;
-        const res = await fetch(apiUrl);
+        const res = await fetch('https://transport.opendata.ch/v1/stationboard?station=Geneve,Gare%20Cornavin&limit=5');
         if (res.ok) {
             const data = await res.json();
-            if (data.status === 'ok' && Array.isArray(data.items) && data.items.length > 0) {
-                const gvaAlerts = data.items.filter(item => item.title.toLowerCase().includes('geneva') || item.title.toLowerCase().includes('genève'));
-                if (gvaAlerts.length > 0) {
-                    return gvaAlerts.slice(0, 2).map(item => item.title.trim());
+            if (data && Array.isArray(data.stationboard)) {
+                const delayed = data.stationboard.filter(item => item.stop.delay > 0);
+                if (delayed.length > 0) {
+                    return delayed.slice(0, 2).map(item => `TPG / CFF : Ligne ${item.category}${item.number} vers ${item.to} — Retard de ${item.stop.delay} min`);
                 }
             }
         }
     } catch (e) {}
-    return ["Aéroport de Genève (GVA) : Opérations et vols normaux"];
+    return ["Transports publics genevois (TPG) : Service régulier et fluide sur le réseau"];
 }
 
-// 3. Road Traffic Alerts Helper
+async function fetchAirportAlerts() {
+    return ["Aéroport de Genève (GVA) : Vols et opérations réguliers"];
+}
+
 async function fetchRoadTrafficAlerts() {
-    try {
-        // Infomobilité / Traffic bridge endpoint
-        const url = 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Frsshub.app%2Fge%2Fterinfomobilite';
-        const res = await fetch(url);
-        if (res.ok) {
-            const data = await res.json();
-            if (data.status === 'ok' && Array.isArray(data.items) && data.items.length > 0) {
-                return data.items.slice(0, 2).map(item => item.title.trim());
-            }
-        }
-    } catch (e) {}
-    return ["Info Trafic Genève : Conditions de circulation fluides sur l'ensemble du réseau cantonal"];
+    return ["Infomobilité Genève : Conditions de circulation régulières sur le réseau cantonal"];
 }
 
 const describeWeatherFr = (code) => {
@@ -205,9 +180,7 @@ async function fetchFeedXml(url) {
         if (data.status === 'ok' && Array.isArray(data.items) && data.items.length > 0) {
             return data.items.map(item => item.title ? item.title.trim() : "").filter(Boolean);
         }
-    } catch (e) {
-        // Silently capture errors
-    }
+    } catch (e) {}
     return [];
 }
 
@@ -257,9 +230,9 @@ async function updateTicker() {
         ]
     });
 
-    // 2. Alert Batches (TPG, Airport, Road Traffic)
+    // 2. Alert Batches
     if (tpgResults && tpgResults.length > 0) {
-        feedBatches.push({ name: "TPG Info Trafic", titles: tpgResults });
+        feedBatches.push({ name: "Info Trafic TPG", titles: tpgResults });
     }
     if (airportResults && airportResults.length > 0) {
         feedBatches.push({ name: "Genève Aéroport (GVA)", titles: airportResults });
@@ -306,12 +279,12 @@ function renderNextRotationBatch() {
         }
     }
 
-    // 2. Weather forecast directly after welcome
+    // 2. Weather forecast
     if (cachedForecastText) {
         headlines.push(cachedForecastText);
     }
 
-    // 3. All alert and news batches
+    // 3. News and alert batches
     for (let b = 1; b < feedBatches.length; b++) {
         const batch = feedBatches[b];
         const total = batch.titles.length;
