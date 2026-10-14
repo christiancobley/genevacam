@@ -146,7 +146,7 @@ const getForecast = async () => {
 
 async function updateTicker() {
     const feeds = [
-        { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/suisse-romande/geneve" },
+        { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande/geneve" },
         { name: "20 Minutes Principal", url: "https://partner-feeds.20min.ch/rss/20minutes" },
         { name: "20 Minutes Suisse Romande", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
         { name: "20 Minutes Suisse", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse" },
