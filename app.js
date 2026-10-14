@@ -55,7 +55,6 @@ function updateClock() {
             timeZone: "Europe/Zurich"
         }
     );
-    // Capitalize first letter of the day/month
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
     document.getElementById("date").textContent = dateStr;
 }
@@ -147,11 +146,13 @@ const getForecast = async () => {
 
 async function updateTicker() {
     const feeds = [
-        { name: "20 Minutes", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
-        { name: "20 Minutes", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse" },
-        { name: "20 Minutes", url: "https://partner-feeds.20min.ch/rss/20minutes/monde" },
-        { name: "20 Minutes", url: "https://partner-feeds.20min.ch/rss/20minutes/economie" },
-        { name: "20 Minutes", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
+        { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/suisse-romande/geneve" },
+        { name: "20 Minutes Principal", url: "https://partner-feeds.20min.ch/rss/20minutes" },
+        { name: "20 Minutes Suisse Romande", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
+        { name: "20 Minutes Suisse", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse" },
+        { name: "20 Minutes Monde", url: "https://partner-feeds.20min.ch/rss/20minutes/monde" },
+        { name: "20 Minutes Economie", url: "https://partner-feeds.20min.ch/rss/20minutes/economie" },
+        { name: "20 Minutes Sports", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
     ];
 
     const headlines = [];
