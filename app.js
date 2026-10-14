@@ -102,7 +102,7 @@ updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// News Ticker & Weather Forecast (Using reliable rss2json API endpoint)
+// News Ticker & Weather Forecast
 //
 
 const ticker = document.getElementById("ticker");
@@ -188,7 +188,7 @@ async function updateTicker() {
 function startTicker() {
     const width = ticker.offsetWidth;
     const distance = width + window.innerWidth;
-    const duration = distance * 12;
+    const duration = distance * 9.6; // Increased speed by 20%
 
     ticker.animate(
         [
