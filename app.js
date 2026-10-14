@@ -167,26 +167,37 @@ let cachedForecastText = "";
 let currentAnimation = null;
 
 async function updateTicker() {
-    const feeds = [
+    // Le Temps feeds first
+    const leTempsFeeds = [
+        { name: "Le Temps Suisse", url: "https://www.letemps.ch/suisse.rss" },
+        { name: "Le Temps Articles", url: "https://www.letemps.ch/articles.rss" },
+        { name: "Le Temps Monde", url: "https://www.letemps.ch/monde.rss" },
+        { name: "Le Temps Économie", url: "https://www.letemps.ch/economie.rss" },
+        { name: "Le Temps Sport", url: "https://www.letemps.ch/sport.rss" }
+    ];
+
+    // 20 Minutes feeds with Geneva reinstated first
+    const twentyMinFeeds = [
         { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande/geneve" },
         { name: "20 Minutes Principal", url: "https://partner-feeds.20min.ch/rss/20minutes" },
         { name: "20 Minutes Suisse Romande", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
         { name: "20 Minutes Suisse", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse" },
         { name: "20 Minutes Monde", url: "https://partner-feeds.20min.ch/rss/20minutes/monde" },
-        { name: "20 Minutes Economie", url: "https://partner-feeds.20min.ch/rss/20minutes/economie" },
+        { name: "20 Minutes Économie", url: "https://partner-feeds.20min.ch/rss/20minutes/economie" },
         { name: "20 Minutes Sports", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
     ];
 
-    // Fetch forecast and all feeds independently with bulletproof error protection
     const forecastPromise = getForecast();
-    const feedPromises = feeds.map(feed => fetchFeedXml(feed.url));
+    const leTempsPromises = leTempsFeeds.map(feed => fetchFeedXml(feed.url));
+    const twentyMinPromises = twentyMinFeeds.map(feed => fetchFeedXml(feed.url));
 
     cachedForecastText = await forecastPromise;
-    const feedResults = await Promise.all(feedPromises);
+    const leTempsResults = await Promise.all(leTempsPromises);
+    const twentyMinResults = await Promise.all(twentyMinPromises);
 
     feedBatches = [];
 
-    // Welcome batch with exact French welcome phrases
+    // 1. Welcome batch
     feedBatches.push({
         name: "Genève Cam",
         titles: [
@@ -195,10 +206,21 @@ async function updateTicker() {
         ]
     });
 
-    feedResults.forEach((titles, idx) => {
+    // 2. Le Temps batches
+    leTempsResults.forEach((titles, idx) => {
         if (titles && titles.length > 0) {
             feedBatches.push({
-                name: feeds[idx].name,
+                name: leTempsFeeds[idx].name,
+                titles: titles
+            });
+        }
+    });
+
+    // 3. 20 Minutes batches (starting with Geneva)
+    twentyMinResults.forEach((titles, idx) => {
+        if (titles && titles.length > 0) {
+            feedBatches.push({
+                name: twentyMinFeeds[idx].name,
                 titles: titles
             });
         }
@@ -220,6 +242,7 @@ function renderNextRotationBatch() {
         }
     });
 
+    // Weather forecast positioned right between Le Temps and 20 Minutes news blocks
     if (cachedForecastText) {
         headlines.push(cachedForecastText);
     }
