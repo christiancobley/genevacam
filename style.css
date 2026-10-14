@@ -29,9 +29,9 @@ h1 {
     position: fixed;
     top: 22px;
     left: 20px;
-    width: 382px;
-    height: 212px;
-    padding: 16px;
+    width: 497px;
+    height: 276px;
+    padding: 20px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -39,12 +39,12 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     z-index: 9999;
 }
 
 #logo {
-    width: 210px;
+    width: 270px;
     display: block;
 }
 
@@ -52,8 +52,8 @@ h1 {
     background: transparent;
     border: 3px solid rgba(255, 255, 255, 0.85);
     border-radius: 50%;
-    width: 46px;
-    height: 46px;
+    width: 55px;
+    height: 55px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -74,8 +74,8 @@ h1 {
 }
 
 .power-icon {
-    width: 24px;
-    height: 24px;
+    width: 29px;
+    height: 29px;
     fill: #ffffff;
     transition: fill 0.2s ease;
 }
@@ -89,7 +89,7 @@ h1 {
 }
 
 .power-label {
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: bold;
     letter-spacing: 0.5px;
     color: #ffffff;
@@ -100,8 +100,8 @@ h1 {
     position: fixed;
     top: 22px;
     right: 20px;
-    width: 485px;
-    height: 212px;
+    width: 631px;
+    height: 276px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -110,26 +110,26 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 16px;
+    padding: 20px;
     z-index: 9999;
 }
 
 #clock {
-    font-size: 44px;
+    font-size: 56px;
     font-weight: bold;
     line-height: 1.1;
     color: #ffffff;
 }
 
 #date {
-    font-size: 22px;
-    margin-top: 4px;
+    font-size: 26px;
+    margin-top: 6px;
     color: #ffffff;
 }
 
 #temperature {
-    font-size: 20px;
-    margin-top: 6px;
+    font-size: 24px;
+    margin-top: 8px;
     font-weight: 600;
     color: #ffffff;
 }

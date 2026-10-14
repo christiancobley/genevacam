@@ -188,7 +188,7 @@ async function updateTicker() {
 function startTicker() {
     const width = ticker.offsetWidth;
     const distance = width + window.innerWidth;
-    const duration = distance * 9.6; // Increased speed by 20%
+    const duration = distance * 8.0; // Increased speed by another 20%
 
     ticker.animate(
         [
