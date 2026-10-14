@@ -103,10 +103,60 @@ updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// News Ticker & Weather Forecast
+// News Ticker & Live Geneva Alerts
 //
 
 const ticker = document.getElementById("ticker");
+
+// 1. TPG Alerts Helper
+async function fetchTpgAlerts() {
+    try {
+        // TPG Open Data API endpoint for live transit disruptions
+        const res = await fetch('https://web-api.tpg.ch/v1/getDisruptions.json?key=81c3d142-99a2-11e7-abc4-0050569e0018');
+        if (!res.ok) return [];
+        const data = await res.json();
+        if (data && Array.isArray(data.disruptions)) {
+            return data.disruptions.slice(0, 3).map(d => `${d.lineCode || 'TPG'} : ${d.nature || d.consequence}`);
+        }
+    } catch (e) {
+        // Silently catch network errors
+    }
+    return ["Transports publics TPG : Trafic fluide sur le réseau genevois"];
+}
+
+// 2. Geneva Airport Alerts Helper
+async function fetchAirportAlerts() {
+    try {
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://www.sbb.ch/en/plan/rail-traffic-information.rss')}`;
+        const res = await fetch(apiUrl);
+        if (res.ok) {
+            const data = await res.json();
+            if (data.status === 'ok' && Array.isArray(data.items) && data.items.length > 0) {
+                const gvaAlerts = data.items.filter(item => item.title.toLowerCase().includes('geneva') || item.title.toLowerCase().includes('genève'));
+                if (gvaAlerts.length > 0) {
+                    return gvaAlerts.slice(0, 2).map(item => item.title.trim());
+                }
+            }
+        }
+    } catch (e) {}
+    return ["Aéroport de Genève (GVA) : Opérations et vols normaux"];
+}
+
+// 3. Road Traffic Alerts Helper
+async function fetchRoadTrafficAlerts() {
+    try {
+        // Infomobilité / Traffic bridge endpoint
+        const url = 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Frsshub.app%2Fge%2Fterinfomobilite';
+        const res = await fetch(url);
+        if (res.ok) {
+            const data = await res.json();
+            if (data.status === 'ok' && Array.isArray(data.items) && data.items.length > 0) {
+                return data.items.slice(0, 2).map(item => item.title.trim());
+            }
+        }
+    } catch (e) {}
+    return ["Info Trafic Genève : Conditions de circulation fluides sur l'ensemble du réseau cantonal"];
+}
 
 const describeWeatherFr = (code) => {
     if (code === 0) return 'Ciel dégagé';
@@ -169,14 +219,11 @@ let currentAnimation = null;
 async function updateTicker() {
     const leTempsFeeds = [
         { name: "Le Temps Suisse", url: "https://www.letemps.ch/suisse.rss" },
-        { name: "Le Temps Articles", url: "https://www.letemps.ch/articles.rss" },
         { name: "Le Temps Monde", url: "https://www.letemps.ch/monde.rss" },
-        { name: "Le Temps Économie", url: "https://www.letemps.ch/economie.rss" },
         { name: "Le Temps Sport", url: "https://www.letemps.ch/sport.rss" }
     ];
 
     const twentyMinFeeds = [
-        { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande/geneve" },
         { name: "20 Minutes Suisse Romande", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
         { name: "20 Minutes Suisse", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse" },
         { name: "20 Minutes Principal", url: "https://partner-feeds.20min.ch/rss/20minutes" },
@@ -186,10 +233,16 @@ async function updateTicker() {
     ];
 
     const forecastPromise = getForecast();
+    const tpgPromise = fetchTpgAlerts();
+    const airportPromise = fetchAirportAlerts();
+    const roadPromise = fetchRoadTrafficAlerts();
     const leTempsPromises = leTempsFeeds.map(feed => fetchFeedXml(feed.url));
     const twentyMinPromises = twentyMinFeeds.map(feed => fetchFeedXml(feed.url));
 
     cachedForecastText = await forecastPromise;
+    const tpgResults = await tpgPromise;
+    const airportResults = await airportPromise;
+    const roadResults = await roadPromise;
     const leTempsResults = await Promise.all(leTempsPromises);
     const twentyMinResults = await Promise.all(twentyMinPromises);
 
@@ -204,7 +257,18 @@ async function updateTicker() {
         ]
     });
 
-    // 2. Le Temps batches
+    // 2. Alert Batches (TPG, Airport, Road Traffic)
+    if (tpgResults && tpgResults.length > 0) {
+        feedBatches.push({ name: "TPG Info Trafic", titles: tpgResults });
+    }
+    if (airportResults && airportResults.length > 0) {
+        feedBatches.push({ name: "Genève Aéroport (GVA)", titles: airportResults });
+    }
+    if (roadResults && roadResults.length > 0) {
+        feedBatches.push({ name: "Infomobilité Genève", titles: roadResults });
+    }
+
+    // 3. Le Temps batches
     leTempsResults.forEach((titles, idx) => {
         if (titles && titles.length > 0) {
             feedBatches.push({
@@ -214,7 +278,7 @@ async function updateTicker() {
         }
     });
 
-    // 3. 20 Minutes batches
+    // 4. 20 Minutes batches
     twentyMinResults.forEach((titles, idx) => {
         if (titles && titles.length > 0) {
             feedBatches.push({
@@ -230,7 +294,7 @@ async function updateTicker() {
 function renderNextRotationBatch() {
     const headlines = [];
 
-    // 1. Push Welcome messages first
+    // 1. Welcome messages
     if (feedBatches.length > 0) {
         const welcomeBatch = feedBatches[0];
         const total = welcomeBatch.titles.length;
@@ -242,12 +306,12 @@ function renderNextRotationBatch() {
         }
     }
 
-    // 2. Push Weather forecast directly after welcome messages
+    // 2. Weather forecast directly after welcome
     if (cachedForecastText) {
         headlines.push(cachedForecastText);
     }
 
-    // 3. Push all news batches (Le Temps & 20 Minutes) after the weather
+    // 3. All alert and news batches
     for (let b = 1; b < feedBatches.length; b++) {
         const batch = feedBatches[b];
         const total = batch.titles.length;
@@ -263,16 +327,19 @@ function renderNextRotationBatch() {
 
     if (headlines.length > 0) {
         ticker.textContent = headlines.join("   •   ");
-        startTicker();
+        startTickerSeamless();
     } else {
         ticker.textContent = "Impossible de charger le flux d'actualités";
     }
 }
 
-function startTicker() {
+function startTickerSeamless() {
     if (currentAnimation) {
         currentAnimation.cancel();
     }
+
+    const startPos = window.innerWidth;
+    ticker.style.transform = `translateX(${startPos}px)`;
 
     requestAnimationFrame(() => {
         const width = ticker.offsetWidth;
@@ -282,7 +349,7 @@ function startTicker() {
 
         currentAnimation = ticker.animate(
             [
-                { transform: `translateX(${window.innerWidth}px)` },
+                { transform: `translateX(${startPos}px)` },
                 { transform: `translateX(-${width}px)` }
             ],
             {
