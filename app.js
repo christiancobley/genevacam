@@ -156,7 +156,7 @@ async function fetchFeedXml(url) {
             return data.items.map(item => item.title.trim());
         }
     } catch (e) {
-        console.log("RSS2JSON error for:", url, e);
+        console.log("RSS2JSON error or 500 for:", url, e);
     }
     return [];
 }
@@ -185,12 +185,12 @@ async function updateTicker() {
     cachedForecastText = forecastResult.status === 'fulfilled' ? (forecastResult.value || "") : "";
     feedBatches = [];
 
-    // Always include your preferred welcome batch at the start
+    // Welcome batch with added French text for Geneva, Switzerland, and other news/info
     feedBatches.push({
         name: "Genève Cam",
         titles: [
             "Bienvenue sur Geneva Cam",
-            "Actualités en direct de Genève et de la Suisse"
+            "Actualités en direct de Genève et de la Suisse, et autres actualités et informations"
         ]
     });
 
@@ -226,11 +226,11 @@ function renderNextRotationBatch() {
     rotationOffset = (rotationOffset + 3) % 10;
 
     if (headlines.length > 0) {
-        ticker.style.visibility = "hidden";
+        ticker.style.opacity = "0";
         ticker.textContent = headlines.join("   •   ");
         
         requestAnimationFrame(() => {
-            ticker.style.visibility = "visible";
+            ticker.style.opacity = "1";
             startTicker();
         });
     } else {
