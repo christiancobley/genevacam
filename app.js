@@ -145,50 +145,39 @@ const getForecast = async () => {
 };
 
 async function fetchFeedXml(url) {
-    const proxies = [
-        `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-        `https://corsproxy.io/?${encodeURIComponent(url)}`
-    ];
+    // Using CodeTabs proxy as a reliable alternative for 20 Minutes RSS feeds
+    const proxyUrl = `https://api.codetabs.com/v1/proxy?url=${encodeURIComponent(url)}`;
 
-    for (const proxy of proxies) {
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 4000);
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-            const response = await fetch(proxy, { signal: controller.signal });
-            clearTimeout(timeoutId);
+        const response = await fetch(proxyUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
 
-            if (!response.ok) continue;
+        if (!response.ok) return [];
 
-            let xmlText = "";
-            if (proxy.includes("allorigins")) {
-                const json = await response.json();
-                xmlText = json.contents;
-            } else {
-                xmlText = await response.text();
-            }
+        const xmlText = await response.text();
+        if (!xmlText) return [];
 
-            if (!xmlText) continue;
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+        const items = xmlDoc.querySelectorAll("item");
 
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-            const items = xmlDoc.querySelectorAll("item");
-
-            if (items.length > 0) {
-                const titles = [];
-                items.forEach((item, idx) => {
-                    if (idx < 10) {
-                        const titleEl = item.querySelector("title");
-                        if (titleEl && titleEl.textContent) {
-                            titles.push(titleEl.textContent.trim());
-                        }
+        if (items.length > 0) {
+            const titles = [];
+            items.forEach((item, idx) => {
+                if (idx < 10) { // Limit to 10 stories per feed
+                    const titleEl = item.querySelector("title");
+                    if (titleEl && titleEl.textContent) {
+                        titles.push(titleEl.textContent.trim());
                     }
-                });
-                return titles;
-            }
-        } catch (e) {
-            console.log("Proxy fetch timeout or error for:", url, e);
+                }
+            });
+            return titles;
         }
+    } catch (e) {
+        console.log("Proxy fetch timeout or error for:", url, e);
     }
     return [];
 }
@@ -209,7 +198,6 @@ async function updateTicker() {
         { name: "20 Minutes Sports", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
     ];
 
-    // Fetch forecast and all feeds in parallel for maximum speed
     const [forecastResult, ...feedResults] = await Promise.allSettled([
         getForecast(),
         ...feeds.map(feed => fetchFeedXml(feed.url))
@@ -233,7 +221,6 @@ async function updateTicker() {
 function renderNextRotationBatch() {
     const headlines = [];
 
-    // Push the news stories first so they appear immediately on load
     feedBatches.forEach(batch => {
         const total = batch.titles.length;
         if (total > 0) {
@@ -244,7 +231,6 @@ function renderNextRotationBatch() {
         }
     });
 
-    // Append the weather forecast at the end of the news rotation batch instead of the front
     if (cachedForecastText) {
         headlines.push(cachedForecastText);
     }
@@ -258,9 +244,6 @@ function renderNextRotationBatch() {
         ticker.textContent = "Impossible de charger le flux d'actualités";
     }
 }
-
- 
-
 
 function startTicker() {
     if (currentAnimation) {
