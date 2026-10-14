@@ -144,38 +144,21 @@ const getForecast = async () => {
     }
 };
 
-// Reliable local headline batches mirroring 20 Minutes Geneva & Suisse
-const fallbackBatches = [
+const feedBatches = [
     {
-        name: "20 Minutes Genève",
+        name: "Genève Cam",
         titles: [
-            "Actualités en direct de Genève et de sa région",
-            "Genève: Points d'actualité et transports en commun",
-            "Événements culturels et vie genevoise"
-        ]
-    },
-    {
-        name: "20 Minutes Suisse",
-        titles: [
-            "L'actualité suisse en continu",
-            "Politique et société en Suisse romande"
-        ]
-    },
-    {
-        name: "20 Minutes Economie",
-        titles: [
-            "Marchés financiers et actualité économique"
+            "Bienvenue sur Geneva Cam",
+            "Actualités en direct de Genève et de la Suisse"
         ]
     }
 ];
 
-let feedBatches = fallbackBatches;
 let rotationOffset = 0;
 let cachedForecastText = "";
 let currentAnimation = null;
 
 async function updateTicker() {
-    // Fetch live forecast concurrently
     const forecastResult = await Promise.allSettled([getForecast()]);
     cachedForecastText = forecastResult[0].status === 'fulfilled' ? (forecastResult[0].value || "") : "";
 
