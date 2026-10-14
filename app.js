@@ -145,12 +145,11 @@ const getForecast = async () => {
 };
 
 async function fetchFeedXml(url) {
-    // Using CodeTabs proxy as a reliable alternative for 20 Minutes RSS feeds
-    const proxyUrl = `https://api.codetabs.com/v1/proxy?url=${encodeURIComponent(url)}`;
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
 
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
 
         const response = await fetch(proxyUrl, { signal: controller.signal });
         clearTimeout(timeoutId);
@@ -167,7 +166,7 @@ async function fetchFeedXml(url) {
         if (items.length > 0) {
             const titles = [];
             items.forEach((item, idx) => {
-                if (idx < 10) { // Limit to 10 stories per feed
+                if (idx < 10) {
                     const titleEl = item.querySelector("title");
                     if (titleEl && titleEl.textContent) {
                         titles.push(titleEl.textContent.trim());
@@ -215,6 +214,14 @@ async function updateTicker() {
         }
     });
 
+    // Fallback safeguard if all proxies block or time out
+    if (feedBatches.length === 0) {
+        feedBatches.push({
+            name: "Genève Cam",
+            titles: ["Bienvenue sur Geneva Cam", "Actualités en direct de Genève et de la Suisse"]
+        });
+    }
+
     renderNextRotationBatch();
 }
 
@@ -238,8 +245,13 @@ function renderNextRotationBatch() {
     rotationOffset = (rotationOffset + 3) % 10;
 
     if (headlines.length > 0) {
+        ticker.style.opacity = "0";
         ticker.textContent = headlines.join("   •   ");
-        startTicker();
+        
+        requestAnimationFrame(() => {
+            ticker.style.opacity = "1";
+            startTicker();
+        });
     } else {
         ticker.textContent = "Impossible de charger le flux d'actualités";
     }
