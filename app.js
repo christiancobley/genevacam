@@ -233,10 +233,7 @@ async function updateTicker() {
 function renderNextRotationBatch() {
     const headlines = [];
 
-    if (cachedForecastText) {
-        headlines.push(cachedForecastText);
-    }
-
+    // Push the news stories first so they appear immediately on load
     feedBatches.forEach(batch => {
         const total = batch.titles.length;
         if (total > 0) {
@@ -247,6 +244,11 @@ function renderNextRotationBatch() {
         }
     });
 
+    // Append the weather forecast at the end of the news rotation batch instead of the front
+    if (cachedForecastText) {
+        headlines.push(cachedForecastText);
+    }
+
     rotationOffset = (rotationOffset + 3) % 10;
 
     if (headlines.length > 0) {
@@ -256,6 +258,9 @@ function renderNextRotationBatch() {
         ticker.textContent = "Impossible de charger le flux d'actualités";
     }
 }
+
+ 
+
 
 function startTicker() {
     if (currentAnimation) {
