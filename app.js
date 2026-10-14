@@ -30,7 +30,7 @@ radioToggle.addEventListener("click", () => {
 });
 
 //
-// Clock
+// Clock (French)
 //
 
 function updateClock() {
@@ -38,31 +38,33 @@ function updateClock() {
 
     document.getElementById("clock").textContent =
         now.toLocaleTimeString(
-            "en-GB",
+            "fr-FR",
             {
                 hour: "2-digit",
                 minute: "2-digit",
                 timeZone: "Europe/Zurich"
             }
-        ) + " • Geneva";
+        ) + " • Genève";
 
-    document.getElementById("date").textContent =
-        now.toLocaleDateString(
-            "en-GB",
-            {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-                timeZone: "Europe/Zurich"
-            }
-        );
+    let dateStr = now.toLocaleDateString(
+        "fr-FR",
+        {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            timeZone: "Europe/Zurich"
+        }
+    );
+    // Capitalize first letter of the day/month
+    dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+    document.getElementById("date").textContent = dateStr;
 }
 
 updateClock();
 setInterval(updateClock, 1000);
 
 //
-// Weather
+// Weather (French)
 //
 
 async function updateWeather() {
@@ -72,15 +74,15 @@ async function updateWeather() {
         );
         const data = await response.json();
 
-        let condition = "Unknown";
+        let condition = "Inconnu";
         switch (data.current.weather_code) {
-            case 0: condition = "Clear"; break;
-            case 1: case 2: case 3: condition = "Partly cloudy"; break;
-            case 45: case 48: condition = "Fog"; break;
-            case 51: case 53: case 55: condition = "Drizzle"; break;
-            case 61: case 63: case 65: condition = "Rain"; break;
-            case 71: case 73: case 75: condition = "Snow"; break;
-            case 95: condition = "Thunderstorm"; break;
+            case 0: condition = "Ciel dégagé"; break;
+            case 1: case 2: case 3: condition = "Partiellement nuageux"; break;
+            case 45: case 48: condition = "Brouillard"; break;
+            case 51: case 53: case 55: condition = "Bruine"; break;
+            case 61: case 63: case 65: condition = "Pluie"; break;
+            case 71: case 73: case 75: condition = "Neige"; break;
+            case 95: condition = "Orage"; break;
         }
 
         document.getElementById("temperature").textContent =
@@ -181,18 +183,14 @@ async function updateTicker() {
         ticker.textContent = headlines.join("   •   ");
         startTicker();
     } else {
-        ticker.textContent = "Could not load ticker content";
+        ticker.textContent = "Impossible de charger le flux d'actualités";
     }
 }
 
 function startTicker() {
     const width = ticker.offsetWidth;
     const distance = width + window.innerWidth;
-    
-    // Check if device is in portrait mode on mobile
     const isMobilePortrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
-    
-// Desktop speed increased by 25% (8.0 divided by 1.25 = 6.4)
     const duration = isMobilePortrait ? distance * 11.4 : distance * 6.4;
 
     ticker.animate(

@@ -96,6 +96,11 @@ h1 {
     text-transform: uppercase;
 }
 
+/* Translate ON/OFF label to French via CSS content */
+.power-label::before {
+    content: "MARCHE / ARRÊT";
+}
+
 #clockBox {
     position: fixed;
     top: 22px;
@@ -122,13 +127,13 @@ h1 {
 }
 
 #date {
-    font-size: 34px; /* Increased by 30% for desktop */
+    font-size: 34px;
     margin-top: 6px;
     color: #ffffff;
 }
 
 #temperature {
-    font-size: 31px; /* Increased by 30% for desktop */
+    font-size: 31px;
     margin-top: 8px;
     font-weight: 600;
     color: #ffffff;
