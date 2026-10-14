@@ -103,7 +103,7 @@ updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// News Ticker & Weather Forecast (Direct XML Parsing + Rotation)
+// News Ticker & Weather Forecast
 //
 
 const ticker = document.getElementById("ticker");
@@ -144,7 +144,6 @@ const getForecast = async () => {
     }
 };
 
-// Direct RSS XML fetcher with fallback proxies
 async function fetchFeedXml(url) {
     const proxies = [
         `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
@@ -173,7 +172,7 @@ async function fetchFeedXml(url) {
             if (items.length > 0) {
                 const titles = [];
                 items.forEach((item, idx) => {
-                    if (idx < 10) { // Limit to 10 stories per feed
+                    if (idx < 10) {
                         const titleEl = item.querySelector("title");
                         if (titleEl && titleEl.textContent) {
                             titles.push(titleEl.textContent.trim());
@@ -189,9 +188,9 @@ async function fetchFeedXml(url) {
     return [];
 }
 
-// Stores parsed articles per source to support round-robin rotation
 let feedBatches = [];
 let rotationOffset = 0;
+let cachedForecastText = "";
 let currentAnimation = null;
 
 async function updateTicker() {
@@ -205,6 +204,7 @@ async function updateTicker() {
         { name: "20 Minutes Sports", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
     ];
 
+    cachedForecastText = await getForecast() || "";
     feedBatches = [];
 
     for (const feed of feeds) {
@@ -220,15 +220,13 @@ async function updateTicker() {
     renderNextRotationBatch();
 }
 
-async function renderNextRotationBatch() {
+function renderNextRotationBatch() {
     const headlines = [];
 
-    const forecastText = await getForecast();
-    if (forecastText) {
-        headlines.push(forecastText);
+    if (cachedForecastText) {
+        headlines.push(cachedForecastText);
     }
 
-    // Pick 3 stories per feed based on the current rotation offset
     feedBatches.forEach(batch => {
         const total = batch.titles.length;
         if (total > 0) {
@@ -239,7 +237,6 @@ async function renderNextRotationBatch() {
         }
     });
 
-    // Advance offset for the next loop cycle
     rotationOffset = (rotationOffset + 3) % 10;
 
     if (headlines.length > 0) {
@@ -255,26 +252,29 @@ function startTicker() {
         currentAnimation.cancel();
     }
 
-    const width = ticker.offsetWidth;
-    const distance = width + window.innerWidth;
-    const isMobilePortrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
-    const duration = isMobilePortrait ? distance * 11.4 : distance * 6.4;
+    // Wait for the DOM to update text content so offsetWidth is accurate
+    requestAnimationFrame(() => {
+        const width = ticker.offsetWidth;
+        const distance = width + window.innerWidth;
+        const isMobilePortrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
+        const duration = isMobilePortrait ? distance * 11.4 : distance * 6.4;
 
-    currentAnimation = ticker.animate(
-        [
-            { transform: `translateX(${window.innerWidth}px)` },
-            { transform: `translateX(-${width}px)` }
-        ],
-        {
-            duration: duration,
-            iterations: 1, // Runs once, then triggers next rotated batch
-            easing: "linear"
-        }
-    );
+        currentAnimation = ticker.animate(
+            [
+                { transform: `translateX(${window.innerWidth}px)` },
+                { transform: `translateX(-${width}px)` }
+            ],
+            {
+                duration: duration,
+                iterations: 1,
+                easing: "linear"
+            }
+        );
 
-    currentAnimation.onfinish = () => {
-        renderNextRotationBatch();
-    };
+        currentAnimation.onfinish = () => {
+            renderNextRotationBatch();
+        };
+    });
 }
 
 updateTicker();
