@@ -164,6 +164,7 @@ async function fetchFeedXml(url) {
 let feedBatches = [];
 let rotationOffset = 0;
 let cachedForecastText = "";
+let currentAnimation = null;
 
 async function updateTicker() {
     const feeds = [
@@ -176,15 +177,16 @@ async function updateTicker() {
         { name: "20 Minutes Sports", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
     ];
 
-    const [forecastResult, ...feedResults] = await Promise.allSettled([
-        getForecast(),
-        ...feeds.map(feed => fetchFeedXml(feed.url))
-    ]);
+    // Fetch forecast and all feeds independently with bulletproof error protection
+    const forecastPromise = getForecast();
+    const feedPromises = feeds.map(feed => fetchFeedXml(feed.url));
 
-    cachedForecastText = forecastResult.status === 'fulfilled' ? (forecastResult.value || "") : "";
+    cachedForecastText = await forecastPromise;
+    const feedResults = await Promise.all(feedPromises);
+
     feedBatches = [];
 
-    // Welcome batch with exact translated French message right after Bienvenue sur Geneva Cam
+    // Welcome batch with exact French welcome phrases
     feedBatches.push({
         name: "Genève Cam",
         titles: [
@@ -193,11 +195,11 @@ async function updateTicker() {
         ]
     });
 
-    feedResults.forEach((result, idx) => {
-        if (result.status === 'fulfilled' && result.value && result.value.length > 0) {
+    feedResults.forEach((titles, idx) => {
+        if (titles && titles.length > 0) {
             feedBatches.push({
                 name: feeds[idx].name,
-                titles: result.value
+                titles: titles
             });
         }
     });
@@ -226,9 +228,39 @@ function renderNextRotationBatch() {
 
     if (headlines.length > 0) {
         ticker.textContent = headlines.join("   •   ");
+        startTicker();
     } else {
         ticker.textContent = "Impossible de charger le flux d'actualités";
     }
+}
+
+function startTicker() {
+    if (currentAnimation) {
+        currentAnimation.cancel();
+    }
+
+    requestAnimationFrame(() => {
+        const width = ticker.offsetWidth;
+        const distance = width + window.innerWidth;
+        const isMobilePortrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
+        const duration = isMobilePortrait ? distance * 11.4 : distance * 6.4;
+
+        currentAnimation = ticker.animate(
+            [
+                { transform: `translateX(${window.innerWidth}px)` },
+                { transform: `translateX(-${width}px)` }
+            ],
+            {
+                duration: duration,
+                iterations: 1,
+                easing: "linear"
+            }
+        );
+
+        currentAnimation.onfinish = () => {
+            renderNextRotationBatch();
+        };
+    });
 }
 
 updateTicker();
