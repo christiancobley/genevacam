@@ -189,9 +189,11 @@ function startTicker() {
     const width = ticker.offsetWidth;
     const distance = width + window.innerWidth;
     
-    // Check if device is in portrait mode on mobile to decrease speed by 30%
+    // Check if device is in portrait mode on mobile
     const isMobilePortrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
-    const duration = isMobilePortrait ? distance * 11.4 : distance * 8.0;
+    
+// Desktop speed increased by 25% (8.0 divided by 1.25 = 6.4)
+    const duration = isMobilePortrait ? distance * 11.4 : distance * 6.4;
 
     ticker.animate(
         [
