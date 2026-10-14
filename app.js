@@ -188,7 +188,10 @@ async function updateTicker() {
 function startTicker() {
     const width = ticker.offsetWidth;
     const distance = width + window.innerWidth;
-    const duration = distance * 8.0; // Increased speed by another 20%
+    
+    // Check if device is in portrait mode on mobile to decrease speed by 30%
+    const isMobilePortrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
+    const duration = isMobilePortrait ? distance * 11.4 : distance * 8.0;
 
     ticker.animate(
         [

@@ -22,7 +22,7 @@ h1 {
 }
 
 /* ==========================================
-   DESKTOP & MOBILE LANDSCAPE MODE 
+   DESKTOP & STANDARD LANDSCAPE MODE 
    ========================================== */
 
 #logoBox {
@@ -122,13 +122,13 @@ h1 {
 }
 
 #date {
-    font-size: 26px;
+    font-size: 34px; /* Increased by 30% for desktop */
     margin-top: 6px;
     color: #ffffff;
 }
 
 #temperature {
-    font-size: 24px;
+    font-size: 31px; /* Increased by 30% for desktop */
     margin-top: 8px;
     font-weight: 600;
     color: #ffffff;
@@ -196,8 +196,6 @@ h1 {
 }
 
 #date {
-    display: block;
-    color: white;
     font-size: 8px;
     margin-top: 1px;
     line-height: 1.1;
@@ -259,6 +257,73 @@ h1 {
 #ticker {
     line-height: 50px;
     font-size: 20px;
+}
+
+}
+
+/* ==========================================
+   MOBILE LANDSCAPE MODE ONLY (Max Height 500px + Landscape)
+   ========================================== */
+
+@media screen and (max-height: 500px) and (orientation: landscape) {
+
+#logoBox {
+    width: 200px;
+    height: 110px;
+    padding: 8px;
+    gap: 4px;
+    top: 10px;
+    left: 10px;
+}
+
+#logo {
+    width: 110px;
+}
+
+.power-btn {
+    width: 22px;
+    height: 22px;
+    border-width: 1.5px;
+}
+
+.power-icon {
+    width: 11px;
+    height: 11px;
+}
+
+.power-label {
+    font-size: 0.5rem;
+}
+
+#clockBox {
+    width: 250px;
+    height: 110px;
+    padding: 8px;
+    top: 10px;
+    right: 10px;
+}
+
+#clock {
+    font-size: 20px;
+}
+
+#date {
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+#temperature {
+    font-size: 10px;
+    margin-top: 2px;
+}
+
+#tickerContainer {
+    height: 40px;
+}
+
+#ticker {
+    line-height: 40px;
+    font-size: 18px;
 }
 
 }
