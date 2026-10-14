@@ -103,7 +103,7 @@ updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// News Ticker & Weather Forecast
+// News Ticker & Weather Forecast (Direct XML Parsing + Rotation)
 //
 
 const ticker = document.getElementById("ticker");
@@ -144,6 +144,56 @@ const getForecast = async () => {
     }
 };
 
+// Direct RSS XML fetcher with fallback proxies
+async function fetchFeedXml(url) {
+    const proxies = [
+        `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+        `https://corsproxy.io/?${encodeURIComponent(url)}`
+    ];
+
+    for (const proxy of proxies) {
+        try {
+            const response = await fetch(proxy);
+            if (!response.ok) continue;
+
+            let xmlText = "";
+            if (proxy.includes("allorigins")) {
+                const json = await response.json();
+                xmlText = json.contents;
+            } else {
+                xmlText = await response.text();
+            }
+
+            if (!xmlText) continue;
+
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+            const items = xmlDoc.querySelectorAll("item");
+
+            if (items.length > 0) {
+                const titles = [];
+                items.forEach((item, idx) => {
+                    if (idx < 10) { // Limit to 10 stories per feed
+                        const titleEl = item.querySelector("title");
+                        if (titleEl && titleEl.textContent) {
+                            titles.push(titleEl.textContent.trim());
+                        }
+                    }
+                });
+                return titles;
+            }
+        } catch (e) {
+            console.log("Proxy fetch error for:", url, e);
+        }
+    }
+    return [];
+}
+
+// Stores parsed articles per source to support round-robin rotation
+let feedBatches = [];
+let rotationOffset = 0;
+let currentAnimation = null;
+
 async function updateTicker() {
     const feeds = [
         { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande/geneve" },
@@ -155,6 +205,22 @@ async function updateTicker() {
         { name: "20 Minutes Sports", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
     ];
 
+    feedBatches = [];
+
+    for (const feed of feeds) {
+        const titles = await fetchFeedXml(feed.url);
+        if (titles.length > 0) {
+            feedBatches.push({
+                name: feed.name,
+                titles: titles
+            });
+        }
+    }
+
+    renderNextRotationBatch();
+}
+
+async function renderNextRotationBatch() {
     const headlines = [];
 
     const forecastText = await getForecast();
@@ -162,23 +228,19 @@ async function updateTicker() {
         headlines.push(forecastText);
     }
 
-    for (const feed of feeds) {
-        try {
-            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`;
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-
-            if (data.status === 'ok' && data.items) {
-                data.items.slice(0, 3).forEach(item => {
-                    if (item.title) {
-                        headlines.push(`${feed.name}: ${item.title.trim()}`);
-                    }
-                });
+    // Pick 3 stories per feed based on the current rotation offset
+    feedBatches.forEach(batch => {
+        const total = batch.titles.length;
+        if (total > 0) {
+            for (let i = 0; i < Math.min(3, total); i++) {
+                const storyIndex = (rotationOffset + i) % total;
+                headlines.push(`${batch.name}: ${batch.titles[storyIndex]}`);
             }
-        } catch (err) {
-            console.log("Ticker error for feed:", feed.name, err);
         }
-    }
+    });
+
+    // Advance offset for the next loop cycle
+    rotationOffset = (rotationOffset + 3) % 10;
 
     if (headlines.length > 0) {
         ticker.textContent = headlines.join("   •   ");
@@ -189,22 +251,30 @@ async function updateTicker() {
 }
 
 function startTicker() {
+    if (currentAnimation) {
+        currentAnimation.cancel();
+    }
+
     const width = ticker.offsetWidth;
     const distance = width + window.innerWidth;
     const isMobilePortrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
     const duration = isMobilePortrait ? distance * 11.4 : distance * 6.4;
 
-    ticker.animate(
+    currentAnimation = ticker.animate(
         [
             { transform: `translateX(${window.innerWidth}px)` },
             { transform: `translateX(-${width}px)` }
         ],
         {
             duration: duration,
-            iterations: Infinity,
+            iterations: 1, // Runs once, then triggers next rotated batch
             easing: "linear"
         }
     );
+
+    currentAnimation.onfinish = () => {
+        renderNextRotationBatch();
+    };
 }
 
 updateTicker();
