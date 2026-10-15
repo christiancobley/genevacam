@@ -822,22 +822,33 @@ h1 {
 }
 
 }
-/* Portrait-only overlay sizing and spacing. */
+/* Phone portrait: size cards once and keep the nested song panel viewport-fixed. */
 @media screen and (max-width: 768px) and (orientation: portrait) {
     #clockBox,
-    #logoBox,
-    #logoBox.has-songs,
+    #logoBox:not(.has-songs),
     #songs-widget {
         transform: scale(0.8) !important;
         transform-origin: top left !important;
     }
 
     #clockBox { top: 8px !important; left: 8px !important; }
-    #logoBox,
-    #logoBox.has-songs { top: calc(8px + 12vh + 4.8px) !important; left: 8px !important; }
 
-    /* Match the other cards' 54vw by 15vh source size; scale(0.8) makes
-       the displayed dimensions and all contents identical to those cards. */
+    /* This element contains the fixed song panel, so do not transform it. */
+    #logoBox.has-songs {
+        top: calc(8px + 12vh + 4.8px) !important;
+        left: 8px !important;
+        width: 43.2vw !important;
+        height: 12vh !important;
+        padding: 3.2px !important;
+        gap: 3.2px !important;
+        transform: none !important;
+    }
+
+    #logoBox.has-songs #logoMain {
+        transform: scale(0.8) !important;
+        transform-origin: center center !important;
+    }
+
     #songs-widget {
         top: calc(8px + 12vh + 4.8px + 12vh + 4.8px) !important;
         left: 8px !important;
