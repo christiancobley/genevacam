@@ -171,7 +171,6 @@ h1 {
 
 /* ==========================================
    MOBILE PORTRAIT MODE ONLY (Max Width 768px + Portrait)
-   Boxes are wider (54vw) and text is larger for readability.
    ========================================== */
 
 @media screen and (max-width: 768px) and (orientation: portrait) {
@@ -333,13 +332,18 @@ h1 {
     font-size: 18px;
 }
 
+#fullscreen-btn {
+    bottom: 46px;
+    right: 10px;
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
 }
 
 
 /* ==========================================
    RADIO LAC BOX + DERNIERS TITRES (combined)
-   app.js wraps the logo, power button and label
-   in #logoMain, and adds the songs panel beside it.
    ========================================== */
 
 #logoMain {
@@ -351,7 +355,6 @@ h1 {
     flex: none;
 }
 
-/* DESKTOP: same top and height as before, wider, logo group on the left */
 #logoBox.has-songs {
     width: clamp(497px, calc(100vw - 691px), 820px);
     flex-direction: row;
@@ -361,10 +364,9 @@ h1 {
 }
 
 #logoBox.has-songs #logoMain {
-    width: 270px;                      /* width of the logo */
+    width: 270px;
 }
 
-/* Songs panel: a slightly darker inset so the white text is easier to read */
 #songs-widget {
     flex: 1;
     min-width: 0;
@@ -445,7 +447,7 @@ h1 {
 }
 
 /* ==========================================
-   FULLSCREEN TOGGLE BUTTON (Reinstated)
+   FULLSCREEN TOGGLE BUTTON
    ========================================== */
 
 #fullscreen-btn {
@@ -475,7 +477,7 @@ h1 {
 #credits {
     position: fixed;
     left: 20px;
-    bottom: 90px;                      /* 82px ticker + 8px gap */
+    bottom: 90px;
     max-width: calc(100vw - 40px);
     box-sizing: border-box;
     padding: 4px 10px;
@@ -494,8 +496,7 @@ h1 {
 }
 
 /* ==========================================
-   TABLETS & SMALL LAPTOPS (769px - 1279px wide, not phone landscape)
-   Boxes scale with the screen so they never overlap.
+   TABLETS & SMALL LAPTOPS
    ========================================== */
 
 @media screen and (min-width: 769px) and (max-width: 1279px) and (min-height: 501px) {
@@ -526,7 +527,7 @@ h1 {
 }
 
 #logoBox.has-songs {
-    width: calc(100vw - 36vw - 60px);  /* fills the space up to the clock box */
+    width: calc(100vw - 36vw - 60px);
 }
 
 #logoBox.has-songs #logoMain {
@@ -564,7 +565,6 @@ h1 {
 
 }
 
-/* Narrow tablets: drop the cover images to leave room for the song names */
 @media screen and (min-width: 769px) and (max-width: 900px) and (min-height: 501px) {
 
 #songs-widget img {
@@ -574,7 +574,7 @@ h1 {
 }
 
 /* ==========================================
-   MOBILE PORTRAIT: separate box directly beneath the Radio Lac box, three songs
+   MOBILE PORTRAIT OVERRIDES
    ========================================== */
 
 @media screen and (max-width: 768px) and (orientation: portrait) {
@@ -597,12 +597,12 @@ h1 {
 
 #songs-widget {
     position: fixed;
-    top: calc(10px + 15vh + 6px + 15vh + 6px);   /* clock box + logo box + gaps */
+    top: calc(10px + 15vh + 6px + 15vh + 6px);
     left: 10px;
     width: 54vw;
     flex: none;
     padding: 8px;
-    background: #3b9aa3;               /* darker teal for contrast */
+    background: #3b9aa3;
     border-radius: 8px;
     z-index: 9999;
 }
@@ -644,7 +644,7 @@ h1 {
 
 #credits {
     left: 10px;
-    bottom: 41px;                      /* 35px ticker + 6px gap */
+    bottom: 41px;
     max-width: calc(100vw - 20px);
     font-size: 6.8px;
     padding: 2px 4px;
@@ -654,88 +654,6 @@ h1 {
 
 #fullscreen-btn {
     bottom: 41px;
-    right: 10px;
-    padding: 4px 8px;
-    font-size: 11px;
-}
-
-}
-
-/* ==========================================
-   MOBILE LANDSCAPE: combined box, same top and height as before, two songs
-   ========================================== */
-
-@media screen and (max-height: 500px) and (orientation: landscape) {
-
-#logoMain {
-    gap: 4px;
-}
-
-#logoBox.has-songs {
-    width: clamp(300px, calc(100vw - 280px), 380px);
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: stretch;
-    gap: 10px;
-}
-
-#logoBox.has-songs #logoMain {
-    width: 110px;                      /* width of the logo */
-}
-
-#songs-widget {
-    padding: 4px 8px;
-}
-
-#songs-widget .sw-header {
-    font-size: 9px;
-    margin-bottom: 3px;
-}
-
-#songs-widget .sw-row {
-    gap: 8px;
-}
-
-#songs-widget .sw-row + .sw-row {
-    margin-top: 4px;
-}
-
-#songs-widget .sw-row:nth-child(4) {
-    display: none;                     /* only the current song + one before */
-}
-
-#songs-widget img {
-    width: 30px;
-    height: 30px;
-    border-radius: 4px;
-}
-
-#songs-widget .sw-label {
-    font-size: 8px;
-}
-
-#songs-widget .sw-title {
-    font-size: 11px;
-}
-
-#songs-widget .sw-row.now .sw-title {
-    font-size: 12px;
-}
-
-#songs-widget .sw-artist {
-    font-size: 10px;
-}
-
-#credits {
-    left: 10px;
-    bottom: 46px;                      /* 40px ticker + 6px gap */
-    font-size: 9px;
-    padding: 3px 8px;
-    text-align: left;
-}
-
-#fullscreen-btn {
-    bottom: 46px;
     right: 10px;
     padding: 4px 8px;
     font-size: 11px;
