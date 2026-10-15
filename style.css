@@ -6,8 +6,15 @@ body {
     height: 100%;
     overflow: hidden;
     background: black;
+    font-family: 'Inter', sans-serif;
 }
 
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
 #video {
     position: fixed;
     left: 0;
