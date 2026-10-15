@@ -1,6 +1,16 @@
 console.log("GenevaCam loaded");
 
 //
+// Settings
+//
+
+// Your Cloudflare Worker address (keep the trailing slash).
+// Replace YOURNAME with your own workers.dev name.
+const PROXY_BASE = "https://genevacam-rss.christian-cobley.workers.dev/";
+
+const proxied = (url) => `${PROXY_BASE}?url=${encodeURIComponent(url)}`;
+
+//
 // Webcam
 //
 
@@ -151,7 +161,7 @@ const getForecast = async () => {
         const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=46.2044&longitude=6.1432&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=Europe%2FZurich');
         const data = await response.json();
         const d = data.daily;
-        
+
         const parts = d.time.map((day, i) => {
             let label = "Aujourd'hui";
             if (i === 1) label = 'Demain';
@@ -169,32 +179,64 @@ const getForecast = async () => {
     }
 };
 
-// Direct XML fetch + Native DOMParser using corsproxy.io
+// RSS fetch via our own Cloudflare Worker + native DOMParser
 async function fetchFeedXml(url) {
-const proxyUrl = `https://genevacam-rss.christian-cobley.workers.dev/?url=${encodeURIComponent(url)}`;
-
     try {
-        const response = await fetch(proxyUrl);
-        if (!response.ok) return [];
+        const response = await fetch(proxied(url));
+        if (!response.ok) {
+            console.warn("Feed failed:", response.status, url);
+            return [];
+        }
 
         const xmlText = await response.text();
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-        const items = xmlDoc.querySelectorAll("item title, entry title");
+        const xmlDoc = new DOMParser().parseFromString(xmlText, "text/xml");
 
-        const titles = [];
-        items.forEach(item => {
-            if (item.textContent) {
-                titles.push(item.textContent.trim());
-            }
-        });
+        if (xmlDoc.querySelector("parsererror")) {
+            console.warn("XML parse error:", url);
+            return [];
+        }
 
-        return titles;
+        return [...xmlDoc.querySelectorAll("item > title, entry > title")]
+            .map(t => t.textContent.trim())
+            .filter(Boolean);
     } catch (e) {
-        // Silently capture errors
+        console.warn("Feed error:", url, e);
+        return [];
     }
-    return [];
 }
+
+//
+// Radio Lac - Derniers titres (French)
+//
+
+let cachedSongsText = "";
+
+async function updateSongs() {
+    try {
+        const res = await fetch(proxied("https://www.radiolac.ch/cache/lac.json"));
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const json = await res.json();
+
+        const fmt = s => `${s.interpret} – ${s.title}`;
+        const now = json.live && json.live[0];
+        const prev = (json.played || []).slice(0, 2);
+
+        const parts = [];
+        if (now) parts.push("En ce moment : " + fmt(now));
+        if (prev.length) parts.push("Juste avant : " + prev.map(fmt).join(" / "));
+
+        cachedSongsText = parts.length ? "Radio Lac 🎵 " + parts.join("   |   ") : "";
+    } catch (e) {
+        console.warn("Songs error:", e);
+    }
+}
+
+updateSongs();
+setInterval(updateSongs, 60000);
+
+//
+// Ticker rotation
+//
 
 let feedBatches = [];
 let rotationOffset = 0;
@@ -240,8 +282,8 @@ async function updateTicker() {
     feedBatches.push({
         name: "Genève Cam",
         titles: [
-            "Bienvenue sur Geneva Cam. Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
-            "Actualités en direct de Genève et de la Suisse, météo et informations trafic"
+            "Bienvenue sur Geneva Cam!! Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
+            "Actualités en direct de Genève, de Suisse et du monde, ainsi que les dernières informations sur l'économie, le sport, la météo et le trafic."
         ]
     });
 
@@ -294,12 +336,17 @@ function renderNextRotationBatch() {
         }
     }
 
-    // 2. Weather forecast
+    // 2. Radio Lac now playing / last songs
+    if (cachedSongsText) {
+        headlines.push(cachedSongsText);
+    }
+
+    // 3. Weather forecast
     if (cachedForecastText) {
         headlines.push(cachedForecastText);
     }
 
-    // 3. News and travel alert batches
+    // 4. News and travel alert batches
     for (let b = 1; b < feedBatches.length; b++) {
         const batch = feedBatches[b];
         const total = batch.titles.length;
