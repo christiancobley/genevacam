@@ -6,7 +6,7 @@ console.log("GenevaCam loaded");
 
 // Your Cloudflare Worker address (keep the trailing slash).
 // Replace YOURNAME with your own workers.dev name.
-const PROXY_BASE = "https://genevacam-rss.christian-cobley.workers.dev/";
+const PROXY_BASE = "https://genevacam-rss.YOURNAME.workers.dev/";
 
 const proxied = (url) => `${PROXY_BASE}?url=${encodeURIComponent(url)}`;
 
@@ -206,33 +206,86 @@ async function fetchFeedXml(url) {
 }
 
 //
-// Radio Lac - Derniers titres (French)
+// Radio Lac - Derniers titres widget (French)
 //
 
-let cachedSongsText = "";
+const SONGS_URL = "https://www.radiolac.ch/cache/lac.json";
+const SONGS_REFRESH_MS = 30000; // refresh every 30 seconds
 
-async function updateSongs() {
-    try {
-        const res = await fetch(proxied("https://www.radiolac.ch/cache/lac.json"));
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const json = await res.json();
+(function createSongsWidget() {
+    // Container
+    const box = document.createElement("div");
+    box.id = "songs-widget";
+    box.hidden = true; // stays hidden until we have data
+    document.body.appendChild(box);
 
-        const fmt = s => `${s.interpret} – ${s.title}`;
-        const now = json.live && json.live[0];
-        const prev = (json.played || []).slice(0, 2);
+    const el = (tag, cls, text) => {
+        const n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (text !== undefined) n.textContent = text;
+        return n;
+    };
 
-        const parts = [];
-        if (now) parts.push("En ce moment : " + fmt(now));
-        if (prev.length) parts.push("Juste avant : " + prev.map(fmt).join(" / "));
+    const makeRow = (label, song, isNow) => {
+        const row = el("div", "sw-row" + (isNow ? " now" : ""));
 
-        cachedSongsText = parts.length ? "Radio Lac 🎵 " + parts.join("   |   ") : "";
-    } catch (e) {
-        console.warn("Songs error:", e);
+        const img = el("img");
+        img.alt = "";
+        img.src = song.imagexs || "";
+        img.onerror = () => { img.style.visibility = "hidden"; };
+
+        const text = el("div", "sw-text");
+        const time = song.simpletime ? " • " + song.simpletime : "";
+        text.append(
+            el("div", "sw-label", label + time),
+            el("div", "sw-title", song.title || ""),
+            el("div", "sw-artist", song.interpret || "")
+        );
+
+        row.append(img, text);
+        return row;
+    };
+
+    let lastKey = "";
+
+    async function refreshSongs() {
+        try {
+            const res = await fetch(proxied(SONGS_URL));
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const json = await res.json();
+
+            const now = json.live && json.live[0];
+            const prev = (json.played || []).slice(0, 2);
+            if (!now) throw new Error("No live entry");
+
+            box.classList.remove("stale");
+
+            // Only rebuild the widget when the song actually changes
+            const key = [now, ...prev].map(s => s.playtime || s.title).join("|");
+            if (key === lastKey) return;
+            lastKey = key;
+
+            box.replaceChildren(
+                el("div", "sw-header", "Radio Lac • Derniers titres"),
+                makeRow("En ce moment", now, true),
+                ...prev.map(s => makeRow("Juste avant", s, false))
+            );
+            box.hidden = false;
+        } catch (e) {
+            console.warn("Songs error:", e);
+            // Keep showing the last known songs, but dim them so it's clear they may be old
+            if (!box.hidden) box.classList.add("stale");
+        }
     }
-}
 
-updateSongs();
-setInterval(updateSongs, 60000);
+    refreshSongs();
+    setInterval(refreshSongs, SONGS_REFRESH_MS);
+
+    // Refresh straight away when the tab becomes visible again
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) refreshSongs();
+    });
+})();
 
 //
 // Ticker rotation
@@ -282,8 +335,8 @@ async function updateTicker() {
     feedBatches.push({
         name: "Genève Cam",
         titles: [
-            "Bienvenue sur Geneva Cam!! Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
-            "Actualités en direct de Genève, de Suisse et du monde, ainsi que les dernières informations sur l'économie, le sport, la météo et le trafic."
+            "Bienvenue sur Geneva Cam. Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
+            "Actualités en direct de Genève et de la Suisse, météo et informations trafic"
         ]
     });
 
@@ -336,17 +389,12 @@ function renderNextRotationBatch() {
         }
     }
 
-    // 2. Radio Lac now playing / last songs
-    if (cachedSongsText) {
-        headlines.push(cachedSongsText);
-    }
-
-    // 3. Weather forecast
+    // 2. Weather forecast
     if (cachedForecastText) {
         headlines.push(cachedForecastText);
     }
 
-    // 4. News and travel alert batches
+    // 3. News and travel alert batches
     for (let b = 1; b < feedBatches.length; b++) {
         const batch = feedBatches[b];
         const total = batch.titles.length;

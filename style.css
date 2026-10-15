@@ -332,3 +332,180 @@ h1 {
 }
 
 }
+
+/* ==========================================
+   RADIO LAC - DERNIERS TITRES WIDGET
+   (sits bottom-left, just above the ticker)
+   ========================================== */
+
+#songs-widget {
+    position: fixed;
+    left: 20px;
+    bottom: 98px;              /* 82px ticker + 16px gap */
+    width: 497px;              /* same width as the logo box */
+    box-sizing: border-box;
+    padding: 16px 20px;
+    background: #48bcc7;
+    border-radius: 8px;
+    color: #ffffff;
+    z-index: 9999;
+}
+
+#songs-widget[hidden] {
+    display: none;
+}
+
+#songs-widget.stale {
+    opacity: 0.6;
+}
+
+#songs-widget .sw-header {
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+#songs-widget .sw-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+#songs-widget .sw-row + .sw-row {
+    margin-top: 12px;
+}
+
+#songs-widget .sw-row:not(.now) {
+    opacity: 0.85;
+}
+
+#songs-widget img {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex: none;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+#songs-widget .sw-text {
+    min-width: 0;
+}
+
+#songs-widget .sw-label {
+    font-size: 15px;
+    opacity: 0.85;
+}
+
+#songs-widget .sw-title,
+#songs-widget .sw-artist {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#songs-widget .sw-title {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#songs-widget .sw-row.now .sw-title {
+    font-size: 28px;
+}
+
+#songs-widget .sw-artist {
+    font-size: 20px;
+}
+
+/* Mobile portrait: compact, current song only */
+@media screen and (max-width: 768px) and (orientation: portrait) {
+
+#songs-widget {
+    left: 10px;
+    bottom: 58px;              /* 50px ticker + 8px gap */
+    width: 42vw;
+    padding: 6px;
+}
+
+#songs-widget .sw-header {
+    font-size: 8px;
+    margin-bottom: 4px;
+}
+
+#songs-widget .sw-row {
+    gap: 6px;
+}
+
+#songs-widget .sw-row + .sw-row {
+    display: none;             /* hide the "Juste avant" rows */
+}
+
+#songs-widget img {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+}
+
+#songs-widget .sw-label {
+    font-size: 7px;
+}
+
+#songs-widget .sw-title,
+#songs-widget .sw-row.now .sw-title {
+    font-size: 10px;
+}
+
+#songs-widget .sw-artist {
+    font-size: 8px;
+}
+
+}
+
+/* Mobile landscape: compact, all three songs */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+
+#songs-widget {
+    left: 10px;
+    bottom: 48px;              /* 40px ticker + 8px gap */
+    width: 250px;
+    padding: 6px 8px;
+}
+
+#songs-widget .sw-header {
+    font-size: 9px;
+    margin-bottom: 4px;
+}
+
+#songs-widget .sw-row {
+    gap: 8px;
+}
+
+#songs-widget .sw-row + .sw-row {
+    margin-top: 4px;
+}
+
+#songs-widget img {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+}
+
+#songs-widget .sw-label {
+    font-size: 8px;
+}
+
+#songs-widget .sw-title {
+    font-size: 11px;
+}
+
+#songs-widget .sw-row.now .sw-title {
+    font-size: 12px;
+}
+
+#songs-widget .sw-artist {
+    font-size: 10px;
+}
+
+}
