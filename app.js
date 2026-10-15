@@ -180,7 +180,8 @@ function updateClock() {
             }
         ) + " • Genève";
 
-    let dateStr = now.toLocaleDateString(
+    // Capitalise the first letter of the weekday and of the month (e.g. "Jeudi 15 Octobre")
+    const dateStr = new Intl.DateTimeFormat(
         "fr-FR",
         {
             weekday: "long",
@@ -188,8 +189,11 @@ function updateClock() {
             month: "long",
             timeZone: "Europe/Zurich"
         }
-    );
-    dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+    ).formatToParts(now).map(part =>
+        (part.type === "weekday" || part.type === "month")
+            ? part.value.charAt(0).toUpperCase() + part.value.slice(1)
+            : part.value
+    ).join("");
     document.getElementById("date").textContent = dateStr;
 }
 
