@@ -169,9 +169,9 @@ const getForecast = async () => {
     }
 };
 
-// Direct XML fetch + Native DOMParser using AllOrigins raw
+// Direct XML fetch + Native DOMParser using corsproxy.io
 async function fetchFeedXml(url) {
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
 
     try {
         const response = await fetch(proxyUrl);
@@ -256,7 +256,7 @@ async function updateTicker() {
         feedBatches.push({ name: "Infomobilité Genève", titles: roadResults });
     }
 
-    // 3. Le Temps batches
+    // 3. Le Temps batches (All 5 feeds)
     leTempsResults.forEach((titles, idx) => {
         if (titles && titles.length > 0) {
             feedBatches.push({
@@ -266,7 +266,7 @@ async function updateTicker() {
         }
     });
 
-    // 4. 20 Minutes batches
+    // 4. 20 Minutes batches (All 7 feeds)
     twentyMinResults.forEach((titles, idx) => {
         if (titles && titles.length > 0) {
             feedBatches.push({
