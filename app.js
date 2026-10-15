@@ -271,14 +271,6 @@ async function fetchTpgAlerts() {
     return ["Transports publics genevois (TPG) : Service régulier et fluide sur le réseau"];
 }
 
-async function fetchAirportAlerts() {
-    return ["Aéroport de Genève (GVA) : Vols et opérations réguliers"];
-}
-
-async function fetchRoadTrafficAlerts() {
-    return ["Infomobilité Genève : Conditions de circulation régulières sur le réseau cantonal"];
-}
-
 const getForecast = async () => {
     try {
         const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=46.2044&longitude=6.1432&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=Europe%2FZurich');
@@ -451,15 +443,11 @@ async function updateTicker() {
 
     const forecastPromise = getForecast();
     const tpgPromise = fetchTpgAlerts();
-    const airportPromise = fetchAirportAlerts();
-    const roadPromise = fetchRoadTrafficAlerts();
     const leTempsPromises = leTempsFeeds.map(feed => fetchFeedXml(feed.url));
     const twentyMinPromises = twentyMinFeeds.map(feed => fetchFeedXml(feed.url));
 
     cachedForecastText = await forecastPromise;
     const tpgResults = await tpgPromise;
-    const airportResults = await airportPromise;
-    const roadResults = await roadPromise;
     const leTempsResults = await Promise.all(leTempsPromises);
     const twentyMinResults = await Promise.all(twentyMinPromises);
 
@@ -470,19 +458,13 @@ async function updateTicker() {
         name: "Genève Cam",
         titles: [
             "Bienvenue sur Geneva Cam 😃 Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
-            "Actualités en direct de Genève, de Suisse et du monde, ainsi que les dernières informations sur l'économie, le sport, la météo et le trafic"
+            "Actualités en direct de Genève, de Suisse et du monde, ainsi que les dernières informations sur l'économie, le sport, la météo et les transports publics à Genève"
         ]
     });
 
-    // 2. Live Travel & Traffic Alerts
+    // 2. Geneva public transport alerts
     if (tpgResults && tpgResults.length > 0) {
-        feedBatches.push({ name: "Info Trafic TPG", titles: tpgResults });
-    }
-    if (airportResults && airportResults.length > 0) {
-        feedBatches.push({ name: "Genève Aéroport (GVA)", titles: airportResults });
-    }
-    if (roadResults && roadResults.length > 0) {
-        feedBatches.push({ name: "Infomobilité Genève", titles: roadResults });
+        feedBatches.push({ name: "Transports publics à Genève", titles: tpgResults });
     }
 
     // 3. Le Temps batches (All 5 feeds)
