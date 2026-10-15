@@ -117,6 +117,7 @@ h1 {
     justify-content: center;
     padding: 20px;
     z-index: 9999;
+    position: relative; /* Allows absolute positioning of children inside */
 }
 
 #clock {
@@ -192,6 +193,7 @@ h1 {
     justify-content: center;
     padding: 8px;
     z-index: 9999;
+    position: relative;
 }
 
 #clock {
@@ -265,6 +267,11 @@ h1 {
     font-size: 14px;
 }
 
+#fullscreen-btn {
+    padding: 2px 6px;
+    font-size: 12px;
+}
+
 }
 
 /* ==========================================
@@ -307,6 +314,7 @@ h1 {
     padding: 8px;
     top: 10px;
     right: 10px;
+    position: relative;
 }
 
 #clock {
@@ -333,10 +341,8 @@ h1 {
 }
 
 #fullscreen-btn {
-    bottom: 46px;
-    right: 10px;
-    padding: 4px 8px;
-    font-size: 11px;
+    padding: 2px 5px;
+    font-size: 10px;
 }
 
 }
@@ -447,27 +453,28 @@ h1 {
 }
 
 /* ==========================================
-   FULLSCREEN TOGGLE BUTTON
+   FULLSCREEN TOGGLE BUTTON (Bottom Right of Clock Box)
    ========================================== */
 
 #fullscreen-btn {
-    position: fixed;
-    bottom: 90px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.6);
-    border: 2px solid rgba(255, 255, 255, 0.8);
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 2px solid rgba(255, 255, 255, 0.85);
     border-radius: 6px;
     color: #ffffff;
-    padding: 8px 12px;
-    font-size: 14px;
+    padding: 6px 10px;
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
-    z-index: 9999;
-    transition: background 0.2s ease;
+    z-index: 10;
+    transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 #fullscreen-btn:hover {
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.65);
+    border-color: #ffffff;
 }
 
 /* ==========================================
@@ -650,13 +657,6 @@ h1 {
     padding: 2px 4px;
     white-space: nowrap;
     text-align: left;
-}
-
-#fullscreen-btn {
-    bottom: 41px;
-    right: 10px;
-    padding: 4px 8px;
-    font-size: 11px;
 }
 
 }
