@@ -566,3 +566,19 @@ function startTickerSeamless() {
 
 updateTicker();
 setInterval(updateTicker, 600000);
+
+// Toggle the camera information panels without interrupting the video or ticker.
+(function setupOverlayToggle() {
+    const button = document.getElementById("overlay-toggle");
+    if (!button) return;
+
+    button.addEventListener("click", () => {
+        const hidden = document.body.classList.toggle("boxes-hidden");
+        button.textContent = hidden ? "Afficher" : "Masquer";
+        button.setAttribute("aria-expanded", String(!hidden));
+        button.setAttribute(
+            "aria-label",
+            hidden ? "Afficher les panneaux d'information" : "Masquer les panneaux d'information"
+        );
+    });
+})();

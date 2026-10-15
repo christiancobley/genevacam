@@ -481,6 +481,33 @@ h1 {
     display: none;
 }
 
+#overlay-toggle {
+    position: fixed;
+    left: 12px;
+    bottom: 88px;
+    z-index: 10000;
+    padding: 6px 11px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.2;
+    cursor: pointer;
+}
+
+#overlay-toggle:hover,
+#overlay-toggle:focus-visible {
+    background: rgba(0, 0, 0, 0.8);
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+body.boxes-hidden #logoBox,
+body.boxes-hidden #clockBox {
+    display: none !important;
+}
+
 /* ==========================================
    FULL SCREEN BUTTON (bottom right of the clock box)
    ========================================== */
@@ -802,10 +829,19 @@ h1 {
 }
 
 #credits {
+    left: 104px;
     right: 10px;
     bottom: 42px;                      /* 40px ticker + 2px gap */
+    max-width: calc(100vw - 124px);
     font-size: 9px;
     padding: 3px 8px;
+}
+
+#overlay-toggle {
+    left: 8px;
+    bottom: 46px;
+    padding: 5px 9px;
+    font-size: 10px;
 }
 
 #fullscreen-btn {
@@ -926,11 +962,19 @@ h1 {
 }
 
 #credits {
+    left: 104px;
     right: 8px;
     bottom: 41.6px;
-    max-width: calc(100vw - 16px);
+    max-width: calc(100vw - 120px);
     font-size: 1.68vw;
     padding: 2.4px 6.4px;
+}
+
+#overlay-toggle {
+    left: 8px;
+    bottom: 46px;
+    padding: 5px 9px;
+    font-size: 10px;
 }
 
 #tickerContainer {
