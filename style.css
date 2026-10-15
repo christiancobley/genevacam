@@ -258,12 +258,12 @@ h1 {
 }
 
 #tickerContainer {
-    height: 50px;
+    height: 35px;
 }
 
 #ticker {
-    line-height: 50px;
-    font-size: 20px;
+    line-height: 35px;
+    font-size: 14px;
 }
 
 }
@@ -620,10 +620,11 @@ h1 {
 
 #credits {
     left: 10px;
-    bottom: 56px;                      /* 50px ticker + 6px gap */
+    bottom: 41px;                      /* 35px ticker + 6px gap */
     max-width: calc(100vw - 20px);
-    font-size: 9px;
-    padding: 3px 8px;
+    font-size: 7.5px;
+    padding: 2px 5px;
+    white-space: nowrap;
     text-align: left;
 }
 
@@ -656,50 +657,4 @@ h1 {
 }
 
 #songs-widget .sw-header {
-    font-size: 9px;
-    margin-bottom: 3px;
-}
-
-#songs-widget .sw-row {
-    gap: 8px;
-}
-
-#songs-widget .sw-row + .sw-row {
-    margin-top: 4px;
-}
-
-#songs-widget .sw-row:nth-child(4) {
-    display: none;                     /* only the current song + one before */
-}
-
-#songs-widget img {
-    width: 30px;
-    height: 30px;
-    border-radius: 4px;
-}
-
-#songs-widget .sw-label {
-    font-size: 8px;
-}
-
-#songs-widget .sw-title {
-    font-size: 11px;
-}
-
-#songs-widget .sw-row.now .sw-title {
-    font-size: 12px;
-}
-
-#songs-widget .sw-artist {
-    font-size: 10px;
-}
-
-#credits {
-    left: 10px;
-    bottom: 46px;                      /* 40px ticker + 6px gap */
-    font-size: 9px;
-    padding: 3px 8px;
-    text-align: left;
-}
-
-}
+    font-size: 9px
