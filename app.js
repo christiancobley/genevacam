@@ -103,10 +103,50 @@ updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// News Ticker & Geneva Live Alerts
+// News Ticker, Radio Lac Tracks & Live Geneva Alerts
 //
 
 const ticker = document.getElementById("ticker");
+
+// Scrape Radio Lac Recently Played Tracks ("Derniers Titres")
+async function fetchRadioLacTracks() {
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.radiolac.ch/actualite/player/')}`;
+
+    try {
+        const response = await fetch(proxyUrl);
+        if (!response.ok) return [];
+
+        const htmlText = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, "text/html");
+
+        const tracks = [];
+        // Extract title/artist elements from Radio Lac player markup
+        const trackElements = doc.querySelectorAll('.track-info, .song-info, .player-history-item, .derniers-titres .item');
+
+        trackElements.forEach(el => {
+            const title = el.querySelector('.title, .song, .track-title')?.textContent?.trim();
+            const artist = el.querySelector('.artist, .author, .track-artist')?.textContent?.trim();
+
+            if (title && artist) {
+                tracks.push(`🎵 ${artist} - ${title}`);
+            } else if (el.textContent) {
+                const cleanText = el.textContent.replace(/\s+/g, ' ').trim();
+                if (cleanText.length > 3) {
+                    tracks.push(`🎵 ${cleanText}`);
+                }
+            }
+        });
+
+        if (tracks.length > 0) {
+            return tracks.slice(0, 4);
+        }
+    } catch (e) {
+        // Silently catch network errors
+    }
+
+    return ["🎵 Radio Lac : Le meilleur de la musique à Genève"];
+}
 
 // CORS-friendly Swiss Transport API for Geneva TPG station alerts
 async function fetchTpgAlerts() {
@@ -202,7 +242,6 @@ let cachedForecastText = "";
 let currentAnimation = null;
 
 async function updateTicker() {
-    // Complete Le Temps feeds restored
     const leTempsFeeds = [
         { name: "Le Temps Suisse", url: "https://www.letemps.ch/suisse.rss" },
         { name: "Le Temps Articles", url: "https://www.letemps.ch/articles.rss" },
@@ -211,7 +250,6 @@ async function updateTicker() {
         { name: "Le Temps Sport", url: "https://www.letemps.ch/sport.rss" }
     ];
 
-    // Complete 20 Minutes feeds with Genève reinstated first
     const twentyMinFeeds = [
         { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande/geneve" },
         { name: "20 Minutes Suisse Romande", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
@@ -223,6 +261,7 @@ async function updateTicker() {
     ];
 
     const forecastPromise = getForecast();
+    const radioTracksPromise = fetchRadioLacTracks();
     const tpgPromise = fetchTpgAlerts();
     const airportPromise = fetchAirportAlerts();
     const roadPromise = fetchRoadTrafficAlerts();
@@ -230,6 +269,7 @@ async function updateTicker() {
     const twentyMinPromises = twentyMinFeeds.map(feed => fetchFeedXml(feed.url));
 
     cachedForecastText = await forecastPromise;
+    const radioTrackResults = await radioTracksPromise;
     const tpgResults = await tpgPromise;
     const airportResults = await airportPromise;
     const roadResults = await roadPromise;
@@ -247,7 +287,12 @@ async function updateTicker() {
         ]
     });
 
-    // 2. Alert Batches
+    // 2. Radio Lac Recently Played Tracks
+    if (radioTrackResults && radioTrackResults.length > 0) {
+        feedBatches.push({ name: "Radio Lac - Derniers Titres", titles: radioTrackResults });
+    }
+
+    // 3. Live Travel & Traffic Alerts
     if (tpgResults && tpgResults.length > 0) {
         feedBatches.push({ name: "Info Trafic TPG", titles: tpgResults });
     }
@@ -258,7 +303,7 @@ async function updateTicker() {
         feedBatches.push({ name: "Infomobilité Genève", titles: roadResults });
     }
 
-    // 3. Le Temps batches
+    // 4. Le Temps batches
     leTempsResults.forEach((titles, idx) => {
         if (titles && titles.length > 0) {
             feedBatches.push({
@@ -268,7 +313,7 @@ async function updateTicker() {
         }
     });
 
-    // 4. 20 Minutes batches
+    // 5. 20 Minutes batches
     twentyMinResults.forEach((titles, idx) => {
         if (titles && titles.length > 0) {
             feedBatches.push({
@@ -301,9 +346,9 @@ function renderNextRotationBatch() {
         headlines.push(cachedForecastText);
     }
 
-    // 3. News and alert batches
+    // 3. News, Radio Lac tracks, and travel alert batches
     for (let b = 1; b < feedBatches.length; b++) {
-        const batch = batch = feedBatches[b];
+        const batch = feedBatches[b];
         const total = batch.titles.length;
         if (total > 0) {
             for (let i = 0; i < Math.min(3, total); i++) {
