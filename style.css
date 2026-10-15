@@ -1020,3 +1020,52 @@ body.boxes-hidden #clockBox {
         font-size: clamp(5px, 1.6vw, 9px);
     }
 }
+
+/* Tagline sits visually midway between the logo underline and the radio control. */
+#radio-tagline {
+    transform: translateY(-1em);
+}
+
+/* Mobile landscape: align all three cards and keep the complete radio control visible. */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    #logoBox.has-songs {
+        top: 10px;
+        height: 110px;
+        width: clamp(320px, calc(100vw - 260px), 400px);
+        padding: 0;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    #logoBox.has-songs #logoMain {
+        width: 130px;
+        flex: 0 0 130px;
+        gap: 2px;
+    }
+
+    #logoBox.has-songs #logo {
+        width: 100px;
+    }
+
+    #logoBox.has-songs #radio-tagline {
+        width: 100%;
+        max-width: 100%;
+        font-size: clamp(7px, 1.2vw, 8px);
+        transform: translateY(-0.75em);
+    }
+
+    #logoBox.has-songs .power-label {
+        font-size: 0.45rem;
+        white-space: nowrap;
+    }
+
+    #logoBox.has-songs #songs-widget {
+        align-self: stretch;
+        margin: 0;
+    }
+
+    #clockBox {
+        top: 10px;
+        height: 110px;
+    }
+}
