@@ -103,7 +103,7 @@ updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// News Ticker & Geneva Live Alerts
+// News Ticker & Live Geneva Alerts
 //
 
 const ticker = document.getElementById("ticker");
@@ -169,7 +169,7 @@ const getForecast = async () => {
     }
 };
 
-// Direct XML fetch + Native DOMParser
+// Direct XML fetch + Native DOMParser using AllOrigins raw
 async function fetchFeedXml(url) {
     const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
 
@@ -202,7 +202,6 @@ let cachedForecastText = "";
 let currentAnimation = null;
 
 async function updateTicker() {
-    // Complete Le Temps feeds restored
     const leTempsFeeds = [
         { name: "Le Temps Suisse", url: "https://www.letemps.ch/suisse.rss" },
         { name: "Le Temps Articles", url: "https://www.letemps.ch/articles.rss" },
@@ -211,7 +210,6 @@ async function updateTicker() {
         { name: "Le Temps Sport", url: "https://www.letemps.ch/sport.rss" }
     ];
 
-    // Complete 20 Minutes feeds with Genève reinstated first
     const twentyMinFeeds = [
         { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande/geneve" },
         { name: "20 Minutes Suisse Romande", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
@@ -242,12 +240,12 @@ async function updateTicker() {
     feedBatches.push({
         name: "Genève Cam",
         titles: [
-            "Bienvenue sur Geneva Cam! Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
-            "Actualités en direct de Genève et de la Suisse, et autres actualités et informations"
+            "Bienvenue sur Geneva Cam. Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
+            "Actualités en direct de Genève et de la Suisse, météo et informations trafic"
         ]
     });
 
-    // 2. Alert Batches
+    // 2. Live Travel & Traffic Alerts
     if (tpgResults && tpgResults.length > 0) {
         feedBatches.push({ name: "Info Trafic TPG", titles: tpgResults });
     }
@@ -301,9 +299,9 @@ function renderNextRotationBatch() {
         headlines.push(cachedForecastText);
     }
 
-    // 3. News and alert batches
+    // 3. News and travel alert batches
     for (let b = 1; b < feedBatches.length; b++) {
-        const batch = batch = feedBatches[b];
+        const batch = feedBatches[b];
         const total = batch.titles.length;
         if (total > 0) {
             for (let i = 0; i < Math.min(3, total); i++) {
