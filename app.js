@@ -15,7 +15,82 @@ const proxied = (url) => `${PROXY_BASE}?url=${encodeURIComponent(url)}`;
 //
 
 const video = document.getElementById("video");
-video.src = "https://edge16.vedge.infomaniak.com/livecast/ik:sig2/chunklist_w1380254353.m3u8";
+const STREAM_URL = "https://edge16.vedge.infomaniak.com/livecast/ik:sig2/chunklist_w1380254353.m3u8";
+
+let hls = null;
+
+function startStream() {
+    // Tear down any previous attempt first
+    if (hls) {
+        hls.destroy();
+        hls = null;
+    }
+
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        // Safari and other browsers with native HLS support
+        video.src = STREAM_URL;
+        video.load();
+    } else if (window.Hls && Hls.isSupported()) {
+        // Chrome, Firefox, Edge: play HLS through hls.js
+        hls = new Hls();
+        hls.on(Hls.Events.ERROR, (event, data) => {
+            if (!data.fatal) return;
+            console.warn("Stream error:", data.type, data.details);
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                hls.startLoad();
+            } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                hls.recoverMediaError();
+            } else {
+                setTimeout(startStream, 5000);
+            }
+        });
+        hls.loadSource(STREAM_URL);
+        hls.attachMedia(video);
+    } else {
+        // Last resort
+        video.src = STREAM_URL;
+    }
+
+    video.play().catch(() => {});
+}
+
+// Native playback failed: try again shortly
+video.addEventListener("error", () => {
+    console.warn("Video error, retrying in 5 seconds");
+    setTimeout(startStream, 5000);
+});
+
+// Watchdog: if the picture has frozen for 30 seconds, restart the stream
+let lastVideoTime = -1;
+setInterval(() => {
+    if (video.paused) {
+        video.play().catch(() => {});
+        return;
+    }
+    if (video.currentTime === lastVideoTime) {
+        console.warn("Video stalled, restarting stream");
+        startStream();
+    }
+    lastVideoTime = video.currentTime;
+}, 30000);
+
+startStream();
+
+// Reload the whole page once a night (04:00 Geneva time) to keep a 24/7 display fresh
+const pageLoadedAt = Date.now();
+setInterval(() => {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: false,
+        timeZone: "Europe/Zurich"
+    }).formatToParts(new Date());
+    const hour = Number(parts.find(p => p.type === "hour").value) % 24;
+    const minute = Number(parts.find(p => p.type === "minute").value);
+    if (hour === 4 && minute === 0 && Date.now() - pageLoadedAt > 30 * 60 * 1000) {
+        location.reload();
+    }
+}, 30000);
 
 //
 // Radio & Power Toggle
@@ -76,6 +151,26 @@ setInterval(updateClock, 1000);
 // Weather (French)
 //
 
+// Open-Meteo (WMO) weather codes, in French. Used by both the clock box and the forecast.
+function describeWeatherFr(code) {
+    if (code === 0) return "Ciel dégagé";
+    if (code === 1) return "Plutôt dégagé";
+    if (code === 2) return "Partiellement nuageux";
+    if (code === 3) return "Couvert";
+    if (code === 45 || code === 48) return "Brouillard";
+    if (code >= 51 && code <= 55) return "Bruine";
+    if (code === 56 || code === 57) return "Bruine verglaçante";
+    if (code >= 61 && code <= 65) return "Pluie";
+    if (code === 66 || code === 67) return "Pluie verglaçante";
+    if (code >= 71 && code <= 75) return "Neige";
+    if (code === 77) return "Grains de neige";
+    if (code >= 80 && code <= 82) return "Averses";
+    if (code === 85 || code === 86) return "Averses de neige";
+    if (code === 95) return "Orage";
+    if (code === 96 || code === 99) return "Orage avec grêle";
+    return "";
+}
+
 async function updateWeather() {
     try {
         const response = await fetch(
@@ -83,25 +178,13 @@ async function updateWeather() {
         );
         const data = await response.json();
 
-        let condition = "Inconnu";
-        switch (data.current.weather_code) {
-            case 0: condition = "Ciel dégagé"; break;
-            case 1: case 2: case 3: condition = "Partiellement nuageux"; break;
-            case 45: case 48: condition = "Brouillard"; break;
-            case 51: case 53: case 55: condition = "Bruine"; break;
-            case 61: case 63: case 65: condition = "Pluie"; break;
-            case 71: case 73: case 75: condition = "Neige"; break;
-            case 95: condition = "Orage"; break;
-        }
+        const condition = describeWeatherFr(data.current.weather_code);
 
-        document.getElementById("temperature").textContent =
-            Math.round(data.current.temperature_2m) +
-            "°C • " +
-            condition +
-            " • " +
-            Math.round(data.current.wind_speed_10m) +
-            " km/h";
+        const parts = [Math.round(data.current.temperature_2m) + "°C"];
+        if (condition) parts.push(condition);
+        parts.push(Math.round(data.current.wind_speed_10m) + " km/h");
 
+        document.getElementById("temperature").textContent = parts.join(" • ");
         document.getElementById("weather").textContent = "";
 
     } catch (error) {
@@ -142,19 +225,6 @@ async function fetchAirportAlerts() {
 async function fetchRoadTrafficAlerts() {
     return ["Infomobilité Genève : Conditions de circulation régulières sur le réseau cantonal"];
 }
-
-const describeWeatherFr = (code) => {
-    if (code === 0) return 'Ciel dégagé';
-    if (code === 1) return 'Plutôt dégagé';
-    if (code === 2) return 'Partiellement nuageux';
-    if (code === 3) return 'Couvert';
-    if (code === 45 || code === 48) return 'Brouillard';
-    if (code >= 51 && code <= 55) return 'Bruine';
-    if (code >= 61 && code <= 65) return 'Pluie';
-    if (code >= 71 && code <= 75) return 'Neige';
-    if (code === 95) return 'Orage';
-    return '';
-};
 
 const getForecast = async () => {
     try {

@@ -171,6 +171,7 @@ h1 {
 
 /* ==========================================
    MOBILE PORTRAIT MODE ONLY (Max Width 768px + Portrait)
+   Boxes are wider (54vw) and text is larger for readability.
    ========================================== */
 
 @media screen and (max-width: 768px) and (orientation: portrait) {
@@ -179,8 +180,9 @@ h1 {
     position: fixed;
     top: 10px;
     left: 10px;
-    width: 42vw;
-    height: 14vh;
+    right: auto;
+    width: 54vw;
+    height: 15vh;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -189,35 +191,36 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 6px;
+    padding: 8px;
     z-index: 9999;
-    right: auto;
 }
 
 #clock {
-    font-size: 15px;
+    font-size: 26px;
     line-height: 1.1;
     white-space: nowrap;
 }
 
 #date {
-    font-size: 8px;
-    margin-top: 1px;
-    line-height: 1.1;
+    font-size: 13px;
+    margin-top: 2px;
+    line-height: 1.15;
 }
 
 #temperature {
-    font-size: 8px;
-    margin-top: 1px;
-    white-space: nowrap;
+    font-size: 12px;
+    margin-top: 2px;
+    line-height: 1.2;
+    white-space: normal;
 }
 
 #logoBox {
     position: fixed;
-    top: calc(10px + 14vh + 6px);
+    top: calc(10px + 15vh + 6px);
     left: 10px;
-    width: 42vw;
-    height: 13vh;
+    right: auto;
+    width: 54vw;
+    height: 15vh;
     padding: 4px;
     box-sizing: border-box;
     background: #48bcc7;
@@ -226,29 +229,28 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
     z-index: 9999;
-    right: auto;
 }
 
 #logo {
-    width: 65px;
+    width: 85px;
     display: block;
 }
 
 .power-btn {
-    width: 16px;
-    height: 16px;
-    border-width: 1px;
+    width: 28px;
+    height: 28px;
+    border-width: 2px;
 }
 
 .power-icon {
-    width: 8px;
-    height: 8px;
+    width: 14px;
+    height: 14px;
 }
 
 .power-label {
-    font-size: 0.35rem;
+    font-size: 0.6rem;
 }
 
 #weather {
@@ -362,6 +364,7 @@ h1 {
     width: 270px;                      /* width of the logo */
 }
 
+/* Songs panel: a slightly darker inset so the white text is easier to read */
 #songs-widget {
     flex: 1;
     min-width: 0;
@@ -369,10 +372,12 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding-left: 20px;
-    border-left: 2px solid rgba(255, 255, 255, 0.45);
+    padding: 8px 14px;
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: 8px;
     color: #ffffff;
     line-height: 1.15;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 #songs-widget[hidden] {
@@ -384,11 +389,11 @@ h1 {
 }
 
 #songs-widget .sw-header {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 #songs-widget .sw-row {
@@ -398,16 +403,12 @@ h1 {
 }
 
 #songs-widget .sw-row + .sw-row {
-    margin-top: 10px;
-}
-
-#songs-widget .sw-row:not(.now) {
-    opacity: 0.85;
+    margin-top: 8px;
 }
 
 #songs-widget img {
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
     border-radius: 6px;
     object-fit: cover;
     flex: none;
@@ -420,7 +421,7 @@ h1 {
 
 #songs-widget .sw-label {
     font-size: 13px;
-    opacity: 0.85;
+    opacity: 0.9;
 }
 
 #songs-widget .sw-title,
@@ -443,19 +444,127 @@ h1 {
     font-size: 16px;
 }
 
-/* MOBILE PORTRAIT: separate box directly beneath the Radio Lac box, three songs */
-@media screen and (max-width: 768px) and (orientation: portrait) {
+/* ==========================================
+   CREDITS LINE (bottom right, above the ticker)
+   ========================================== */
 
-#logoMain {
-    gap: 3px;
+#credits {
+    position: fixed;
+    right: 20px;
+    bottom: 90px;                      /* 82px ticker + 8px gap */
+    max-width: calc(100vw - 40px);
+    box-sizing: border-box;
+    padding: 4px 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    line-height: 1.3;
+    text-align: right;
+    z-index: 9999;
+}
+
+#credits a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+/* ==========================================
+   TABLETS & SMALL LAPTOPS (769px - 1279px wide, not phone landscape)
+   Boxes scale with the screen so they never overlap.
+   ========================================== */
+
+@media screen and (min-width: 769px) and (max-width: 1279px) and (min-height: 501px) {
+
+#clockBox {
+    width: 36vw;
+}
+
+#clock {
+    font-size: 4.4vw;
+}
+
+#date {
+    font-size: 2.7vw;
+}
+
+#temperature {
+    font-size: 2.2vw;
+    white-space: normal;
+}
+
+#logo {
+    width: 200px;
+}
+
+#logoBox {
+    width: min(497px, calc(100vw - 36vw - 60px));
 }
 
 #logoBox.has-songs {
-    width: 42vw;
+    width: calc(100vw - 36vw - 60px);  /* fills the space up to the clock box */
+}
+
+#logoBox.has-songs #logoMain {
+    width: 200px;
+}
+
+#songs-widget img {
+    width: 44px;
+    height: 44px;
+}
+
+#songs-widget .sw-header {
+    font-size: 13px;
+}
+
+#songs-widget .sw-label {
+    font-size: 12px;
+}
+
+#songs-widget .sw-title {
+    font-size: 17px;
+}
+
+#songs-widget .sw-row.now .sw-title {
+    font-size: 20px;
+}
+
+#songs-widget .sw-artist {
+    font-size: 14px;
+}
+
+#credits {
+    font-size: 12px;
+}
+
+}
+
+/* Narrow tablets: drop the cover images to leave room for the song names */
+@media screen and (min-width: 769px) and (max-width: 900px) and (min-height: 501px) {
+
+#songs-widget img {
+    display: none;
+}
+
+}
+
+/* ==========================================
+   MOBILE PORTRAIT: separate box directly beneath the Radio Lac box, three songs
+   ========================================== */
+
+@media screen and (max-width: 768px) and (orientation: portrait) {
+
+#logoMain {
+    gap: 4px;
+}
+
+#logoBox.has-songs {
+    width: 54vw;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
 }
 
 #logoBox.has-songs #logoMain {
@@ -464,52 +573,65 @@ h1 {
 
 #songs-widget {
     position: fixed;
-    top: calc(10px + 14vh + 6px + 13vh + 6px);   /* clock box + logo box + gaps */
+    top: calc(10px + 15vh + 6px + 15vh + 6px);   /* clock box + logo box + gaps */
     left: 10px;
-    width: 42vw;
+    width: 54vw;
     flex: none;
-    padding: 6px;
-    border-left: none;
-    background: #48bcc7;
+    padding: 8px;
+    background: #3b9aa3;               /* darker teal for contrast */
     border-radius: 8px;
     z-index: 9999;
 }
 
 #songs-widget .sw-header {
-    font-size: 8px;
-    margin-bottom: 4px;
+    font-size: 10px;
+    margin-bottom: 6px;
 }
 
 #songs-widget .sw-row {
-    gap: 6px;
+    gap: 8px;
 }
 
 #songs-widget .sw-row + .sw-row {
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
 #songs-widget img {
-    width: 28px;
-    height: 28px;
+    width: 34px;
+    height: 34px;
     border-radius: 4px;
 }
 
 #songs-widget .sw-label {
-    font-size: 7px;
-}
-
-#songs-widget .sw-title,
-#songs-widget .sw-row.now .sw-title {
     font-size: 10px;
 }
 
+#songs-widget .sw-title {
+    font-size: 12px;
+}
+
+#songs-widget .sw-row.now .sw-title {
+    font-size: 13px;
+}
+
 #songs-widget .sw-artist {
-    font-size: 8px;
+    font-size: 11px;
+}
+
+#credits {
+    right: 10px;
+    bottom: 56px;                      /* 50px ticker + 6px gap */
+    max-width: calc(100vw - 20px);
+    font-size: 9px;
+    padding: 3px 8px;
 }
 
 }
 
-/* MOBILE LANDSCAPE: combined box, same top and height as before, two songs */
+/* ==========================================
+   MOBILE LANDSCAPE: combined box, same top and height as before, two songs
+   ========================================== */
+
 @media screen and (max-height: 500px) and (orientation: landscape) {
 
 #logoMain {
@@ -529,12 +651,11 @@ h1 {
 }
 
 #songs-widget {
-    padding-left: 10px;
-    border-left: 1px solid rgba(255, 255, 255, 0.45);
+    padding: 4px 8px;
 }
 
 #songs-widget .sw-header {
-    font-size: 8px;
+    font-size: 9px;
     margin-bottom: 3px;
 }
 
@@ -557,19 +678,26 @@ h1 {
 }
 
 #songs-widget .sw-label {
-    font-size: 7px;
+    font-size: 8px;
 }
 
 #songs-widget .sw-title {
-    font-size: 10px;
-}
-
-#songs-widget .sw-row.now .sw-title {
     font-size: 11px;
 }
 
+#songs-widget .sw-row.now .sw-title {
+    font-size: 12px;
+}
+
 #songs-widget .sw-artist {
+    font-size: 10px;
+}
+
+#credits {
+    right: 10px;
+    bottom: 46px;                      /* 40px ticker + 6px gap */
     font-size: 9px;
+    padding: 3px 8px;
 }
 
 }
