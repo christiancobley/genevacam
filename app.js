@@ -108,20 +108,17 @@ setInterval(updateWeather, 600000);
 
 const ticker = document.getElementById("ticker");
 
-// CORS-friendly fetch helper with automatic fallbacks
+// Robust CORS fetch helper using CodeTabs proxy
 async function fetchProxyContent(targetUrl) {
-    // Attempt 1: AllOrigins /get endpoint (returns JSON with CORS headers)
     try {
-        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
+        const res = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`);
         if (res.ok) {
-            const data = await res.json();
-            if (data && data.contents) return data.contents;
+            return await res.text();
         }
     } catch (e) {}
 
-    // Attempt 2: Corsproxy fallback
     try {
-        const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
+        const res = await fetch(`https://thingproxy.freeboard.io/fetch/${encodeURIComponent(targetUrl)}`);
         if (res.ok) {
             return await res.text();
         }
@@ -130,34 +127,15 @@ async function fetchProxyContent(targetUrl) {
     return null;
 }
 
-// Scrape Radio Lac Recently Played Tracks ("Derniers Titres")
+// Radio Lac Recently Played Tracks ("Derniers Titres")
 async function fetchRadioLacTracks() {
-    const htmlText = await fetchProxyContent('https://www.radiolac.ch/actualite/player/');
-    if (!htmlText) return ["🎵 Radio Lac : Le meilleur de la musique à Genève"];
-
     try {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, "text/html");
-
-        const tracks = [];
-        const trackElements = doc.querySelectorAll('.track-info, .song-info, .player-history-item, .derniers-titres .item');
-
-        trackElements.forEach(el => {
-            const title = el.querySelector('.title, .song, .track-title')?.textContent?.trim();
-            const artist = el.querySelector('.artist, .author, .track-artist')?.textContent?.trim();
-
-            if (title && artist) {
-                tracks.push(`🎵 ${artist} - ${title}`);
-            } else if (el.textContent) {
-                const cleanText = el.textContent.replace(/\s+/g, ' ').trim();
-                if (cleanText.length > 3) {
-                    tracks.push(`🎵 ${cleanText}`);
-                }
+        const rawJson = await fetchProxyContent('https://www.radiolac.ch/wp-json/radio/v1/player/current-titles');
+        if (rawJson) {
+            const data = JSON.parse(rawJson);
+            if (Array.isArray(data) && data.length > 0) {
+                return data.slice(0, 4).map(item => `🎵 ${item.artist || 'Radio Lac'} - ${item.title || item.song}`);
             }
-        });
-
-        if (tracks.length > 0) {
-            return tracks.slice(0, 4);
         }
     } catch (e) {}
 
@@ -225,7 +203,7 @@ const getForecast = async () => {
     }
 };
 
-// Fetch RSS XML using fallback CORS proxies
+// Fetch RSS XML using CodeTabs proxy
 async function fetchFeedXml(url) {
     const xmlText = await fetchProxyContent(url);
     if (!xmlText) return [];
