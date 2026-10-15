@@ -434,6 +434,8 @@ h1 {
 #songs-widget .sw-title,
 #songs-widget .sw-artist {
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #songs-widget .sw-title {
@@ -459,14 +461,13 @@ h1 {
     bottom: 84px;                      /* 82px ticker + 2px gap */
     max-width: calc(100vw - 40px);
     box-sizing: border-box;
-    padding: 4px 8px;
+    padding: 4px 10px;
     background: rgba(0, 0, 0, 0.5);
     border-radius: 6px;
     color: rgba(255, 255, 255, 0.9);
-    font-size: 11px;
-    line-height: 1.2;
+    font-size: 19.5px;
+    line-height: 1.3;
     text-align: right;
-    white-space: nowrap;
     z-index: 9999;
 }
 
@@ -605,7 +606,7 @@ h1 {
 }
 
 #credits {
-    font-size: 10px;
+    font-size: 18px;
 }
 
 #fullscreen-btn {
@@ -705,9 +706,11 @@ h1 {
     right: 10px;
     bottom: 52px;                      /* 50px ticker + 2px gap */
     max-width: calc(100vw - 20px);
-    font-size: 1.65vw;
-    padding: 3px 5px;
+    font-size: 2.1vw;
+    padding: 3px 8px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #credits .cr-label {
@@ -801,8 +804,8 @@ h1 {
 #credits {
     right: 10px;
     bottom: 42px;                      /* 40px ticker + 2px gap */
-    font-size: 8px;
-    padding: 3px 5px;
+    font-size: 9px;
+    padding: 3px 8px;
 }
 
 #fullscreen-btn {
@@ -819,49 +822,137 @@ h1 {
 }
 
 }
-/* Phone portrait: size cards once and keep the nested song panel viewport-fixed. */
+/* 20% smaller overlay layout on phone portrait screens only */
 @media screen and (max-width: 768px) and (orientation: portrait) {
-    #clockBox,
-    #logoBox:not(.has-songs),
-    #songs-widget {
-        transform: scale(0.8) !important;
-        transform-origin: top left !important;
-    }
 
-    #clockBox { top: 8px !important; left: 8px !important; }
+#clockBox {
+    top: 8px;
+    left: 8px;
+    width: 43.2vw;
+    height: 12vh;
+    padding: 6.4px;
+    border-radius: 6.4px;
+}
 
-    /* This element contains the fixed song panel, so do not transform it. */
-    #logoBox.has-songs {
-        top: calc(8px + 12vh + 4.8px) !important;
-        left: 8px !important;
-        width: 43.2vw !important;
-        height: 12vh !important;
-        padding: 3.2px !important;
-        gap: 3.2px !important;
-        transform: none !important;
-    }
+#clock {
+    font-size: 20.8px;
+}
 
-    #logoBox.has-songs #logoMain {
-        transform: scale(0.8) !important;
-        transform-origin: center center !important;
-    }
+#date {
+    font-size: 10.4px;
+    margin-top: 1.6px;
+}
 
-    #songs-widget {
-        top: calc(8px + 12vh + 4.8px + 12vh + 4.8px) !important;
-        left: 8px !important;
-        width: 54vw !important;
-        height: 15vh !important;
-        box-sizing: border-box !important;
-        padding: 5px !important;
-        overflow: hidden !important;
-    }
+#temperature {
+    font-size: 9.6px;
+    margin-top: 1.6px;
+}
 
-    #songs-widget .sw-header { font-size: 9px; margin-bottom: 3px; }
-    #songs-widget .sw-row { gap: 4px; }
-    #songs-widget .sw-row + .sw-row { margin-top: 3px; }
-    #songs-widget img { width: 22px; height: 22px; }
-    #songs-widget .sw-label { font-size: 8px; }
-    #songs-widget .sw-title { font-size: 9.6px; }
-    #songs-widget .sw-row.now .sw-title { font-size: 10.4px; }
-    #songs-widget .sw-artist { font-size: 8.8px; }
+#logoBox,
+#logoBox.has-songs {
+    top: calc(8px + 12vh + 4.8px);
+    left: 8px;
+    width: 43.2vw;
+    height: 12vh;
+    padding: 3.2px;
+    border-radius: 6.4px;
+    gap: 3.2px;
+}
+
+#logo {
+    width: 68px;
+}
+
+#logoMain {
+    gap: 3.2px;
+}
+
+.power-btn {
+    width: 22.4px;
+    height: 22.4px;
+    border-width: 1.6px;
+}
+
+.power-icon {
+    width: 11.2px;
+    height: 11.2px;
+}
+
+.power-label {
+    font-size: 0.48rem;
+}
+
+#songs-widget {
+    top: calc(8px + 12vh + 4.8px + 12vh + 4.8px);
+    left: 8px;
+    width: 43.2vw;
+    padding: 6.4px;
+    border-radius: 6.4px;
+}
+
+#songs-widget .sw-header {
+    font-size: 8px;
+    margin-bottom: 4.8px;
+}
+
+#songs-widget .sw-row {
+    gap: 6.4px;
+}
+
+#songs-widget .sw-row + .sw-row {
+    margin-top: 4.8px;
+}
+
+#songs-widget img {
+    width: 27.2px;
+    height: 27.2px;
+    border-radius: 3.2px;
+}
+
+#songs-widget .sw-label {
+    font-size: 8px;
+}
+
+#songs-widget .sw-title {
+    font-size: 9.6px;
+}
+
+#songs-widget .sw-row.now .sw-title {
+    font-size: 10.4px;
+}
+
+#songs-widget .sw-artist {
+    font-size: 8.8px;
+}
+
+#credits {
+    right: 8px;
+    bottom: 41.6px;
+    max-width: calc(100vw - 16px);
+    font-size: 1.68vw;
+    padding: 2.4px 6.4px;
+}
+
+#tickerContainer {
+    height: 40px;
+}
+
+#ticker {
+    line-height: 40px;
+    font-size: 16px;
+}
+
+#fullscreen-btn {
+    right: 4px;
+    bottom: 4px;
+    width: 17.6px;
+    height: 17.6px;
+    border-width: 1.2px;
+}
+
+#fullscreen-btn svg {
+    width: 9.6px;
+    height: 9.6px;
+}
+
 }
