@@ -103,47 +103,12 @@ updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// News Ticker, Radio Lac Tracks & Live Geneva Alerts
+// News Ticker & Geneva Live Alerts
 //
 
 const ticker = document.getElementById("ticker");
 
-// Safe RSS Fetcher with robust error handling
-async function fetchRssFeed(feedUrl) {
-    try {
-        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`);
-        if (res.ok) {
-            const data = await res.json();
-            if (data && data.status === "ok" && Array.isArray(data.items) && data.items.length > 0) {
-                return data.items.map(item => item.title).filter(Boolean).slice(0, 5);
-            }
-        }
-    } catch (e) {}
-    return [];
-}
-
-// Radio Lac Recently Played Tracks
-async function fetchRadioLacTracks() {
-    const targetUrl = 'https://www.radiolac.ch/wp-json/radio/v1/player/current-titles';
-    try {
-        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
-        if (res.ok) {
-            const wrapper = await res.json();
-            if (wrapper && wrapper.contents) {
-                const data = JSON.parse(wrapper.contents);
-                if (Array.isArray(data) && data.length > 0) {
-                    return data.slice(0, 4).map(item => `🎵 ${item.artist || 'Radio Lac'} - ${item.title || item.song}`);
-                }
-            }
-        }
-    } catch (e) {}
-
-    return [
-        "🎵 Radio Lac : Le meilleur de la musique à Genève"
-    ];
-}
-
-// TPG Station & Transit Alerts
+// CORS-friendly Swiss Transport API for Geneva TPG station alerts
 async function fetchTpgAlerts() {
     try {
         const res = await fetch('https://transport.opendata.ch/v1/stationboard?station=Geneve,Gare%20Cornavin&limit=5');
@@ -204,67 +169,85 @@ const getForecast = async () => {
     }
 };
 
+// Direct XML fetch + Native DOMParser
+async function fetchFeedXml(url) {
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+
+    try {
+        const response = await fetch(proxyUrl);
+        if (!response.ok) return [];
+
+        const xmlText = await response.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+        const items = xmlDoc.querySelectorAll("item title, entry title");
+
+        const titles = [];
+        items.forEach(item => {
+            if (item.textContent) {
+                titles.push(item.textContent.trim());
+            }
+        });
+
+        return titles;
+    } catch (e) {
+        // Silently capture errors
+    }
+    return [];
+}
+
 let feedBatches = [];
 let rotationOffset = 0;
 let cachedForecastText = "";
 let currentAnimation = null;
 
 async function updateTicker() {
-    // 1. Full list of all 5 Le Temps feeds
+    // Complete Le Temps feeds restored
     const leTempsFeeds = [
-        { name: "Le Temps - Suisse", url: "https://www.letemps.ch/suisse.rss" },
-        { name: "Le Temps - Articles", url: "https://www.letemps.ch/articles.rss" },
-        { name: "Le Temps - Monde", url: "https://www.letemps.ch/monde.rss" },
-        { name: "Le Temps - Économie", url: "https://www.letemps.ch/economie.rss" },
-        { name: "Le Temps - Sport", url: "https://www.letemps.ch/sport.rss" }
+        { name: "Le Temps Suisse", url: "https://www.letemps.ch/suisse.rss" },
+        { name: "Le Temps Articles", url: "https://www.letemps.ch/articles.rss" },
+        { name: "Le Temps Monde", url: "https://www.letemps.ch/monde.rss" },
+        { name: "Le Temps Économie", url: "https://www.letemps.ch/economie.rss" },
+        { name: "Le Temps Sport", url: "https://www.letemps.ch/sport.rss" }
     ];
 
-    // 2. Full list of all 7 20 Minutes feeds
+    // Complete 20 Minutes feeds with Genève reinstated first
     const twentyMinFeeds = [
-        { name: "20 Minutes - Genève", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande/geneve" },
-        { name: "20 Minutes - Suisse Romande", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
-        { name: "20 Minutes - Suisse", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse" },
-        { name: "20 Minutes - Principal", url: "https://partner-feeds.20min.ch/rss/20minutes" },
-        { name: "20 Minutes - Monde", url: "https://partner-feeds.20min.ch/rss/20minutes/monde" },
-        { name: "20 Minutes - Économie", url: "https://partner-feeds.20min.ch/rss/20minutes/economie" },
-        { name: "20 Minutes - Sports", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
+        { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande/geneve" },
+        { name: "20 Minutes Suisse Romande", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
+        { name: "20 Minutes Suisse", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse" },
+        { name: "20 Minutes Principal", url: "https://partner-feeds.20min.ch/rss/20minutes" },
+        { name: "20 Minutes Monde", url: "https://partner-feeds.20min.ch/rss/20minutes/monde" },
+        { name: "20 Minutes Économie", url: "https://partner-feeds.20min.ch/rss/20minutes/economie" },
+        { name: "20 Minutes Sports", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
     ];
 
     const forecastPromise = getForecast();
-    const radioTracksPromise = fetchRadioLacTracks();
     const tpgPromise = fetchTpgAlerts();
     const airportPromise = fetchAirportAlerts();
     const roadPromise = fetchRoadTrafficAlerts();
-
-    const leTempsPromises = leTempsFeeds.map(feed => fetchRssFeed(feed.url));
-    const twentyMinPromises = twentyMinFeeds.map(feed => fetchRssFeed(feed.url));
+    const leTempsPromises = leTempsFeeds.map(feed => fetchFeedXml(feed.url));
+    const twentyMinPromises = twentyMinFeeds.map(feed => fetchFeedXml(feed.url));
 
     cachedForecastText = await forecastPromise;
-    const radioTrackResults = await radioTracksPromise;
     const tpgResults = await tpgPromise;
     const airportResults = await airportPromise;
     const roadResults = await roadPromise;
-
     const leTempsResults = await Promise.all(leTempsPromises);
     const twentyMinResults = await Promise.all(twentyMinPromises);
 
     feedBatches = [];
 
-    // Welcome batch
+    // 1. Welcome batch
     feedBatches.push({
         name: "Genève Cam",
         titles: [
-            "Bienvenue sur Geneva Cam. Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
-            "Actualités en direct de Genève et de la Suisse, météo et informations trafic"
+            "Bienvenue sur Geneva Cam! Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
+            "Actualités en direct de Genève et de la Suisse, et autres actualités et informations"
         ]
     });
 
-    // Radio Lac Recently Played Tracks
-    if (radioTrackResults && radioTrackResults.length > 0) {
-        feedBatches.push({ name: "Radio Lac - Derniers Titres", titles: radioTrackResults });
-    }
-
-    // Live Travel & Traffic Alerts
+    // 2. Alert Batches
     if (tpgResults && tpgResults.length > 0) {
         feedBatches.push({ name: "Info Trafic TPG", titles: tpgResults });
     }
@@ -275,17 +258,23 @@ async function updateTicker() {
         feedBatches.push({ name: "Infomobilité Genève", titles: roadResults });
     }
 
-    // Populate all 5 Le Temps feeds
+    // 3. Le Temps batches
     leTempsResults.forEach((titles, idx) => {
         if (titles && titles.length > 0) {
-            feedBatches.push({ name: leTempsFeeds[idx].name, titles: titles });
+            feedBatches.push({
+                name: leTempsFeeds[idx].name,
+                titles: titles
+            });
         }
     });
 
-    // Populate all 7 20 Minutes feeds
+    // 4. 20 Minutes batches
     twentyMinResults.forEach((titles, idx) => {
         if (titles && titles.length > 0) {
-            feedBatches.push({ name: twentyMinFeeds[idx].name, titles: titles });
+            feedBatches.push({
+                name: twentyMinFeeds[idx].name,
+                titles: titles
+            });
         }
     });
 
@@ -312,9 +301,9 @@ function renderNextRotationBatch() {
         headlines.push(cachedForecastText);
     }
 
-    // 3. News, Radio Lac tracks, and travel alert batches
+    // 3. News and alert batches
     for (let b = 1; b < feedBatches.length; b++) {
-        const batch = feedBatches[b];
+        const batch = batch = feedBatches[b];
         const total = batch.titles.length;
         if (total > 0) {
             for (let i = 0; i < Math.min(3, total); i++) {
