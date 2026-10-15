@@ -117,7 +117,7 @@ h1 {
     justify-content: center;
     padding: 20px;
     z-index: 9999;
-    position: relative; /* Allows absolute positioning of children inside */
+    position: relative;
 }
 
 #clock {
@@ -176,48 +176,9 @@ h1 {
 
 @media screen and (max-width: 768px) and (orientation: portrait) {
 
-#clockBox {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    right: auto;
-    width: 54vw;
-    height: 15vh;
-    box-sizing: border-box;
-    background: #48bcc7;
-    border-radius: 8px;
-    color: white;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 8px;
-    z-index: 9999;
-    position: relative;
-}
-
-#clock {
-    font-size: 26px;
-    line-height: 1.1;
-    white-space: nowrap;
-}
-
-#date {
-    font-size: 13px;
-    margin-top: 2px;
-    line-height: 1.15;
-}
-
-#temperature {
-    font-size: 12px;
-    margin-top: 2px;
-    line-height: 1.2;
-    white-space: normal;
-}
-
 #logoBox {
     position: fixed;
-    top: calc(10px + 15vh + 6px);
+    top: 10px;
     left: 10px;
     right: auto;
     width: 54vw;
@@ -254,6 +215,45 @@ h1 {
     font-size: 0.6rem;
 }
 
+#clockBox {
+    position: fixed;
+    top: calc(10px + 15vh + 6px);
+    left: 10px;
+    right: auto;
+    width: 54vw;
+    height: 15vh;
+    box-sizing: border-box;
+    background: #48bcc7;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8px;
+    z-index: 9999;
+    position: relative;
+}
+
+#clock {
+    font-size: 26px;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+#date {
+    font-size: 13px;
+    margin-top: 2px;
+    line-height: 1.15;
+}
+
+#temperature {
+    font-size: 12px;
+    margin-top: 2px;
+    line-height: 1.2;
+    white-space: normal;
+}
+
 #weather {
     display: none;
 }
@@ -268,8 +268,8 @@ h1 {
 }
 
 #fullscreen-btn {
-    padding: 2px 6px;
-    font-size: 12px;
+    padding: 1px 3px;
+    font-size: 8px;
 }
 
 }
@@ -341,8 +341,8 @@ h1 {
 }
 
 #fullscreen-btn {
-    padding: 2px 5px;
-    font-size: 10px;
+    padding: 1px 3px;
+    font-size: 8px;
 }
 
 }
@@ -453,7 +453,7 @@ h1 {
 }
 
 /* ==========================================
-   FULLSCREEN TOGGLE BUTTON (Bottom Right of Clock Box)
+   FULLSCREEN TOGGLE BUTTON
    ========================================== */
 
 #fullscreen-btn {
