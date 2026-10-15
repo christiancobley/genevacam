@@ -23,35 +23,24 @@ h1 {
 
 /* ==========================================
    DESKTOP & STANDARD LANDSCAPE MODE 
-   (Radio / Derniers Titres on Left, Clock on Right)
    ========================================== */
 
 #logoBox {
     position: fixed;
     top: 22px;
     left: 20px;
-    width: clamp(497px, calc(100vw - 691px), 820px);
+    width: 497px;
     height: 276px;
     padding: 20px;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
     display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: stretch;
-    gap: 20px;
-    z-index: 9999;
-}
-
-#logoMain {
-    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 12px;
-    width: 270px;
-    flex: none;
+    z-index: 9999;
 }
 
 #logo {
@@ -91,6 +80,14 @@ h1 {
     transition: fill 0.2s ease;
 }
 
+.power-btn:hover .power-icon {
+    fill: #ffffff;
+}
+
+.power-btn.active .power-icon {
+    fill: #2ed573;
+}
+
 .power-label {
     font-size: 1.2rem;
     font-weight: bold;
@@ -99,6 +96,7 @@ h1 {
     text-transform: uppercase;
 }
 
+/* Translate ON/OFF label to French via CSS content */
 .power-label::before {
     content: "MARCHE / ARRÊT";
 }
@@ -119,7 +117,6 @@ h1 {
     justify-content: center;
     padding: 20px;
     z-index: 9999;
-    position: relative;
 }
 
 #clock {
@@ -173,58 +170,8 @@ h1 {
 }
 
 /* ==========================================
-   FULLSCREEN TOGGLE BUTTON (Default Desktop Size)
-   ========================================== */
-
-#fullscreen-btn {
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    background: rgba(0, 0, 0, 0.35);
-    border: 2px solid rgba(255, 255, 255, 0.85);
-    border-radius: 6px;
-    color: #ffffff;
-    padding: 6px 10px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    z-index: 10;
-    transition: background 0.2s ease, border-color 0.2s ease;
-}
-
-#fullscreen-btn:hover {
-    background: rgba(0, 0, 0, 0.65);
-    border-color: #ffffff;
-}
-
-/* ==========================================
-   CREDITS LINE (bottom left, above the ticker)
-   ========================================== */
-
-#credits {
-    position: fixed;
-    left: 20px;
-    bottom: 90px;
-    max-width: calc(100vw - 40px);
-    box-sizing: border-box;
-    padding: 4px 10px;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 6px;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 13px;
-    line-height: 1.3;
-    text-align: left;
-    z-index: 9999;
-}
-
-#credits a {
-    color: inherit;
-    text-decoration: underline;
-}
-
-/* ==========================================
    MOBILE PORTRAIT MODE ONLY (Max Width 768px + Portrait)
-   Stack on left: Clock on top, Radio in middle, Derniers titres underneath
+   Boxes are wider (54vw) and text is larger for readability.
    ========================================== */
 
 @media screen and (max-width: 768px) and (orientation: portrait) {
@@ -234,8 +181,8 @@ h1 {
     top: 10px;
     left: 10px;
     right: auto;
-    width: 75vw;
-    height: 13vh;
+    width: 54vw;
+    height: 15vh;
     box-sizing: border-box;
     background: #48bcc7;
     border-radius: 8px;
@@ -244,25 +191,24 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 6px;
+    padding: 8px;
     z-index: 9999;
-    position: relative;
 }
 
 #clock {
-    font-size: 22px;
+    font-size: 26px;
     line-height: 1.1;
     white-space: nowrap;
 }
 
 #date {
-    font-size: 11px;
+    font-size: 13px;
     margin-top: 2px;
     line-height: 1.15;
 }
 
 #temperature {
-    font-size: 10px;
+    font-size: 12px;
     margin-top: 2px;
     line-height: 1.2;
     white-space: normal;
@@ -270,11 +216,11 @@ h1 {
 
 #logoBox {
     position: fixed;
-    top: calc(10px + 13vh + 6px);
+    top: calc(10px + 15vh + 6px);
     left: 10px;
     right: auto;
-    width: 75vw;
-    height: 12vh;
+    width: 54vw;
+    height: 15vh;
     padding: 4px;
     box-sizing: border-box;
     background: #48bcc7;
@@ -287,76 +233,24 @@ h1 {
     z-index: 9999;
 }
 
-#logoMain {
-    width: auto;
-    gap: 4px;
-}
-
 #logo {
     width: 85px;
     display: block;
 }
 
 .power-btn {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     border-width: 2px;
 }
 
 .power-icon {
-    width: 13px;
-    height: 13px;
+    width: 14px;
+    height: 14px;
 }
 
 .power-label {
-    font-size: 0.55rem;
-}
-
-#songs-widget {
-    position: fixed;
-    top: calc(10px + 13vh + 6px + 12vh + 6px);
-    left: 10px;
-    width: 75vw;
-    flex: none;
-    padding: 6px;
-    background: #3b9aa3;
-    border-radius: 8px;
-    z-index: 9999;
-}
-
-#songs-widget .sw-header {
-    font-size: 10px;
-    margin-bottom: 4px;
-}
-
-#songs-widget .sw-row {
-    gap: 6px;
-}
-
-#songs-widget .sw-row + .sw-row {
-    margin-top: 4px;
-}
-
-#songs-widget img {
-    width: 28px;
-    height: 28px;
-    border-radius: 4px;
-}
-
-#songs-widget .sw-label {
-    font-size: 9px;
-}
-
-#songs-widget .sw-title {
-    font-size: 11px;
-}
-
-#songs-widget .sw-row.now .sw-title {
-    font-size: 12px;
-}
-
-#songs-widget .sw-artist {
-    font-size: 10px;
+    font-size: 0.6rem;
 }
 
 #weather {
@@ -364,29 +258,12 @@ h1 {
 }
 
 #tickerContainer {
-    height: 35px;
+    height: 50px;
 }
 
 #ticker {
-    line-height: 35px;
-    font-size: 14px;
-}
-
-#fullscreen-btn {
-    padding: 3px 5px;
-    font-size: 11.2px; /* 30% smaller than 16px */
-    bottom: 8px;
-    right: 8px;
-}
-
-#credits {
-    left: 10px;
-    bottom: 41px;
-    max-width: calc(100vw - 20px);
-    font-size: 6.46px; /* 5% smaller than standard 6.8px */
-    padding: 2px 4px;
-    white-space: nowrap;
-    text-align: left;
+    line-height: 50px;
+    font-size: 20px;
 }
 
 }
@@ -398,22 +275,12 @@ h1 {
 @media screen and (max-height: 500px) and (orientation: landscape) {
 
 #logoBox {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    width: clamp(300px, calc(100vw - 280px), 380px);
+    width: 200px;
     height: 110px;
     padding: 8px;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: stretch;
-    gap: 10px;
-    z-index: 9999;
-}
-
-#logoMain {
-    width: 110px;
     gap: 4px;
+    top: 10px;
+    left: 10px;
 }
 
 #logo {
@@ -436,22 +303,11 @@ h1 {
 }
 
 #clockBox {
-    position: fixed;
-    top: 10px;
-    right: 10px;
     width: 250px;
     height: 110px;
     padding: 8px;
-    box-sizing: border-box;
-    background: #48bcc7;
-    border-radius: 8px;
-    color: white;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    z-index: 9999;
-    position: relative;
+    top: 10px;
+    right: 10px;
 }
 
 #clock {
@@ -477,28 +333,38 @@ h1 {
     font-size: 18px;
 }
 
-#fullscreen-btn {
-    padding: 3px 5px;
-    font-size: 11.2px; /* 30% smaller than 16px */
-    bottom: 8px;
-    right: 8px;
 }
 
-#credits {
-    left: 10px;
-    bottom: 43px; /* Just above 40px ticker with razor-thin gap */
-    font-size: 9px;
-    padding: 2px 6px;
-    text-align: left;
-    z-index: 9999;
-}
-
-}
 
 /* ==========================================
-   SONGS WIDGET (Desktop & Tablet)
+   RADIO LAC BOX + DERNIERS TITRES (combined)
+   app.js wraps the logo, power button and label
+   in #logoMain, and adds the songs panel beside it.
    ========================================== */
 
+#logoMain {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex: none;
+}
+
+/* DESKTOP: same top and height as before, wider, logo group on the left */
+#logoBox.has-songs {
+    width: clamp(497px, calc(100vw - 691px), 820px);
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 20px;
+}
+
+#logoBox.has-songs #logoMain {
+    width: 270px;                      /* width of the logo */
+}
+
+/* Songs panel: a slightly darker inset so the white text is easier to read */
 #songs-widget {
     flex: 1;
     min-width: 0;
@@ -579,7 +445,97 @@ h1 {
 }
 
 /* ==========================================
-   TABLETS & SMALL LAPTOPS
+   CREDITS LINE (bottom right, above the ticker)
+   ========================================== */
+
+#credits {
+    position: fixed;
+    right: 20px;
+    bottom: 84px;                      /* 82px ticker + 2px gap */
+    max-width: calc(100vw - 40px);
+    box-sizing: border-box;
+    padding: 4px 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    line-height: 1.3;
+    text-align: right;
+    z-index: 9999;
+}
+
+#credits a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+/* "Sources :" prefix only shows on phone portrait, where the individual labels are hidden */
+#credits .cr-sources {
+    display: none;
+}
+
+/* ==========================================
+   FULL SCREEN BUTTON (bottom right of the clock box)
+   ========================================== */
+
+#fullscreen-btn {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+#fullscreen-btn[hidden] {
+    display: none;
+}
+
+#fullscreen-btn:hover {
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+#fullscreen-btn:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+#fullscreen-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+#fullscreen-btn .fs-exit {
+    display: none;
+}
+
+#fullscreen-btn.is-fullscreen .fs-enter {
+    display: none;
+}
+
+#fullscreen-btn.is-fullscreen .fs-exit {
+    display: block;
+}
+
+/* ==========================================
+   TABLETS & SMALL LAPTOPS (769px - 1279px wide, not phone landscape)
+   Boxes scale with the screen so they never overlap.
    ========================================== */
 
 @media screen and (min-width: 769px) and (max-width: 1279px) and (min-height: 501px) {
@@ -610,7 +566,7 @@ h1 {
 }
 
 #logoBox.has-songs {
-    width: calc(100vw - 36vw - 60px);
+    width: calc(100vw - 36vw - 60px);  /* fills the space up to the clock box */
 }
 
 #logoBox.has-songs #logoMain {
@@ -646,12 +602,216 @@ h1 {
     font-size: 12px;
 }
 
+#fullscreen-btn {
+    right: 10px;
+    bottom: 10px;
+    width: 34px;
+    height: 34px;
 }
 
+#fullscreen-btn svg {
+    width: 17px;
+    height: 17px;
+}
+
+}
+
+/* Narrow tablets: drop the cover images to leave room for the song names */
 @media screen and (min-width: 769px) and (max-width: 900px) and (min-height: 501px) {
 
 #songs-widget img {
     display: none;
+}
+
+}
+
+/* ==========================================
+   MOBILE PORTRAIT: separate box directly beneath the Radio Lac box, three songs
+   ========================================== */
+
+@media screen and (max-width: 768px) and (orientation: portrait) {
+
+#logoMain {
+    gap: 4px;
+}
+
+#logoBox.has-songs {
+    width: 54vw;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+
+#logoBox.has-songs #logoMain {
+    width: auto;
+}
+
+#songs-widget {
+    position: fixed;
+    top: calc(10px + 15vh + 6px + 15vh + 6px);   /* clock box + logo box + gaps */
+    left: 10px;
+    width: 54vw;
+    flex: none;
+    padding: 8px;
+    background: #3b9aa3;               /* darker teal for contrast */
+    border-radius: 8px;
+    z-index: 9999;
+}
+
+#songs-widget .sw-header {
+    font-size: 10px;
+    margin-bottom: 6px;
+}
+
+#songs-widget .sw-row {
+    gap: 8px;
+}
+
+#songs-widget .sw-row + .sw-row {
+    margin-top: 6px;
+}
+
+#songs-widget img {
+    width: 34px;
+    height: 34px;
+    border-radius: 4px;
+}
+
+#songs-widget .sw-label {
+    font-size: 10px;
+}
+
+#songs-widget .sw-title {
+    font-size: 12px;
+}
+
+#songs-widget .sw-row.now .sw-title {
+    font-size: 13px;
+}
+
+#songs-widget .sw-artist {
+    font-size: 11px;
+}
+
+/* Credits: one line only. Labels are hidden and "Sources :" is shown instead. */
+#credits {
+    right: 10px;
+    bottom: 52px;                      /* 50px ticker + 2px gap */
+    max-width: calc(100vw - 20px);
+    font-size: 2.1vw;
+    padding: 3px 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#credits .cr-label {
+    display: none;
+}
+
+#credits .cr-sources {
+    display: inline;
+}
+
+#fullscreen-btn {
+    right: 5px;
+    bottom: 5px;
+    width: 22px;
+    height: 22px;
+    border-width: 1.5px;
+}
+
+#fullscreen-btn svg {
+    width: 12px;
+    height: 12px;
+}
+
+}
+
+/* ==========================================
+   MOBILE LANDSCAPE: combined box, same top and height as before, two songs
+   ========================================== */
+
+@media screen and (max-height: 500px) and (orientation: landscape) {
+
+#logoMain {
+    gap: 4px;
+}
+
+#logoBox.has-songs {
+    width: clamp(300px, calc(100vw - 280px), 380px);
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 10px;
+}
+
+#logoBox.has-songs #logoMain {
+    width: 110px;                      /* width of the logo */
+}
+
+#songs-widget {
+    padding: 4px 8px;
+}
+
+#songs-widget .sw-header {
+    font-size: 9px;
+    margin-bottom: 3px;
+}
+
+#songs-widget .sw-row {
+    gap: 8px;
+}
+
+#songs-widget .sw-row + .sw-row {
+    margin-top: 4px;
+}
+
+#songs-widget .sw-row:nth-child(4) {
+    display: none;                     /* only the current song + one before */
+}
+
+#songs-widget img {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+}
+
+#songs-widget .sw-label {
+    font-size: 8px;
+}
+
+#songs-widget .sw-title {
+    font-size: 11px;
+}
+
+#songs-widget .sw-row.now .sw-title {
+    font-size: 12px;
+}
+
+#songs-widget .sw-artist {
+    font-size: 10px;
+}
+
+#credits {
+    right: 10px;
+    bottom: 42px;                      /* 40px ticker + 2px gap */
+    font-size: 9px;
+    padding: 3px 8px;
+}
+
+#fullscreen-btn {
+    right: 6px;
+    bottom: 6px;
+    width: 24px;
+    height: 24px;
+    border-width: 1.5px;
+}
+
+#fullscreen-btn svg {
+    width: 13px;
+    height: 13px;
 }
 
 }
