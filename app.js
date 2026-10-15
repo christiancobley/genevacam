@@ -108,7 +108,7 @@ setInterval(updateWeather, 600000);
 
 const ticker = document.getElementById("ticker");
 
-// Public CORS-friendly Swiss Transport API for Geneva TPG station alerts
+// CORS-friendly Swiss Transport API for Geneva TPG station alerts
 async function fetchTpgAlerts() {
     try {
         const res = await fetch('https://transport.opendata.ch/v1/stationboard?station=Geneve,Gare%20Cornavin&limit=5');
@@ -169,18 +169,30 @@ const getForecast = async () => {
     }
 };
 
+// Direct XML fetch + Native DOMParser (Bypasses rss2json completely)
 async function fetchFeedXml(url) {
-    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
 
     try {
-        const response = await fetch(apiUrl);
+        const response = await fetch(proxyUrl);
         if (!response.ok) return [];
 
-        const data = await response.json();
-        if (data.status === 'ok' && Array.isArray(data.items) && data.items.length > 0) {
-            return data.items.map(item => item.title ? item.title.trim() : "").filter(Boolean);
-        }
-    } catch (e) {}
+        const xmlText = await response.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+        const items = xmlDoc.querySelectorAll("item title, entry title");
+
+        const titles = [];
+        items.forEach(item => {
+            if (item.textContent) {
+                titles.push(item.textContent.trim());
+            }
+        });
+
+        return titles;
+    } catch (e) {
+        // Silently capture errors
+    }
     return [];
 }
 
