@@ -822,7 +822,7 @@ h1 {
 }
 
 }
-/* Portrait-only overlay reduction: scale each complete card and its contents. */
+/* Portrait-only overlay sizing and spacing. */
 @media screen and (max-width: 768px) and (orientation: portrait) {
     #clockBox,
     #logoBox,
@@ -835,5 +835,25 @@ h1 {
     #clockBox { top: 8px !important; left: 8px !important; }
     #logoBox,
     #logoBox.has-songs { top: calc(8px + 12vh + 4.8px) !important; left: 8px !important; }
-    #songs-widget { top: calc(8px + 12vh + 4.8px + 12vh + 4.8px) !important; left: 8px !important; }
+
+    /* Match the other cards' 54vw by 15vh source size; scale(0.8) makes
+       the displayed dimensions and all contents identical to those cards. */
+    #songs-widget {
+        top: calc(8px + 12vh + 4.8px + 12vh + 4.8px) !important;
+        left: 8px !important;
+        width: 54vw !important;
+        height: 15vh !important;
+        box-sizing: border-box !important;
+        padding: 5px !important;
+        overflow: hidden !important;
+    }
+
+    #songs-widget .sw-header { font-size: 9px; margin-bottom: 3px; }
+    #songs-widget .sw-row { gap: 4px; }
+    #songs-widget .sw-row + .sw-row { margin-top: 3px; }
+    #songs-widget img { width: 22px; height: 22px; }
+    #songs-widget .sw-label { font-size: 8px; }
+    #songs-widget .sw-title { font-size: 9.6px; }
+    #songs-widget .sw-row.now .sw-title { font-size: 10.4px; }
+    #songs-widget .sw-artist { font-size: 8.8px; }
 }
