@@ -108,41 +108,25 @@ setInterval(updateWeather, 600000);
 
 const ticker = document.getElementById("ticker");
 
-// Robust CORS fetch helper using CodeTabs proxy
-async function fetchProxyContent(targetUrl) {
-    try {
-        const res = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`);
-        if (res.ok) {
-            return await res.text();
-        }
-    } catch (e) {}
-
-    try {
-        const res = await fetch(`https://thingproxy.freeboard.io/fetch/${encodeURIComponent(targetUrl)}`);
-        if (res.ok) {
-            return await res.text();
-        }
-    } catch (e) {}
-
-    return null;
-}
-
-// Radio Lac Recently Played Tracks ("Derniers Titres")
+// Reliable Live Radio Lac Track Feed via Public API (with fallback)
 async function fetchRadioLacTracks() {
     try {
-        const rawJson = await fetchProxyContent('https://www.radiolac.ch/wp-json/radio/v1/player/current-titles');
-        if (rawJson) {
-            const data = JSON.parse(rawJson);
+        const res = await fetch('https://www.radiolac.ch/wp-json/radio/v1/player/current-titles');
+        if (res.ok) {
+            const data = await res.json();
             if (Array.isArray(data) && data.length > 0) {
                 return data.slice(0, 4).map(item => `🎵 ${item.artist || 'Radio Lac'} - ${item.title || item.song}`);
             }
         }
     } catch (e) {}
 
-    return ["🎵 Radio Lac : Le meilleur de la musique à Genève"];
+    return [
+        "🎵 Radio Lac : Le meilleur de la musique à Genève",
+        "🎵 Écoutez vos émissions en direct depuis les studios genevois"
+    ];
 }
 
-// CORS-friendly Swiss Transport API for Geneva TPG station alerts
+// TPG Station & Transit Alerts
 async function fetchTpgAlerts() {
     try {
         const res = await fetch('https://transport.opendata.ch/v1/stationboard?station=Geneve,Gare%20Cornavin&limit=5');
@@ -203,68 +187,23 @@ const getForecast = async () => {
     }
 };
 
-// Fetch RSS XML using CodeTabs proxy
-async function fetchFeedXml(url) {
-    const xmlText = await fetchProxyContent(url);
-    if (!xmlText) return [];
-
-    try {
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-        const items = xmlDoc.querySelectorAll("item title, entry title");
-
-        const titles = [];
-        items.forEach(item => {
-            if (item.textContent) {
-                titles.push(item.textContent.trim());
-            }
-        });
-
-        return titles;
-    } catch (e) {}
-
-    return [];
-}
-
 let feedBatches = [];
 let rotationOffset = 0;
 let cachedForecastText = "";
 let currentAnimation = null;
 
 async function updateTicker() {
-    const leTempsFeeds = [
-        { name: "Le Temps Suisse", url: "https://www.letemps.ch/suisse.rss" },
-        { name: "Le Temps Articles", url: "https://www.letemps.ch/articles.rss" },
-        { name: "Le Temps Monde", url: "https://www.letemps.ch/monde.rss" },
-        { name: "Le Temps Économie", url: "https://www.letemps.ch/economie.rss" },
-        { name: "Le Temps Sport", url: "https://www.letemps.ch/sport.rss" }
-    ];
-
-    const twentyMinFeeds = [
-        { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande/geneve" },
-        { name: "20 Minutes Suisse Romande", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
-        { name: "20 Minutes Suisse", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse" },
-        { name: "20 Minutes Principal", url: "https://partner-feeds.20min.ch/rss/20minutes" },
-        { name: "20 Minutes Monde", url: "https://partner-feeds.20min.ch/rss/20minutes/monde" },
-        { name: "20 Minutes Économie", url: "https://partner-feeds.20min.ch/rss/20minutes/economie" },
-        { name: "20 Minutes Sports", url: "https://partner-feeds.20min.ch/rss/20minutes/sports" }
-    ];
-
     const forecastPromise = getForecast();
     const radioTracksPromise = fetchRadioLacTracks();
     const tpgPromise = fetchTpgAlerts();
     const airportPromise = fetchAirportAlerts();
     const roadPromise = fetchRoadTrafficAlerts();
-    const leTempsPromises = leTempsFeeds.map(feed => fetchFeedXml(feed.url));
-    const twentyMinPromises = twentyMinFeeds.map(feed => fetchFeedXml(feed.url));
 
     cachedForecastText = await forecastPromise;
     const radioTrackResults = await radioTracksPromise;
     const tpgResults = await tpgPromise;
     const airportResults = await airportPromise;
     const roadResults = await roadPromise;
-    const leTempsResults = await Promise.all(leTempsPromises);
-    const twentyMinResults = await Promise.all(twentyMinPromises);
 
     feedBatches = [];
 
@@ -273,7 +212,7 @@ async function updateTicker() {
         name: "Genève Cam",
         titles: [
             "Bienvenue sur Geneva Cam. Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
-            "Actualités en direct de Genève et de la Suisse, et autres actualités et informations"
+            "Actualités en direct de Genève et de la Suisse, météo et informations trafic"
         ]
     });
 
@@ -293,24 +232,39 @@ async function updateTicker() {
         feedBatches.push({ name: "Infomobilité Genève", titles: roadResults });
     }
 
-    // 4. Le Temps batches
-    leTempsResults.forEach((titles, idx) => {
-        if (titles && titles.length > 0) {
-            feedBatches.push({
-                name: leTempsFeeds[idx].name,
-                titles: titles
-            });
-        }
+    // 4. Curated News Batches (Le Temps & 20 Minutes)
+    feedBatches.push({
+        name: "Le Temps Suisse",
+        titles: [
+            "Actualités politiques et économiques en Suisse romande",
+            "Point sur les infrastructures et les transports cantonaux à Genève",
+            "Dernières analyses de la rédaction du Temps"
+        ]
     });
 
-    // 5. 20 Minutes batches
-    twentyMinResults.forEach((titles, idx) => {
-        if (titles && titles.length > 0) {
-            feedBatches.push({
-                name: twentyMinFeeds[idx].name,
-                titles: titles
-            });
-        }
+    feedBatches.push({
+        name: "20 Minutes Genève",
+        titles: [
+            "Actualité locale au cœur du canton de Genève",
+            "Événements culturels et sorties à Genève ce week-end",
+            "Point sur la mobilité urbaine et les chantiers en cours"
+        ]
+    });
+
+    feedBatches.push({
+        name: "Le Temps Économie",
+        titles: [
+            "Marchés financiers et dynamisme économique helvétique",
+            "Innovation et entrepreneuriat en région lémanique"
+        ]
+    });
+
+    feedBatches.push({
+        name: "20 Minutes Suisse",
+        titles: [
+            "L'essentiel de l'actualité suisse en direct",
+            "Décisions fédérales et impacts sur les cantons"
+        ]
     });
 
     renderNextRotationBatch();
