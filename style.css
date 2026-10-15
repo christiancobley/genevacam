@@ -354,10 +354,17 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 12px;
+    gap: 6px;
     flex: none;
 }
-
+#radio-tagline {
+    color: #ffffff;
+    font-size: clamp(11px, 1.2vw, 15px);
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+}
 /* DESKTOP: same top and height as before, wider, logo group on the left */
 #logoBox.has-songs {
     width: clamp(497px, calc(100vw - 691px), 820px);
@@ -999,4 +1006,17 @@ body.boxes-hidden #clockBox {
     height: 9.6px;
 }
 
+}
+
+/* Keep the Radio Lac tagline legible and on one line on mobile screens. */
+@media screen and (max-width: 768px) and (orientation: portrait) {
+    #radio-tagline {
+        font-size: clamp(5px, 2vw, 8px);
+    }
+}
+
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    #radio-tagline {
+        font-size: clamp(6px, 1.8vw, 10px);
+    }
 }
