@@ -171,7 +171,7 @@ const getForecast = async () => {
 
 // Direct XML fetch + Native DOMParser using corsproxy.io
 async function fetchFeedXml(url) {
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+const proxyUrl = `https://genevacam-rss.christian-cobley.workers.dev/?url=${encodeURIComponent(url)}`;
 
     try {
         const response = await fetch(proxyUrl);
