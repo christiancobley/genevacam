@@ -108,20 +108,38 @@ setInterval(updateWeather, 600000);
 
 const ticker = document.getElementById("ticker");
 
+// CORS-friendly fetch helper with automatic fallbacks
+async function fetchProxyContent(targetUrl) {
+    // Attempt 1: AllOrigins /get endpoint (returns JSON with CORS headers)
+    try {
+        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
+        if (res.ok) {
+            const data = await res.json();
+            if (data && data.contents) return data.contents;
+        }
+    } catch (e) {}
+
+    // Attempt 2: Corsproxy fallback
+    try {
+        const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
+        if (res.ok) {
+            return await res.text();
+        }
+    } catch (e) {}
+
+    return null;
+}
+
 // Scrape Radio Lac Recently Played Tracks ("Derniers Titres")
 async function fetchRadioLacTracks() {
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.radiolac.ch/actualite/player/')}`;
+    const htmlText = await fetchProxyContent('https://www.radiolac.ch/actualite/player/');
+    if (!htmlText) return ["🎵 Radio Lac : Le meilleur de la musique à Genève"];
 
     try {
-        const response = await fetch(proxyUrl);
-        if (!response.ok) return [];
-
-        const htmlText = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlText, "text/html");
 
         const tracks = [];
-        // Extract title/artist elements from Radio Lac player markup
         const trackElements = doc.querySelectorAll('.track-info, .song-info, .player-history-item, .derniers-titres .item');
 
         trackElements.forEach(el => {
@@ -141,9 +159,7 @@ async function fetchRadioLacTracks() {
         if (tracks.length > 0) {
             return tracks.slice(0, 4);
         }
-    } catch (e) {
-        // Silently catch network errors
-    }
+    } catch (e) {}
 
     return ["🎵 Radio Lac : Le meilleur de la musique à Genève"];
 }
@@ -209,15 +225,12 @@ const getForecast = async () => {
     }
 };
 
-// Direct XML fetch + Native DOMParser
+// Fetch RSS XML using fallback CORS proxies
 async function fetchFeedXml(url) {
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    const xmlText = await fetchProxyContent(url);
+    if (!xmlText) return [];
 
     try {
-        const response = await fetch(proxyUrl);
-        if (!response.ok) return [];
-
-        const xmlText = await response.text();
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlText, "text/xml");
         const items = xmlDoc.querySelectorAll("item title, entry title");
@@ -230,9 +243,8 @@ async function fetchFeedXml(url) {
         });
 
         return titles;
-    } catch (e) {
-        // Silently capture errors
-    }
+    } catch (e) {}
+
     return [];
 }
 
