@@ -445,6 +445,30 @@ h1 {
 }
 
 /* ==========================================
+   FULLSCREEN TOGGLE BUTTON (Reinstated)
+   ========================================== */
+
+#fullscreen-btn {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 6px;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 9999;
+    transition: background 0.2s ease;
+}
+
+#fullscreen-btn:hover {
+    background: rgba(0, 0, 0, 0.85);
+}
+
+/* ==========================================
    CREDITS LINE (bottom left, above the ticker)
    ========================================== */
 
@@ -622,10 +646,17 @@ h1 {
     left: 10px;
     bottom: 41px;                      /* 35px ticker + 6px gap */
     max-width: calc(100vw - 20px);
-    font-size: 7.5px;
-    padding: 2px 5px;
+    font-size: 6.8px;
+    padding: 2px 4px;
     white-space: nowrap;
     text-align: left;
+}
+
+#fullscreen-btn {
+    bottom: 41px;
+    right: 10px;
+    padding: 4px 8px;
+    font-size: 11px;
 }
 
 }
@@ -657,4 +688,57 @@ h1 {
 }
 
 #songs-widget .sw-header {
-    font-size: 9px
+    font-size: 9px;
+    margin-bottom: 3px;
+}
+
+#songs-widget .sw-row {
+    gap: 8px;
+}
+
+#songs-widget .sw-row + .sw-row {
+    margin-top: 4px;
+}
+
+#songs-widget .sw-row:nth-child(4) {
+    display: none;                     /* only the current song + one before */
+}
+
+#songs-widget img {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+}
+
+#songs-widget .sw-label {
+    font-size: 8px;
+}
+
+#songs-widget .sw-title {
+    font-size: 11px;
+}
+
+#songs-widget .sw-row.now .sw-title {
+    font-size: 12px;
+}
+
+#songs-widget .sw-artist {
+    font-size: 10px;
+}
+
+#credits {
+    left: 10px;
+    bottom: 46px;                      /* 40px ticker + 6px gap */
+    font-size: 9px;
+    padding: 3px 8px;
+    text-align: left;
+}
+
+#fullscreen-btn {
+    bottom: 46px;
+    right: 10px;
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+}
