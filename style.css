@@ -333,22 +333,46 @@ h1 {
 
 }
 
+
 /* ==========================================
-   RADIO LAC - DERNIERS TITRES WIDGET
-   (sits bottom-left, just above the ticker)
+   RADIO LAC BOX + DERNIERS TITRES (combined)
+   app.js wraps the logo, power button and label
+   in #logoMain, and adds the songs panel beside it.
    ========================================== */
 
+#logoMain {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex: none;
+}
+
+/* DESKTOP: same top and height as before, wider, logo group on the left */
+#logoBox.has-songs {
+    width: clamp(497px, calc(100vw - 691px), 820px);
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 20px;
+}
+
+#logoBox.has-songs #logoMain {
+    width: 270px;                      /* width of the logo */
+}
+
 #songs-widget {
-    position: fixed;
-    left: 20px;
-    bottom: 98px;              /* 82px ticker + 16px gap */
-    width: 497px;              /* same width as the logo box */
+    flex: 1;
+    min-width: 0;
     box-sizing: border-box;
-    padding: 16px 20px;
-    background: #48bcc7;
-    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 20px;
+    border-left: 2px solid rgba(255, 255, 255, 0.45);
     color: #ffffff;
-    z-index: 9999;
+    line-height: 1.15;
 }
 
 #songs-widget[hidden] {
@@ -364,17 +388,17 @@ h1 {
     font-weight: bold;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 #songs-widget .sw-row {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
 }
 
 #songs-widget .sw-row + .sw-row {
-    margin-top: 12px;
+    margin-top: 10px;
 }
 
 #songs-widget .sw-row:not(.now) {
@@ -382,8 +406,8 @@ h1 {
 }
 
 #songs-widget img {
-    width: 60px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
     border-radius: 6px;
     object-fit: cover;
     flex: none;
@@ -395,7 +419,7 @@ h1 {
 }
 
 #songs-widget .sw-label {
-    font-size: 15px;
+    font-size: 13px;
     opacity: 0.85;
 }
 
@@ -407,26 +431,48 @@ h1 {
 }
 
 #songs-widget .sw-title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
 }
 
 #songs-widget .sw-row.now .sw-title {
-    font-size: 28px;
+    font-size: 24px;
 }
 
 #songs-widget .sw-artist {
-    font-size: 20px;
+    font-size: 16px;
 }
 
-/* Mobile portrait: compact, current song only */
+/* MOBILE PORTRAIT: separate box directly beneath the Radio Lac box, three songs */
 @media screen and (max-width: 768px) and (orientation: portrait) {
 
-#songs-widget {
-    left: 10px;
-    bottom: 58px;              /* 50px ticker + 8px gap */
+#logoMain {
+    gap: 3px;
+}
+
+#logoBox.has-songs {
     width: 42vw;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+}
+
+#logoBox.has-songs #logoMain {
+    width: auto;
+}
+
+#songs-widget {
+    position: fixed;
+    top: calc(10px + 14vh + 6px + 13vh + 6px);   /* clock box + logo box + gaps */
+    left: 10px;
+    width: 42vw;
+    flex: none;
     padding: 6px;
+    border-left: none;
+    background: #48bcc7;
+    border-radius: 8px;
+    z-index: 9999;
 }
 
 #songs-widget .sw-header {
@@ -439,7 +485,7 @@ h1 {
 }
 
 #songs-widget .sw-row + .sw-row {
-    display: none;             /* hide the "Juste avant" rows */
+    margin-top: 4px;
 }
 
 #songs-widget img {
@@ -463,19 +509,33 @@ h1 {
 
 }
 
-/* Mobile landscape: compact, all three songs */
+/* MOBILE LANDSCAPE: combined box, same top and height as before, two songs */
 @media screen and (max-height: 500px) and (orientation: landscape) {
 
+#logoMain {
+    gap: 4px;
+}
+
+#logoBox.has-songs {
+    width: clamp(300px, calc(100vw - 280px), 380px);
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 10px;
+}
+
+#logoBox.has-songs #logoMain {
+    width: 110px;                      /* width of the logo */
+}
+
 #songs-widget {
-    left: 10px;
-    bottom: 48px;              /* 40px ticker + 8px gap */
-    width: 250px;
-    padding: 6px 8px;
+    padding-left: 10px;
+    border-left: 1px solid rgba(255, 255, 255, 0.45);
 }
 
 #songs-widget .sw-header {
-    font-size: 9px;
-    margin-bottom: 4px;
+    font-size: 8px;
+    margin-bottom: 3px;
 }
 
 #songs-widget .sw-row {
@@ -486,6 +546,10 @@ h1 {
     margin-top: 4px;
 }
 
+#songs-widget .sw-row:nth-child(4) {
+    display: none;                     /* only the current song + one before */
+}
+
 #songs-widget img {
     width: 30px;
     height: 30px;
@@ -493,19 +557,19 @@ h1 {
 }
 
 #songs-widget .sw-label {
-    font-size: 8px;
+    font-size: 7px;
 }
 
 #songs-widget .sw-title {
-    font-size: 11px;
+    font-size: 10px;
 }
 
 #songs-widget .sw-row.now .sw-title {
-    font-size: 12px;
+    font-size: 11px;
 }
 
 #songs-widget .sw-artist {
-    font-size: 10px;
+    font-size: 9px;
 }
 
 }

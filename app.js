@@ -6,7 +6,7 @@ console.log("GenevaCam loaded");
 
 // Your Cloudflare Worker address (keep the trailing slash).
 // Replace YOURNAME with your own workers.dev name.
-const PROXY_BASE = "https://genevacam-rss.christian-cobley.workers.dev/";
+const PROXY_BASE = "https://genevacam-rss.YOURNAME.workers.dev/";
 
 const proxied = (url) => `${PROXY_BASE}?url=${encodeURIComponent(url)}`;
 
@@ -213,11 +213,21 @@ const SONGS_URL = "https://www.radiolac.ch/cache/lac.json";
 const SONGS_REFRESH_MS = 30000; // refresh every 30 seconds
 
 (function createSongsWidget() {
-    // Container
+    // Container: lives inside the Radio Lac box (#logoBox), beside the logo and power button
+    const logoBox = document.getElementById("logoBox");
     const box = document.createElement("div");
     box.id = "songs-widget";
     box.hidden = true; // stays hidden until we have data
-    document.body.appendChild(box);
+
+    if (logoBox) {
+        // Wrap the existing logo / power button / label so they can sit on the left
+        const main = document.createElement("div");
+        main.id = "logoMain";
+        while (logoBox.firstChild) main.appendChild(logoBox.firstChild);
+        logoBox.append(main, box);
+    } else {
+        document.body.appendChild(box);
+    }
 
     const el = (tag, cls, text) => {
         const n = document.createElement(tag);
@@ -271,6 +281,7 @@ const SONGS_REFRESH_MS = 30000; // refresh every 30 seconds
                 ...prev.map(s => makeRow("Juste avant", s, false))
             );
             box.hidden = false;
+            if (logoBox) logoBox.classList.add("has-songs");
         } catch (e) {
             console.warn("Songs error:", e);
             // Keep showing the last known songs, but dim them so it's clear they may be old
