@@ -544,7 +544,7 @@ function startTickerSeamless() {
         const width = ticker.offsetWidth;
         const distance = width + window.innerWidth;
         const isMobilePortrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
-        const duration = isMobilePortrait ? distance * 11.4 : distance * 6.4;
+        const duration = isMobilePortrait ? distance * 14.25 : distance * 8.0;
 
         currentAnimation = ticker.animate(
             [
