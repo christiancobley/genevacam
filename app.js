@@ -6,7 +6,7 @@ console.log("GenevaCam loaded");
 
 // Your Cloudflare Worker address (keep the trailing slash).
 // Replace YOURNAME with your own workers.dev name.
-const PROXY_BASE = "https://genevacam-rss.YOURNAME.workers.dev/";
+const PROXY_BASE = "https://genevacam-rss.christian-cobley.workers.dev/";
 
 const proxied = (url) => `${PROXY_BASE}?url=${encodeURIComponent(url)}`;
 
