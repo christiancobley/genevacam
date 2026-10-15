@@ -169,7 +169,7 @@ const getForecast = async () => {
     }
 };
 
-// Direct XML fetch + Native DOMParser (Bypasses rss2json completely)
+// Direct XML fetch + Native DOMParser
 async function fetchFeedXml(url) {
     const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
 
@@ -202,13 +202,18 @@ let cachedForecastText = "";
 let currentAnimation = null;
 
 async function updateTicker() {
+    // Complete Le Temps feeds restored
     const leTempsFeeds = [
         { name: "Le Temps Suisse", url: "https://www.letemps.ch/suisse.rss" },
+        { name: "Le Temps Articles", url: "https://www.letemps.ch/articles.rss" },
         { name: "Le Temps Monde", url: "https://www.letemps.ch/monde.rss" },
+        { name: "Le Temps Économie", url: "https://www.letemps.ch/economie.rss" },
         { name: "Le Temps Sport", url: "https://www.letemps.ch/sport.rss" }
     ];
 
+    // Complete 20 Minutes feeds with Genève reinstated first
     const twentyMinFeeds = [
+        { name: "20 Minutes Genève", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande/geneve" },
         { name: "20 Minutes Suisse Romande", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse-romande" },
         { name: "20 Minutes Suisse", url: "https://partner-feeds.20min.ch/rss/20minutes/suisse" },
         { name: "20 Minutes Principal", url: "https://partner-feeds.20min.ch/rss/20minutes" },
@@ -298,7 +303,7 @@ function renderNextRotationBatch() {
 
     // 3. News and alert batches
     for (let b = 1; b < feedBatches.length; b++) {
-        const batch = feedBatches[b];
+        const batch = batch = feedBatches[b];
         const total = batch.titles.length;
         if (total > 0) {
             for (let i = 0; i < Math.min(3, total); i++) {
