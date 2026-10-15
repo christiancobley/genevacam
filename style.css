@@ -1069,3 +1069,10 @@ body.boxes-hidden #clockBox {
         height: 110px;
     }
 }
+
+/* Desktop only: increase the tagline size by 20%. */
+@media screen and (min-width: 1280px) and (min-height: 501px) {
+    #radio-tagline {
+        font-size: clamp(14.4px, 1.56vw, 19.2px);
+    }
+}
