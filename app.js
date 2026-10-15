@@ -582,3 +582,31 @@ setInterval(updateTicker, 600000);
         );
     });
 })();
+
+// Match the Masquer/Afficher control to the credits strip in every viewport.
+(function alignOverlayToggleWithCredits() {
+    const credits = document.getElementById("credits");
+    const button = document.getElementById("overlay-toggle");
+    if (!credits || !button) return;
+
+    const align = () => {
+        const bounds = credits.getBoundingClientRect();
+        button.style.top = `${bounds.top}px`;
+        button.style.bottom = "auto";
+        button.style.height = `${bounds.height}px`;
+        button.style.boxSizing = "border-box";
+        button.style.display = "flex";
+        button.style.alignItems = "center";
+        button.style.justifyContent = "center";
+        button.style.paddingTop = "0";
+        button.style.paddingBottom = "0";
+    };
+
+    align();
+    window.addEventListener("resize", align, { passive: true });
+
+    if (typeof ResizeObserver === "function") {
+        const observer = new ResizeObserver(align);
+        observer.observe(credits);
+    }
+})();
