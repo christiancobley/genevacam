@@ -349,7 +349,7 @@ async function fetchFeedXml(url) {
 const SONGS_URL = "https://www.radiolac.ch/cache/lac.json";
 const SONGS_REFRESH_MS = 30000; // refresh every 30 seconds
 const GRANGE_CANAL_STOP_ID = "8592833";
-const DEPARTURES_TICKER_SPEED = 45.9; // Half the previous website speed.
+const DEPARTURES_TICKER_SPEED = 55.1; // Half the previous website speed.
 
 // Identify television browsers so they can use compact TV-specific sizing.
 const userAgent = navigator.userAgent || "";
@@ -368,7 +368,7 @@ if (/silk/i.test(userAgent) && (/(aft|fire\s?tv)/i.test(userAgent) || window.mat
     box.hidden = true; // stays hidden until we have data
     const tramTicker = document.createElement("div");
     tramTicker.id = "tram-ticker";
-    tramTicker.setAttribute("aria-label", "Départs des trams à Grange-Canal dans les 15 prochaines minutes");
+    tramTicker.setAttribute("aria-label", "Départs des trams à Grange-Canal dans les 30 prochaines minutes");
     const tramTrack = document.createElement("span");
     tramTrack.id = "tram-ticker-track";
     tramTicker.appendChild(tramTrack);
@@ -404,7 +404,7 @@ if (/silk/i.test(userAgent) && (/(aft|fire\s?tv)/i.test(userAgent) || window.mat
             if (!response.ok) throw new Error("HTTP " + response.status);
             const data = await response.json();
             const now = Date.now();
-            const cutoff = now + 15 * 60 * 1000;
+            const cutoff = now + 30 * 60 * 1000;
             const formatter = new Intl.DateTimeFormat("fr-CH", {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -426,7 +426,7 @@ if (/silk/i.test(userAgent) && (/(aft|fire\s?tv)/i.test(userAgent) || window.mat
                 });
             renderTramTicker(departures.length
                 ? "Grange-Canal : " + departures.join("   •   ")
-                : "Grange-Canal : aucun tram prévu dans les 15 prochaines minutes");
+                : "Grange-Canal : aucun tram prévu dans les 30 prochaines minutes");
         } catch (error) {
             console.warn("Tram departures error:", error);
             renderTramTicker("Départs à Grange-Canal temporairement indisponibles");
