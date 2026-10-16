@@ -1111,10 +1111,7 @@ body.boxes-hidden #clockBox {
     background: transparent;
     padding: 6px 10px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-}
-#songs-widget {
-    max-width: 170px;
-}
+
 
 #songs-widget .sw-header {
     font-size: 13px;
@@ -1298,7 +1295,8 @@ body.boxes-hidden #clockBox {
     border-radius: 0 0 8px 8px;
     color: #fff;
     background: rgba(0, 0, 0, 0.05);
-    font-size: clamp(20px, 3.2vw, 36px);
+font-size: clamp(26px, 4.2vw, 46px);
+
     font-weight: 700;
     line-height: 1;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
@@ -1356,7 +1354,7 @@ html.silk-tv #logoBox.has-songs {
 }
 html.silk-tv #clockBox { width: min(505px, 28.8vw); }
 @media screen and (min-width: 1200px) and (min-height: 501px) {
-    html.silk-tv #logoBox.has-songs { width: 380px; }
+    html.silk-tv #logoBox.has-songs { width: 320px; }
     html.silk-tv #clockBox { width: 505px; }
     /* Silk on TV: -10% on song text and MARCHE / ARRÊT. */
     html.silk-tv #logoBox.has-songs .power-label { font-size: 0.9rem; }
@@ -1477,7 +1475,7 @@ html.silk-tv #clockBox { width: min(505px, 28.8vw); }
     }
 
     html.lg-webos-tv #logoBox.has-songs {
-        width: 380px;
+        width: 320px;
     }
 }
 

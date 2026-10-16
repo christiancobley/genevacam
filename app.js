@@ -349,7 +349,7 @@ async function fetchFeedXml(url) {
 const SONGS_URL = "https://www.radiolac.ch/cache/lac.json";
 const SONGS_REFRESH_MS = 30000; // refresh every 30 seconds
 const GRANGE_CANAL_STOP_ID = "8592833";
-const DEPARTURES_TICKER_SPEED = 55.1; // Half the previous website speed.
+const DEPARTURES_TICKER_SPEED = 66.1; // 
 
 // Identify television browsers so they can use compact TV-specific sizing.
 const userAgent = navigator.userAgent || "";
