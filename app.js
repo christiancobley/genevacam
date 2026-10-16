@@ -326,6 +326,8 @@ async function fetchFeedXml(url) {
 
 const SONGS_URL = "https://www.radiolac.ch/cache/lac.json";
 const SONGS_REFRESH_MS = 30000; // refresh every 30 seconds
+const GRANGE_CANAL_STOP_ID = "8592833";
+const DEPARTURES_TICKER_SPEED = 91.8; // pixels per second, matching the Alexa ticker pace
 
 (function createSongsWidget() {
     // Container: lives inside the Radio Lac box (#logoBox), beside the logo and power button
@@ -333,13 +335,98 @@ const SONGS_REFRESH_MS = 30000; // refresh every 30 seconds
     const box = document.createElement("div");
     box.id = "songs-widget";
     box.hidden = true; // stays hidden until we have data
+    const tramTicker = document.createElement("div");
+    tramTicker.id = "tram-ticker";
+    tramTicker.setAttribute("aria-label", "Départs des trams à Grange-Canal dans les 15 prochaines minutes");
+    const tramTrack = document.createElement("span");
+    tramTrack.id = "tram-ticker-track";
+    tramTicker.appendChild(tramTrack);
+    let tramAnimation = null;
+    let lastDepartureText = "";
+
+    const placeTramTicker = () => {
+        if (!logoBox) return;
+        const portrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
+        const parent = portrait && !box.hidden ? box : logoBox;
+        parent.appendChild(tramTicker);
+    };
+
+    const renderTramTicker = (text) => {
+        if (text === lastDepartureText) return;
+        lastDepartureText = text;
+        const loopText = text + "   •   ";
+        tramTrack.textContent = loopText + loopText;
+        placeTramTicker();
+        if (tramAnimation) tramAnimation.cancel();
+
+        requestAnimationFrame(() => {
+            const copyWidth = tramTrack.getBoundingClientRect().width / 2;
+            if (!copyWidth) return;
+            tramAnimation = tramTrack.animate(
+                [
+                    { transform: "translateX(0px)" },
+                    { transform: `translateX(-${copyWidth}px)` }
+                ],
+                {
+                    duration: (copyWidth / DEPARTURES_TICKER_SPEED) * 1000,
+                    iterations: Infinity,
+                    easing: "linear"
+                }
+            );
+        });
+    };
+
+    async function refreshTramDepartures() {
+        try {
+            const url = `https://transport.opendata.ch/v1/stationboard?id=${GRANGE_CANAL_STOP_ID}&limit=60`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("HTTP " + response.status);
+            const data = await response.json();
+            const now = Date.now();
+            const cutoff = now + 15 * 60 * 1000;
+            const formatter = new Intl.DateTimeFormat("fr-CH", {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: "Europe/Zurich"
+            });
+            const departures = (data.stationboard || [])
+                .map(item => {
+                    const stop = item.stop || {};
+                    const departure = (stop.prognosis && stop.prognosis.departure) || stop.departure;
+                    return { item, stop, departure, timestamp: departure ? Date.parse(departure) : NaN };
+                })
+                .filter(row => String(row.item.category || "").toUpperCase() === "T" &&
+                    Number.isFinite(row.timestamp) && row.timestamp >= now && row.timestamp <= cutoff)
+                .sort((a, b) => a.timestamp - b.timestamp)
+                .map(row => {
+                    const line = "T" + (row.item.number || "");
+                    const delay = Number(row.stop.delay) > 0 ? " +" + row.stop.delay + " min" : "";
+                    return `${line} → ${row.item.to || "destination inconnue"} ${formatter.format(new Date(row.timestamp))}${delay}`;
+                });
+            renderTramTicker(departures.length
+                ? "Grange-Canal : " + departures.join("   •   ")
+                : "Grange-Canal : aucun tram prévu dans les 15 prochaines minutes");
+        } catch (error) {
+            console.warn("Tram departures error:", error);
+            renderTramTicker("Départs à Grange-Canal temporairement indisponibles");
+        }
+    }
+
+    const portraitLayout = window.matchMedia("(max-width: 768px) and (orientation: portrait)");
+    const relocateTramTicker = () => {
+        placeTramTicker();
+        if (lastDepartureText) renderTramTicker(lastDepartureText);
+    };
+    if (portraitLayout.addEventListener) portraitLayout.addEventListener("change", relocateTramTicker);
+    else portraitLayout.addListener(relocateTramTicker);
+    window.addEventListener("resize", relocateTramTicker, { passive: true });
 
     if (logoBox) {
         // Wrap the existing logo / power button / label so they can sit on the left
         const main = document.createElement("div");
         main.id = "logoMain";
         while (logoBox.firstChild) main.appendChild(logoBox.firstChild);
-        logoBox.append(main, box);
+        logoBox.append(main, box, tramTicker);
     } else {
         document.body.appendChild(box);
     }
@@ -391,12 +478,13 @@ const SONGS_REFRESH_MS = 30000; // refresh every 30 seconds
             lastKey = key;
 
             box.replaceChildren(
-                el("div", "sw-header", "Radio Lac • Derniers titres"),
+                el("div", "sw-header", "DERNIERS TITRES"),
                 makeRow("En ce moment", now, true),
-                ...prev.map(s => makeRow("Juste avant", s, false))
+                ...prev.map((s, i) => makeRow(i === 0 ? "Juste avant" : "Avant cela", s, false))
             );
             box.hidden = false;
             if (logoBox) logoBox.classList.add("has-songs");
+            placeTramTicker();
         } catch (e) {
             console.warn("Songs error:", e);
             // Keep showing the last known songs, but dim them so it's clear they may be old
@@ -406,10 +494,15 @@ const SONGS_REFRESH_MS = 30000; // refresh every 30 seconds
 
     refreshSongs();
     setInterval(refreshSongs, SONGS_REFRESH_MS);
+    refreshTramDepartures();
+    setInterval(refreshTramDepartures, SONGS_REFRESH_MS);
 
     // Refresh straight away when the tab becomes visible again
     document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) refreshSongs();
+        if (!document.hidden) {
+            refreshSongs();
+            refreshTramDepartures();
+        }
     });
 })();
 

@@ -1076,3 +1076,200 @@ body.boxes-hidden #clockBox {
         font-size: clamp(14.4px, 1.56vw, 19.2px);
     }
 }
+
+/* Alexa-inspired left panel and Grange-Canal departures ticker. */
+#logoBox.has-songs {
+    position: fixed;
+    overflow: hidden;
+    padding: 20px 20px 54px;
+}
+
+#logoBox.has-songs #logoMain {
+    width: 230px;
+    gap: 4px;
+}
+
+#logoBox.has-songs #logo {
+    width: min(200px, 100%);
+}
+
+#logoBox.has-songs .power-btn {
+    width: 50px;
+    height: 50px;
+}
+
+#logoBox.has-songs .power-label {
+    font-size: 1rem;
+}
+
+#radio-tagline {
+    margin-top: 4px;
+    transform: none;
+}
+
+#songs-widget {
+    background: transparent;
+    padding: 6px 10px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+#songs-widget .sw-header {
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+#songs-widget .sw-row {
+    gap: 10px;
+}
+
+#songs-widget .sw-row + .sw-row {
+    margin-top: 5px;
+}
+
+#songs-widget img {
+    width: 40px;
+    height: 40px;
+}
+
+#songs-widget .sw-label {
+    font-size: 11px;
+}
+
+#songs-widget .sw-title {
+    font-size: 16px;
+}
+
+#songs-widget .sw-row.now .sw-title {
+    font-size: 19px;
+}
+
+#songs-widget .sw-artist {
+    font-size: 13px;
+}
+
+#logoBox.has-songs > #tram-ticker,
+#songs-widget > #tram-ticker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 34px;
+    padding: 0 12px;
+    overflow: hidden;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.05);
+    font-size: clamp(10px, 1.6vw, 18px);
+    font-weight: 700;
+    line-height: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+}
+
+#logoBox > #tram-ticker {
+    display: none;
+}
+
+#logoBox.has-songs > #tram-ticker {
+    display: flex;
+}
+
+#tram-ticker-track {
+    display: inline-block;
+    flex: none;
+    width: max-content;
+    white-space: nowrap;
+    will-change: transform;
+}
+
+@media screen and (min-width: 769px) and (min-height: 501px) {
+    #logoBox.has-songs {
+        padding-bottom: 54px;
+    }
+
+    #logoBox.has-songs #logoMain {
+        width: 220px;
+    }
+
+    #logoBox.has-songs #tram-ticker {
+        height: 34px;
+    }
+}
+
+@media screen and (max-width: 768px) and (orientation: portrait) {
+    #logoBox.has-songs {
+        overflow: visible;
+        padding: 3.2px;
+    }
+
+    #logoBox.has-songs #logoMain {
+        width: auto;
+        gap: 3.2px;
+    }
+
+    #logoBox.has-songs #logo {
+        width: 68px;
+    }
+
+    #logoBox.has-songs > #tram-ticker {
+        display: none;
+    }
+
+    #songs-widget {
+        position: fixed;
+        overflow: hidden;
+        padding: 6.4px 8px 24px;
+        padding-bottom: 24px;
+        background: #48bcc7;
+    }
+
+    #songs-widget > #tram-ticker {
+        height: 20px;
+        padding: 0 6px;
+        background: rgba(0, 0, 0, 0.05);
+        font-size: clamp(7px, 2vw, 9px);
+    }
+
+    #radio-tagline {
+        margin-top: 2px;
+    }
+}
+
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    #logoBox.has-songs {
+        overflow: hidden;
+        padding: 0 0 14px;
+    }
+
+    #logoBox.has-songs #logoMain {
+        width: 130px;
+        flex: 0 0 130px;
+        gap: 2px;
+    }
+
+    #logoBox.has-songs #logo {
+        width: 100px;
+    }
+
+    #logoBox.has-songs .power-btn {
+        width: 22px;
+        height: 22px;
+    }
+
+    #logoBox.has-songs .power-label {
+        font-size: 0.45rem;
+    }
+
+    #logoBox.has-songs #tram-ticker {
+        height: 14px;
+        padding: 0 8px;
+        font-size: clamp(7px, 1.1vw, 10px);
+    }
+
+    #radio-tagline {
+        margin-top: 2px;
+    }
+}
