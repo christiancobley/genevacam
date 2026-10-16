@@ -1038,8 +1038,8 @@ body.boxes-hidden #clockBox {
     }
 
     #logoBox.has-songs #logoMain {
-        width: 130px;
-        flex: 0 0 130px;
+    width: 120px;
+    flex: 0 0 120px;
         gap: 2px;
     }
 
@@ -1111,6 +1111,9 @@ body.boxes-hidden #clockBox {
     background: transparent;
     padding: 6px 10px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+#songs-widget {
+    max-width: 170px;
 }
 
 #songs-widget .sw-header {
@@ -1245,8 +1248,8 @@ body.boxes-hidden #clockBox {
     }
 
     #logoBox.has-songs #logoMain {
-        width: 130px;
-        flex: 0 0 130px;
+    width: 120px;
+    flex: 0 0 120px;
         gap: 2px;
     }
 
@@ -1378,7 +1381,7 @@ html.silk-tv #logoBox.has-songs {
 }
 html.silk-tv #clockBox { width: min(505px, 28.8vw); }
 @media screen and (min-width: 1200px) and (min-height: 501px) {
-    html.silk-tv #logoBox.has-songs { width: 550px; }
+    html.silk-tv #logoBox.has-songs { width: 380px; }
     html.silk-tv #clockBox { width: 505px; }
     /* Silk on TV: -10% on song text and MARCHE / ARRÊT. */
     html.silk-tv #logoBox.has-songs .power-label { font-size: 0.9rem; }
@@ -1400,6 +1403,7 @@ html.silk-tv #clockBox { width: min(505px, 28.8vw); }
     html.silk-tv #songs-widget .sw-artist { font-size: 9px; }
     html.silk-tv #clockBox > #tram-ticker { font-size: clamp(13.3px, 2.09vw, 19px); }
 }
+
 @media screen and (max-width: 768px) and (orientation: portrait) {
     #clockBox {
         height: 14vh;
@@ -1408,12 +1412,40 @@ html.silk-tv #clockBox { width: min(505px, 28.8vw); }
 
     #logoBox.has-songs {
         top: calc(8px + 14vh + 4.8px);
-        height: 12vh;
+        height: 16vh;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #logoMain {
+        gap: 6px;
+    }
+
+    #logoBox.has-songs #logo {
+        width: 72px;
+    }
+
+    #radio-tagline {
+        font-size: 8px;
+        line-height: 1.2;
+        margin-top: 0;
+    }
+
+    #logoBox.has-songs .power-btn {
+        width: 26px;
+        height: 26px;
+    }
+
+    #logoBox.has-songs .power-label {
+        font-size: 0.55rem;
+        text-align: center;
+        white-space: nowrap;
     }
 
     #songs-widget {
-        top: calc(8px + 14vh + 4.8px + 12vh + 4.8px);
+        top: calc(8px + 14vh + 4.8px + 16vh + 4.8px);
     }
+}
 
     #clockBox > #tram-ticker {
         height: 22px;
@@ -1470,7 +1502,7 @@ html.silk-tv #clockBox { width: min(505px, 28.8vw); }
     }
 
     html.lg-webos-tv #logoBox.has-songs {
-        width: 550px;
+        width: 380px;
     }
 }
 
