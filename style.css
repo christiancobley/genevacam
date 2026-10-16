@@ -1337,6 +1337,69 @@ body.boxes-hidden #clockBox {
     }
 }
 
+/* Final device-specific refinements: keep songs readable, but contained. */
+@media screen and (max-width: 768px) and (orientation: portrait) {
+    /* Scale every part of the song list down 20% so three items fit cleanly. */
+    #songs-widget .sw-header { font-size: 6.4px; margin-bottom: 3.8px; }
+    #songs-widget .sw-row { gap: 5.1px; }
+    #songs-widget .sw-row + .sw-row { margin-top: 3.8px; }
+    #songs-widget img { width: 21.8px; height: 21.8px; }
+    #songs-widget .sw-label { font-size: 6.4px; }
+    #songs-widget .sw-title { font-size: 7.7px; }
+    #songs-widget .sw-row.now .sw-title { font-size: 8.3px; }
+    #songs-widget .sw-artist { font-size: 7px; }
+}
+
+/* Mobile landscape: song text -10% and the tram ticker text -5%. */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    #songs-widget .sw-header { font-size: 8.1px; }
+    #songs-widget .sw-label { font-size: 7.2px; }
+    #songs-widget .sw-title { font-size: 9.9px; }
+    #songs-widget .sw-row.now .sw-title { font-size: 10.8px; }
+    #songs-widget .sw-artist { font-size: 9px; }
+    html body #clockBox > #tram-ticker { font-size: clamp(13.3px, 2.09vw, 19px); }
+}
+
+/* LG native webOS reports several different user-agent strings and viewport widths. */
+@media screen and (min-width: 1280px) and (min-height: 501px) {
+    html.lg-webos-tv #logoBox.has-songs { width: 550px; }
+    html.lg-webos-tv #clockBox { width: 505px; }
+}
+@media screen and (min-width: 769px) and (max-width: 1279px) and (min-height: 501px) {
+    html.lg-webos-tv #logoBox.has-songs {
+        width: min(550px, calc(100vw - 28.8vw - 60px));
+    }
+    html.lg-webos-tv #clockBox { width: 28.8vw; }
+}
+
+/* Fire TV Silk uses TV-sized viewports even when its UA does not expose orientation. */
+html.silk-tv #logoBox.has-songs {
+    width: min(550px, calc(100vw - 28.8vw - 60px));
+}
+html.silk-tv #clockBox { width: min(505px, 28.8vw); }
+@media screen and (min-width: 1200px) and (min-height: 501px) {
+    html.silk-tv #logoBox.has-songs { width: 550px; }
+    html.silk-tv #clockBox { width: 505px; }
+    /* Silk on TV: -10% on song text and MARCHE / ARRÊT. */
+    html.silk-tv #logoBox.has-songs .power-label { font-size: 0.9rem; }
+    html.silk-tv #songs-widget .sw-header { font-size: 11.7px; }
+    html.silk-tv #songs-widget .sw-label { font-size: 9.9px; }
+    html.silk-tv #songs-widget .sw-title { font-size: 14.4px; }
+    html.silk-tv #songs-widget .sw-row.now .sw-title { font-size: 17.1px; }
+    html.silk-tv #songs-widget .sw-artist { font-size: 11.7px; }
+    html.silk-tv #clockBox > #tram-ticker { font-size: clamp(19px, 3.04vw, 34.2px); }
+}
+
+/* Silk devices in phone landscape use the -10% song and -5% tram adjustments too. */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    html.silk-tv #logoBox.has-songs .power-label { font-size: 0.405rem; }
+    html.silk-tv #songs-widget .sw-header { font-size: 8.1px; }
+    html.silk-tv #songs-widget .sw-label { font-size: 7.2px; }
+    html.silk-tv #songs-widget .sw-title { font-size: 9.9px; }
+    html.silk-tv #songs-widget .sw-row.now .sw-title { font-size: 10.8px; }
+    html.silk-tv #songs-widget .sw-artist { font-size: 9px; }
+    html.silk-tv #clockBox > #tram-ticker { font-size: clamp(13.3px, 2.09vw, 19px); }
+}
 @media screen and (max-width: 768px) and (orientation: portrait) {
     #clockBox {
         height: 14vh;

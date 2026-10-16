@@ -148,6 +148,22 @@ setInterval(() => {
 const radio = document.getElementById("radio");
 const radioToggle = document.getElementById("radio-toggle");
 
+// Some television browsers pause inline video when a second audio stream starts.
+// When that happens, try to resume the muted camera without stopping the radio.
+let lastCameraResumeAttempt = 0;
+function keepCameraPlayingAlongsideRadio() {
+    const isTvBrowser = document.documentElement.classList.contains("lg-webos-tv") ||
+        document.documentElement.classList.contains("silk-tv");
+    if (!isTvBrowser || radio.paused || !video || !video.paused || document.hidden) return;
+    const now = Date.now();
+    if (now - lastCameraResumeAttempt < 4000) return;
+    lastCameraResumeAttempt = now;
+    video.play().catch(err => console.warn("Camera resume while radio is playing:", err));
+}
+
+radio.addEventListener("playing", () => setTimeout(keepCameraPlayingAlongsideRadio, 250));
+video.addEventListener("pause", () => setTimeout(keepCameraPlayingAlongsideRadio, 250));
+
 radioToggle.addEventListener("click", () => {
     if (radio.paused) {
         // Some TV browsers pause background video when audio starts; resume it in the same user action.
@@ -157,6 +173,9 @@ radioToggle.addEventListener("click", () => {
             .then(() => {
                 radioToggle.classList.add("active");
                 console.log("Radio playing");
+                // Retry once after radio playback begins in case the TV browser
+                // paused the muted livestream while switching media pipelines.
+                setTimeout(keepCameraPlayingAlongsideRadio, 250);
             })
             .catch(err => console.log("Radio playback error:", err));
     } else {
@@ -332,9 +351,13 @@ const SONGS_REFRESH_MS = 30000; // refresh every 30 seconds
 const GRANGE_CANAL_STOP_ID = "8592833";
 const DEPARTURES_TICKER_SPEED = 45.9; // Half the previous website speed.
 
-// Identify LG webOS televisions so their native browser can use a more compact layout.
-if (/(web0s|webos)/i.test(navigator.userAgent) && /(smarttv|webappmanager|lg browser)/i.test(navigator.userAgent)) {
+// Identify television browsers so they can use compact TV-specific sizing.
+const userAgent = navigator.userAgent || "";
+if (/(web0s|webos)/i.test(userAgent)) {
     document.documentElement.classList.add("lg-webos-tv");
+}
+if (/silk/i.test(userAgent) && (/(aft|fire\s?tv)/i.test(userAgent) || window.matchMedia("(min-width: 1024px)").matches)) {
+    document.documentElement.classList.add("silk-tv");
 }
 
 (function createSongsWidget() {
@@ -349,7 +372,7 @@ if (/(web0s|webos)/i.test(navigator.userAgent) && /(smarttv|webappmanager|lg bro
     const tramTrack = document.createElement("span");
     tramTrack.id = "tram-ticker-track";
     tramTicker.appendChild(tramTrack);
-    let tramAnimation = null;
+    let tramFrame = 0;
     let lastDepartureText = "";
 
     const renderTramTicker = (text) => {
@@ -357,23 +380,20 @@ if (/(web0s|webos)/i.test(navigator.userAgent) && /(smarttv|webappmanager|lg bro
         lastDepartureText = text;
         const loopText = text + "   •   ";
         tramTrack.textContent = loopText + loopText;
-        placeTramTicker();
-        if (tramAnimation) tramAnimation.cancel();
+        if (tramFrame) cancelAnimationFrame(tramFrame);
 
         requestAnimationFrame(() => {
             const copyWidth = tramTrack.getBoundingClientRect().width / 2;
             if (!copyWidth) return;
-            tramAnimation = tramTrack.animate(
-                [
-                    { transform: "translateX(0px)" },
-                    { transform: `translateX(-${copyWidth}px)` }
-                ],
-                {
-                    duration: (copyWidth / DEPARTURES_TICKER_SPEED) * 1000,
-                    iterations: Infinity,
-                    easing: "linear"
-                }
-            );
+            const duration = (copyWidth / DEPARTURES_TICKER_SPEED) * 1000;
+            const startedAt = performance.now();
+            const animate = (now) => {
+                const elapsed = (now - startedAt) % duration;
+                const offset = (elapsed / duration) * copyWidth;
+                tramTrack.style.transform = `translateX(-${offset}px)`;
+                tramFrame = requestAnimationFrame(animate);
+            };
+            tramFrame = requestAnimationFrame(animate);
         });
     };
 
