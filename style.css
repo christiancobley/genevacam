@@ -1031,7 +1031,7 @@ body.boxes-hidden #clockBox {
     #logoBox.has-songs {
         top: 10px;
         height: 110px;
-        width: clamp(320px, calc(100vw - 260px), 400px);
+    width: clamp(260px, calc(100vw - 420px), 320px);
         padding: 0;
         align-items: stretch;
         gap: 8px;
@@ -1323,22 +1323,7 @@ body.boxes-hidden #clockBox {
     transform: translateY(-1em);
 }
 
-/* Compact the two TV cards only in LG's native webOS browser. */
-@media screen and (min-width: 1280px) and (min-height: 501px) {
-    html.lg-webos-tv #clockBox {
-        width: 505px;
-    }
 
-    html.lg-webos-tv #logoBox.has-songs {
-        width: clamp(435px, calc(50vw - 205.5px), 550px);
-    }
-}
-
-@media screen and (min-width: 769px) and (max-width: 1279px) and (min-height: 501px) {
-    html.lg-webos-tv #clockBox {
-        width: 28.8vw;
-    }
-}
 
 /* Final device-specific refinements: keep songs readable, but contained. */
 @media screen and (max-width: 768px) and (orientation: portrait) {
@@ -1363,17 +1348,7 @@ body.boxes-hidden #clockBox {
     html body #clockBox > #tram-ticker { font-size: clamp(13.3px, 2.09vw, 19px); }
 }
 
-/* LG native webOS reports several different user-agent strings and viewport widths. */
-@media screen and (min-width: 1280px) and (min-height: 501px) {
-    html.lg-webos-tv #logoBox.has-songs { width: 550px; }
-    html.lg-webos-tv #clockBox { width: 505px; }
-}
-@media screen and (min-width: 769px) and (max-width: 1279px) and (min-height: 501px) {
-    html.lg-webos-tv #logoBox.has-songs {
-        width: min(550px, calc(100vw - 28.8vw - 60px));
-    }
-    html.lg-webos-tv #clockBox { width: 28.8vw; }
-}
+
 
 /* Fire TV Silk uses TV-sized viewports even when its UA does not expose orientation. */
 html.silk-tv #logoBox.has-songs {
