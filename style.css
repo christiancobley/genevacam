@@ -1273,3 +1273,146 @@ body.boxes-hidden #clockBox {
         margin-top: 2px;
     }
 }
+
+/* Final website layout: departures run inside the clock card on every format. */
+#clockBox {
+    overflow: hidden;
+    padding-bottom: 54px;
+}
+
+#clockBox > #tram-ticker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 44px;
+    padding: 0 12px;
+    overflow: hidden;
+    border-radius: 0 0 8px 8px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.05);
+    font-size: clamp(20px, 3.2vw, 36px);
+    font-weight: 700;
+    line-height: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+}
+
+#tram-ticker-track {
+    display: inline-block;
+    flex: none;
+    width: max-content;
+    white-space: nowrap;
+    will-change: transform;
+}
+
+#fullscreen-btn {
+    top: 12px;
+    bottom: auto;
+}
+
+/* Raise the tagline by one text line while keeping it directly below the logo. */
+#logoBox.has-songs #radio-tagline {
+    transform: translateY(-1em);
+}
+
+/* Compact the two TV cards only in LG's native webOS browser. */
+@media screen and (min-width: 1280px) and (min-height: 501px) {
+    html.lg-webos-tv #clockBox {
+        width: 505px;
+    }
+
+    html.lg-webos-tv #logoBox.has-songs {
+        width: clamp(435px, calc(50vw - 205.5px), 550px);
+    }
+}
+
+@media screen and (min-width: 769px) and (max-width: 1279px) and (min-height: 501px) {
+    html.lg-webos-tv #clockBox {
+        width: 28.8vw;
+    }
+}
+
+@media screen and (max-width: 768px) and (orientation: portrait) {
+    #clockBox {
+        height: 14vh;
+        padding: 6.4px 6px 26px;
+    }
+
+    #logoBox.has-songs {
+        top: calc(8px + 14vh + 4.8px);
+        height: 12vh;
+    }
+
+    #songs-widget {
+        top: calc(8px + 14vh + 4.8px + 12vh + 4.8px);
+    }
+
+    #clockBox > #tram-ticker {
+        height: 22px;
+        padding: 0 6px;
+        font-size: clamp(14px, 4vw, 18px);
+    }
+
+    #fullscreen-btn {
+        top: 4px;
+        right: 4px;
+        bottom: auto;
+    }
+}
+
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    #clockBox {
+        padding: 8px 8px 30px;
+    }
+
+    #clockBox > #tram-ticker {
+        height: 22px;
+        padding: 0 8px;
+        font-size: clamp(14px, 2.2vw, 20px);
+    }
+
+    #fullscreen-btn {
+        top: 6px;
+        right: 6px;
+        bottom: auto;
+    }
+}
+
+/* Keep the former left-card ticker reservation removed now that departures are in the clock card. */
+#logoBox.has-songs {
+    padding-bottom: 20px;
+}
+
+@media screen and (max-width: 768px) and (orientation: portrait) {
+    #songs-widget {
+        padding: 6.4px 8px;
+    }
+}
+
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    #logoBox.has-songs {
+        padding: 0;
+    }
+}
+
+/* On LG webOS browser, halve the song panel's available width and reduce the clock by 20%. */
+@media screen and (min-width: 1280px) and (min-height: 501px) {
+    html.lg-webos-tv #clockBox {
+        width: 505px;
+    }
+
+    html.lg-webos-tv #logoBox.has-songs {
+        width: 550px;
+    }
+}
+
+@media screen and (min-width: 769px) and (max-width: 1279px) and (min-height: 501px) {
+    html.lg-webos-tv #clockBox {
+        width: 28.8vw;
+    }
+}

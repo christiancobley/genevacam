@@ -150,6 +150,9 @@ const radioToggle = document.getElementById("radio-toggle");
 
 radioToggle.addEventListener("click", () => {
     if (radio.paused) {
+        // Some TV browsers pause background video when audio starts; resume it in the same user action.
+        const video = document.getElementById("video");
+        if (video && video.paused) video.play().catch(() => {});
         radio.play()
             .then(() => {
                 radioToggle.classList.add("active");
@@ -327,7 +330,12 @@ async function fetchFeedXml(url) {
 const SONGS_URL = "https://www.radiolac.ch/cache/lac.json";
 const SONGS_REFRESH_MS = 30000; // refresh every 30 seconds
 const GRANGE_CANAL_STOP_ID = "8592833";
-const DEPARTURES_TICKER_SPEED = 91.8; // pixels per second, matching the Alexa ticker pace
+const DEPARTURES_TICKER_SPEED = 45.9; // Half the previous website speed.
+
+// Identify LG webOS televisions so their native browser can use a more compact layout.
+if (/(web0s|webos)/i.test(navigator.userAgent) && /(smarttv|webappmanager|lg browser)/i.test(navigator.userAgent)) {
+    document.documentElement.classList.add("lg-webos-tv");
+}
 
 (function createSongsWidget() {
     // Container: lives inside the Radio Lac box (#logoBox), beside the logo and power button
@@ -343,13 +351,6 @@ const DEPARTURES_TICKER_SPEED = 91.8; // pixels per second, matching the Alexa t
     tramTicker.appendChild(tramTrack);
     let tramAnimation = null;
     let lastDepartureText = "";
-
-    const placeTramTicker = () => {
-        if (!logoBox) return;
-        const portrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
-        const parent = portrait && !box.hidden ? box : logoBox;
-        parent.appendChild(tramTicker);
-    };
 
     const renderTramTicker = (text) => {
         if (text === lastDepartureText) return;
@@ -412,21 +413,15 @@ const DEPARTURES_TICKER_SPEED = 91.8; // pixels per second, matching the Alexa t
         }
     }
 
-    const portraitLayout = window.matchMedia("(max-width: 768px) and (orientation: portrait)");
-    const relocateTramTicker = () => {
-        placeTramTicker();
-        if (lastDepartureText) renderTramTicker(lastDepartureText);
-    };
-    if (portraitLayout.addEventListener) portraitLayout.addEventListener("change", relocateTramTicker);
-    else portraitLayout.addListener(relocateTramTicker);
-    window.addEventListener("resize", relocateTramTicker, { passive: true });
-
     if (logoBox) {
         // Wrap the existing logo / power button / label so they can sit on the left
         const main = document.createElement("div");
         main.id = "logoMain";
         while (logoBox.firstChild) main.appendChild(logoBox.firstChild);
-        logoBox.append(main, box, tramTicker);
+        logoBox.append(main, box);
+        const clockBox = document.getElementById("clockBox");
+        if (clockBox) clockBox.appendChild(tramTicker);
+        else document.body.appendChild(tramTicker);
     } else {
         document.body.appendChild(box);
     }
@@ -484,7 +479,6 @@ const DEPARTURES_TICKER_SPEED = 91.8; // pixels per second, matching the Alexa t
             );
             box.hidden = false;
             if (logoBox) logoBox.classList.add("has-songs");
-            placeTramTicker();
         } catch (e) {
             console.warn("Songs error:", e);
             // Keep showing the last known songs, but dim them so it's clear they may be old
@@ -548,7 +542,7 @@ async function updateTicker() {
 
     // 1. Welcome batch
     feedBatches.push({
-        name: "Genève Cam",
+        name: "Geneva Cam",
         titles: [
             "Bienvenue sur Geneva Cam 😃 Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
             "Actualités en direct de Genève, de Suisse et du monde, ainsi que les dernières informations sur l'économie, le sport, la météo et les transports publics à Genève"
