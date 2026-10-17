@@ -1,5 +1,8 @@
-// GenevaCam app.js (updated - full)
-// Includes: weather restored, bottom ticker uses "Geneva", songs widget + tram ticker behavior intact.
+// GenevaCam app.js (final)
+// - Restores weather display
+// - Ensures bottom ticker uses "Geneva"
+// - Tram ticker placed in clockBox and animated (speed increased by 15%)
+// - Bottom ticker animation made 15% faster
 
 console.log("GenevaCam loaded");
 
@@ -22,11 +25,7 @@ function isFullscreen() {
 
     const root = document.documentElement;
     const canFullscreen = document.fullscreenEnabled || document.webkitFullscreenEnabled;
-
-    if (!canFullscreen) {
-        btn.hidden = true;
-        return;
-    }
+    if (!canFullscreen) { btn.hidden = true; return; }
 
     function updateButton() {
         const on = isFullscreen();
@@ -56,20 +55,19 @@ function isFullscreen() {
 })();
 
 //
-// Webcam
+// Webcam stream
 //
 const video = document.getElementById("video");
 const STREAM_URL = "https://edge16.vedge.infomaniak.com/livecast/ik:sig2/chunklist_w1380254353.m3u8";
 
 let hls = null;
-
 function startStream() {
     if (hls) {
         try { hls.destroy(); } catch (e) {}
         hls = null;
     }
 
-    if (video.canPlayType && video.canPlayType("application/vnd.apple.mpegurl")) {
+    if (video && video.canPlayType && video.canPlayType("application/vnd.apple.mpegurl")) {
         video.src = STREAM_URL;
         video.load();
     } else if (window.Hls && Hls.isSupported()) {
@@ -77,34 +75,31 @@ function startStream() {
         hls.on(Hls.Events.ERROR, (event, data) => {
             if (!data.fatal) return;
             console.warn("Stream error:", data.type, data.details);
-            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-                hls.startLoad();
-            } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-                hls.recoverMediaError();
-            } else {
-                setTimeout(startStream, 5000);
-            }
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
+            else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
+            else setTimeout(startStream, 5000);
         });
         hls.loadSource(STREAM_URL);
         hls.attachMedia(video);
-    } else {
+    } else if (video) {
         video.src = STREAM_URL;
     }
 
-    video.play().catch(() => {});
+    if (video) video.play().catch(() => {});
 }
 
-video.addEventListener("error", () => {
-    console.warn("Video error, retrying in 5 seconds");
-    setTimeout(startStream, 5000);
-});
+if (video) {
+    video.addEventListener("error", () => {
+        console.warn("Video error, retrying in 5 seconds");
+        setTimeout(startStream, 5000);
+    });
+}
+startStream();
 
 let lastVideoTime = -1;
 setInterval(() => {
-    if (video.paused) {
-        video.play().catch(() => {});
-        return;
-    }
+    if (!video) return;
+    if (video.paused) { video.play().catch(()=>{}); return; }
     if (video.currentTime === lastVideoTime) {
         console.warn("Video stalled, restarting stream");
         startStream();
@@ -112,16 +107,10 @@ setInterval(() => {
     lastVideoTime = video.currentTime;
 }, 30000);
 
-startStream();
-
 const pageLoadedAt = Date.now();
 setInterval(() => {
-    const parts = new Intl.DateTimeFormat("en-GB", {
-        hour: "numeric",
-        minute: "numeric",
-        hour12: false,
-        timeZone: "Europe/Zurich"
-    }).formatToParts(new Date());
+    const parts = new Intl.DateTimeFormat("en-GB", { hour: "numeric", minute: "numeric", hour12: false, timeZone: "Europe/Zurich" })
+        .formatToParts(new Date());
     const hour = Number(parts.find(p => p.type === "hour").value) % 24;
     const minute = Number(parts.find(p => p.type === "minute").value);
     if (hour === 4 && minute === 0 && Date.now() - pageLoadedAt > 30 * 60 * 1000 && !isFullscreen()) {
@@ -130,19 +119,15 @@ setInterval(() => {
 }, 30000);
 
 //
-// Radio & Power Toggle
+// Radio toggle
 //
 const radio = document.getElementById("radio");
 const radioToggle = document.getElementById("radio-toggle");
-
 if (radioToggle) {
     radioToggle.addEventListener("click", () => {
+        if (!radio) return;
         if (radio.paused) {
-            radio.play()
-                .then(() => {
-                    radioToggle.classList.add("active");
-                    console.log("Radio playing");
-                })
+            radio.play().then(() => { radioToggle.classList.add("active"); console.log("Radio playing"); })
                 .catch(err => console.log("Radio playback error:", err));
         } else {
             radio.pause();
@@ -153,39 +138,24 @@ if (radioToggle) {
 }
 
 //
-// Clock (French)
+// Clock & Date (French)
 //
 function updateClock() {
     const now = new Date();
-
-    const t = now.toLocaleTimeString("fr-FR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-        timeZone: "Europe/Zurich"
-    });
+    const t = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Europe/Zurich" });
     const clockEl = document.getElementById("clock");
     if (clockEl) clockEl.textContent = t + " • Genève";
 
-    const parts = new Intl.DateTimeFormat("fr-FR", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        timeZone: "Europe/Zurich"
-    }).formatToParts(now).map(part =>
-        (part.type === "weekday" || part.type === "month")
-            ? part.value.charAt(0).toUpperCase() + part.value.slice(1)
-            : part.value
-    ).join("");
+    const parts = new Intl.DateTimeFormat("fr-FR", { weekday:"long", day:"numeric", month:"long", timeZone:"Europe/Zurich" })
+        .formatToParts(now).map(part => (part.type === "weekday" || part.type === "month") ? part.value.charAt(0).toUpperCase()+part.value.slice(1) : part.value).join("");
     const dateEl = document.getElementById("date");
     if (dateEl) dateEl.textContent = parts;
 }
-
 updateClock();
 setInterval(updateClock, 1000);
 
 //
-// Weather (French) — restore visible weather in #weather
+// Weather (French) - visible in clock box
 //
 function describeWeatherFr(code) {
     if (code === 0) return "Ciel dégagé";
@@ -208,30 +178,24 @@ function describeWeatherFr(code) {
 
 async function updateWeather() {
     try {
-        const response = await fetch(
-            "https://api.open-meteo.com/v1/forecast?latitude=46.2044&longitude=6.1432&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe/Zurich"
-        );
+        const response = await fetch("https://api.open-meteo.com/v1/forecast?latitude=46.2044&longitude=6.1432&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe/Zurich");
         const data = await response.json();
-
         const condition = describeWeatherFr(data.current.weather_code);
         const temp = Math.round(data.current.temperature_2m) + "°C";
         const wind = Math.round(data.current.wind_speed_10m) + " km/h";
-
         const tempEl = document.getElementById("temperature");
         const weatherEl = document.getElementById("weather");
         if (tempEl) tempEl.textContent = temp;
         if (weatherEl) weatherEl.textContent = condition ? `${condition} • ${wind}` : wind;
-
-    } catch (error) {
-        console.log("Weather error:", error);
+    } catch (e) {
+        console.log("Weather error:", e);
     }
 }
-
 updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// News Ticker & Live Geneva Alerts
+// News ticker (bottom) and feeds
 //
 const ticker = document.getElementById("ticker");
 
@@ -243,7 +207,7 @@ async function fetchTpgAlerts() {
             if (data && Array.isArray(data.stationboard)) {
                 const delayed = data.stationboard.filter(item => item.stop && item.stop.delay > 0);
                 if (delayed.length > 0) {
-                    return delayed.slice(0, 2).map(item => `TPG / CFF : Ligne ${item.category}${item.number} vers ${item.to} — Retard de ${item.stop.delay} min`);
+                    return delayed.slice(0,2).map(item => `TPG / CFF : Ligne ${item.category}${item.number} vers ${item.to} — Retard de ${item.stop.delay} min`);
                 }
             }
         }
@@ -256,18 +220,16 @@ const getForecast = async () => {
         const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=46.2044&longitude=6.1432&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=Europe%2FZurich');
         const data = await response.json();
         const d = data.daily;
-
-        const parts = d.time.map((day, i) => {
+        const parts = d.time.map((day,i) => {
             let label = "Aujourd'hui";
             if (i === 1) label = 'Demain';
             else if (i > 1) {
-                const name = new Date(day + 'T12:00:00Z').toLocaleDateString('fr-CH', { weekday: 'long', timeZone: 'UTC' });
-                label = name.charAt(0).toUpperCase() + name.slice(1);
+                const name = new Date(day + 'T12:00:00Z').toLocaleDateString('fr-CH', { weekday:'long', timeZone:'UTC' });
+                label = name.charAt(0).toUpperCase()+name.slice(1);
             }
             const desc = describeWeatherFr(d.weather_code[i]);
             return label + ' : ' + (desc ? desc + ', ' : '') + Math.round(d.temperature_2m_min[i]) + ' à ' + Math.round(d.temperature_2m_max[i]) + ' °C';
         });
-        // ensure "Genève" replaced with "Geneva"
         return ('Prévisions pour Genève : ' + parts.join('   |   ')).replace(/Genève/g, 'Geneva');
     } catch (e) {
         console.log('Forecast fetch error:', e);
@@ -278,22 +240,11 @@ const getForecast = async () => {
 async function fetchFeedXml(url) {
     try {
         const response = await fetch(proxied(url));
-        if (!response.ok) {
-            console.warn("Feed failed:", response.status, url);
-            return [];
-        }
-
+        if (!response.ok) { console.warn("Feed failed:", response.status, url); return []; }
         const xmlText = await response.text();
         const xmlDoc = new DOMParser().parseFromString(xmlText, "text/xml");
-
-        if (xmlDoc.querySelector("parsererror")) {
-            console.warn("XML parse error:", url);
-            return [];
-        }
-
-        return [...xmlDoc.querySelectorAll("item > title, entry > title")]
-            .map(t => t.textContent.trim())
-            .filter(Boolean);
+        if (xmlDoc.querySelector("parsererror")) { console.warn("XML parse error:", url); return []; }
+        return [...xmlDoc.querySelectorAll("item > title, entry > title")].map(t => t.textContent.trim()).filter(Boolean);
     } catch (e) {
         console.warn("Feed error:", url, e);
         return [];
@@ -301,12 +252,13 @@ async function fetchFeedXml(url) {
 }
 
 //
-// Radio Lac - Derniers titres widget & Tram Ticker (Grange-Canal)
+// Radio Lac songs widget + tram ticker
 //
 const SONGS_URL = "https://www.radiolac.ch/cache/lac.json";
 const SONGS_REFRESH_MS = 30000;
 const GRANGE_CANAL_STOP_ID = "8592833";
-const DEPARTURES_TICKER_SPEED = 91.8;
+// increase tram speed by 15%
+const DEPARTURES_TICKER_SPEED = 91.8 * 1.15;
 
 (function createSongsWidget() {
     const logoBox = document.getElementById("logoBox");
@@ -327,9 +279,7 @@ const DEPARTURES_TICKER_SPEED = 91.8;
 
     const placeTramTicker = () => {
         if (!clockBox) return;
-        if (tramTicker.parentElement !== clockBox) {
-            clockBox.appendChild(tramTicker);
-        }
+        if (tramTicker.parentElement !== clockBox) clockBox.appendChild(tramTicker);
     };
 
     const renderTramTicker = (text) => {
@@ -338,31 +288,18 @@ const DEPARTURES_TICKER_SPEED = 91.8;
         const loopText = text + "   •   ";
         tramTrack.textContent = loopText + loopText;
         placeTramTicker();
-        if (tramAnimation) {
-            try { tramAnimation.cancel(); } catch (e) {}
-            tramAnimation = null;
-        }
+        if (tramAnimation) { try { tramAnimation.cancel(); } catch (e) {} tramAnimation = null; }
 
         const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (reduced) {
-            tramTrack.style.transform = "translateX(0)";
-            return;
-        }
+        if (reduced) { tramTrack.style.transform = "translateX(0)"; return; }
 
         requestAnimationFrame(() => {
             const copyWidth = tramTrack.getBoundingClientRect().width / 2;
             if (!copyWidth) return;
             const duration = (copyWidth / DEPARTURES_TICKER_SPEED) * 1000;
             tramAnimation = tramTrack.animate(
-                [
-                    { transform: "translateX(0px)" },
-                    { transform: `translateX(-${copyWidth}px)` }
-                ],
-                {
-                    duration: Math.max(6000, Math.round(duration)),
-                    iterations: Infinity,
-                    easing: "linear"
-                }
+                [{ transform: "translateX(0px)" }, { transform: `translateX(-${copyWidth}px)` }],
+                { duration: Math.max(4000, Math.round(duration)), iterations: Infinity, easing: "linear" }
             );
         });
     };
@@ -375,30 +312,23 @@ const DEPARTURES_TICKER_SPEED = 91.8;
             const data = await response.json();
             const now = Date.now();
             const cutoff = now + 15 * 60 * 1000;
-            const formatter = new Intl.DateTimeFormat("fr-CH", {
-                hour: "2-digit",
-                minute: "2-digit",
-                timeZone: "Europe/Zurich"
-            });
-            const departures = (data.stationboard || [])
-                .map(item => {
-                    const stop = item.stop || {};
-                    const departure = (stop.prognosis && stop.prognosis.departure) || stop.departure;
-                    return { item, stop, departure, timestamp: departure ? Date.parse(departure) : NaN };
-                })
-                .filter(row => String(row.item && row.item.category || "").toUpperCase() === "T" &&
-                    Number.isFinite(row.timestamp) && row.timestamp >= now && row.timestamp <= cutoff)
-                .sort((a, b) => a.timestamp - b.timestamp)
+            const formatter = new Intl.DateTimeFormat("fr-CH", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Zurich" });
+            const departures = (data.stationboard || []).map(item => {
+                const stop = item.stop || {};
+                const departure = (stop.prognosis && stop.prognosis.departure) || stop.departure;
+                return { item, stop, departure, timestamp: departure ? Date.parse(departure) : NaN };
+            }).filter(row => String(row.item && row.item.category || "").toUpperCase() === "T" &&
+                Number.isFinite(row.timestamp) && row.timestamp >= now && row.timestamp <= cutoff)
+                .sort((a,b) => a.timestamp - b.timestamp)
                 .map(row => {
                     const line = "T" + (row.item.number || "");
                     const delay = Number(row.stop.delay) > 0 ? " +" + row.stop.delay + " min" : "";
                     return `${line} → ${row.item.to || "destination inconnue"} ${formatter.format(new Date(row.timestamp))}${delay}`;
                 });
-            renderTramTicker(departures.length
-                ? "Grange-Canal : " + departures.join("   •   ")
-                : "Grange-Canal : aucun tram prévu dans les 15 prochaines minutes");
-        } catch (error) {
-            console.warn("Tram departures error:", error);
+
+            renderTramTicker(departures.length ? "Grange-Canal : " + departures.join("   •   ") : "Grange-Canal : aucun tram prévu dans les 15 prochaines minutes");
+        } catch (e) {
+            console.warn("Tram departures error:", e);
             renderTramTicker("Départs à Grange-Canal temporairement indisponibles");
         }
     }
@@ -417,29 +347,17 @@ const DEPARTURES_TICKER_SPEED = 91.8;
         document.body.appendChild(box);
     }
 
-    const el = (tag, cls, text) => {
-        const n = document.createElement(tag);
-        if (cls) n.className = cls;
-        if (text !== undefined) n.textContent = text;
-        return n;
-    };
+    const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; };
 
     const makeRow = (label, song, isNow) => {
         const row = el("div", "sw-row" + (isNow ? " now" : ""));
-
         const img = el("img");
         img.alt = "";
         img.src = song.imagexs || "";
         img.onerror = () => { img.style.visibility = "hidden"; };
-
         const text = el("div", "sw-text");
         const time = song.simpletime ? " • " + song.simpletime : "";
-        text.append(
-            el("div", "sw-label", label + time),
-            el("div", "sw-title", song.title || ""),
-            el("div", "sw-artist", song.interpret || "")
-        );
-
+        text.append(el("div", "sw-label", label + time), el("div", "sw-title", song.title || ""), el("div", "sw-artist", song.interpret || ""));
         row.append(img, text);
         return row;
     };
@@ -453,7 +371,7 @@ const DEPARTURES_TICKER_SPEED = 91.8;
             const json = await res.json();
 
             const now = json.live && json.live[0];
-            const prev = (json.played || []).slice(0, 2);
+            const prev = (json.played || []).slice(0,2);
             if (!now) throw new Error("No live entry");
 
             box.classList.remove("stale");
@@ -464,12 +382,7 @@ const DEPARTURES_TICKER_SPEED = 91.8;
 
             const list = document.createElement('div');
             list.className = 'sw-list';
-            list.append(
-                el("div", "sw-header", "DERNIERS TITRES"),
-                makeRow("En ce moment", now, true),
-                ...prev.map((s, i) => makeRow(i === 0 ? "Juste avant" : "Avant cela", s, false))
-            );
-
+            list.append(el("div", "sw-header", "DERNIERS TITRES"), makeRow("En ce moment", now, true), ...prev.map((s,i) => makeRow(i===0 ? "Juste avant" : "Avant cela", s, false)));
             box.replaceChildren(list);
             box.hidden = false;
             if (logoBox) logoBox.classList.add("has-songs");
@@ -492,19 +405,20 @@ const DEPARTURES_TICKER_SPEED = 91.8;
         }
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener("DOMContentLoaded", () => {
         placeTramTicker();
         if (lastDepartureText) renderTramTicker(lastDepartureText);
     });
 })();
 
 //
-// Ticker rotation (bottom news ticker) — ensures "Genève" replaced with "Geneva"
+// Ticker rotation (bottom) - make 15% faster (duration multiplier 0.85)
 //
 let feedBatches = [];
 let rotationOffset = 0;
 let cachedForecastText = "";
 let currentAnimation = null;
+const NEWS_TICKER_DURATION_MULTIPLIER = 0.85;
 
 async function updateTicker() {
     const leTempsFeeds = [
@@ -536,7 +450,6 @@ async function updateTicker() {
     const twentyMinResults = await Promise.all(twentyMinPromises);
 
     feedBatches = [];
-
     feedBatches.push({
         name: "Geneva Cam",
         titles: [
@@ -545,130 +458,70 @@ async function updateTicker() {
         ]
     });
 
-    if (tpgResults && tpgResults.length > 0) {
-        feedBatches.push({ name: "Transports publics à Genève", titles: tpgResults });
-    }
+    if (tpgResults && tpgResults.length > 0) feedBatches.push({ name: "Transports publics à Genève", titles: tpgResults });
 
-    leTempsResults.forEach((titles, idx) => {
-        if (titles && titles.length > 0) {
-            feedBatches.push({
-                name: leTempsFeeds[idx].name,
-                titles: titles
-            });
-        }
-    });
-
-    twentyMinResults.forEach((titles, idx) => {
-        if (titles && titles.length > 0) {
-            feedBatches.push({
-                name: twentyMinFeeds[idx].name,
-                titles: titles
-            });
-        }
-    });
+    leTempsResults.forEach((titles, idx) => { if (titles && titles.length > 0) feedBatches.push({ name: leTempsFeeds[idx].name, titles }); });
+    twentyMinResults.forEach((titles, idx) => { if (titles && titles.length > 0) feedBatches.push({ name: twentyMinFeeds[idx].name, titles }); });
 
     renderNextRotationBatch();
 }
 
 function renderNextRotationBatch() {
     const headlines = [];
-
     if (feedBatches.length > 0) {
         const welcomeBatch = feedBatches[0];
         const total = welcomeBatch.titles.length;
-        if (total > 0) {
-            for (let i = 0; i < Math.min(2, total); i++) {
-                const storyIndex = (rotationOffset + i) % total;
-                headlines.push(`${welcomeBatch.name}: ${welcomeBatch.titles[storyIndex]}`);
-            }
-        }
+        if (total > 0) for (let i=0;i<Math.min(2,total);i++) headlines.push(`${welcomeBatch.name}: ${welcomeBatch.titles[(rotationOffset + i) % total]}`);
     }
-
-    if (cachedForecastText) {
-        headlines.push(cachedForecastText);
-    }
-
-    for (let b = 1; b < feedBatches.length; b++) {
+    if (cachedForecastText) headlines.push(cachedForecastText);
+    for (let b=1;b<feedBatches.length;b++) {
         const batch = feedBatches[b];
         const total = batch.titles.length;
-        if (total > 0) {
-            for (let i = 0; i < Math.min(3, total); i++) {
-                const storyIndex = (rotationOffset + i) % total;
-                headlines.push(`${batch.name}: ${batch.titles[storyIndex]}`);
-            }
-        }
+        if (total > 0) for (let i=0;i<Math.min(3,total);i++) headlines.push(`${batch.name}: ${batch.titles[(rotationOffset + i) % total]}`);
     }
-
     rotationOffset = (rotationOffset + 3) % 10;
 
     if (headlines.length > 0) {
-        // replace remaining "Genève" with "Geneva" for bottom ticker
         const joined = headlines.join("   •   ").replace(/Genève/g, 'Geneva');
-        ticker.textContent = joined;
+        if (ticker) ticker.textContent = joined;
         startTickerSeamless();
     } else {
-        ticker.textContent = "Impossible de charger le flux d'actualités";
+        if (ticker) ticker.textContent = "Impossible de charger le flux d'actualités";
     }
 }
 
 function startTickerSeamless() {
     if (!ticker) return;
-
-    if (currentAnimation) {
-        try { currentAnimation.cancel(); } catch (e) {}
-        currentAnimation = null;
-    }
-
+    if (currentAnimation) { try { currentAnimation.cancel(); } catch (e) {} currentAnimation = null; }
     const startPos = window.innerWidth;
     ticker.style.transform = `translateX(${startPos}px)`;
 
     const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) {
-        setTimeout(renderNextRotationBatch, 10000);
-        return;
-    }
+    if (reduced) { setTimeout(renderNextRotationBatch, 10000); return; }
 
     requestAnimationFrame(() => {
         const width = ticker.offsetWidth;
         const distance = width + window.innerWidth;
         const isMobilePortrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
         const isMobileLandscape = window.matchMedia("(max-height: 500px) and (orientation: landscape)").matches;
-        const duration = isMobilePortrait ? distance * 14.25 : isMobileLandscape ? distance * 10.6666667 : distance * 8.0;
-
-        currentAnimation = ticker.animate(
-            [
-                { transform: `translateX(${startPos}px)` },
-                { transform: `translateX(-${width}px)` }
-            ],
-            {
-                duration: Math.max(6000, Math.round(duration)),
-                iterations: 1,
-                easing: "linear"
-            }
-        );
-
-        currentAnimation.onfinish = () => {
-            renderNextRotationBatch();
-        };
+        const base = isMobilePortrait ? distance * 14.25 : isMobileLandscape ? distance * 10.6666667 : distance * 8.0;
+        const duration = Math.max(4000, Math.round(base * NEWS_TICKER_DURATION_MULTIPLIER));
+        currentAnimation = ticker.animate([{ transform: `translateX(${startPos}px)` }, { transform: `translateX(-${width}px)` }], { duration, iterations: 1, easing: "linear" });
+        currentAnimation.onfinish = () => renderNextRotationBatch();
     });
 }
 
-// initial tickers
 updateTicker();
 setInterval(updateTicker, 600000);
 
 (function setupOverlayToggle() {
     const button = document.getElementById("overlay-toggle");
     if (!button) return;
-
     button.addEventListener("click", () => {
         const hidden = document.body.classList.toggle("boxes-hidden");
         button.textContent = hidden ? "Afficher" : "Masquer";
         button.setAttribute("aria-expanded", String(!hidden));
-        button.setAttribute(
-            "aria-label",
-            hidden ? "Afficher les panneaux d'information" : "Masquer les panneaux d'information"
-        );
+        button.setAttribute("aria-label", hidden ? "Afficher les panneaux d'information" : "Masquer les panneaux d'information");
     });
 })();
 
@@ -676,7 +529,6 @@ setInterval(updateTicker, 600000);
     const credits = document.getElementById("credits");
     const button = document.getElementById("overlay-toggle");
     if (!credits || !button) return;
-
     const align = () => {
         const bounds = credits.getBoundingClientRect();
         button.style.top = `${bounds.top}px`;
@@ -689,10 +541,8 @@ setInterval(updateTicker, 600000);
         button.style.paddingTop = "0";
         button.style.paddingBottom = "0";
     };
-
     align();
     window.addEventListener("resize", align, { passive: true });
-
     if (typeof ResizeObserver === "function") {
         const observer = new ResizeObserver(align);
         observer.observe(credits);
