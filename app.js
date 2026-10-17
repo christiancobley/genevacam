@@ -1,17 +1,17 @@
+// GenevaCam app.js (complete)
+// Keep this file in place of your existing app.js (or save as index.js if you prefer)
+
 console.log("GenevaCam loaded");
 
 //
 // Settings
 //
-
 const PROXY_BASE = "https://genevacam-rss.christian-cobley.workers.dev/";
-
 const proxied = (url) => `${PROXY_BASE}?url=${encodeURIComponent(url)}`;
 
 //
 // Full screen toggle
 //
-
 function isFullscreen() {
     return !!(document.fullscreenElement || document.webkitFullscreenElement);
 }
@@ -58,7 +58,6 @@ function isFullscreen() {
 //
 // Webcam
 //
-
 const video = document.getElementById("video");
 const STREAM_URL = "https://edge16.vedge.infomaniak.com/livecast/ik:sig2/chunklist_w1380254353.m3u8";
 
@@ -66,11 +65,11 @@ let hls = null;
 
 function startStream() {
     if (hls) {
-        hls.destroy();
+        try { hls.destroy(); } catch (e) {}
         hls = null;
     }
 
-    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+    if (video.canPlayType && video.canPlayType("application/vnd.apple.mpegurl")) {
         video.src = STREAM_URL;
         video.load();
     } else if (window.Hls && Hls.isSupported()) {
@@ -133,56 +132,51 @@ setInterval(() => {
 //
 // Radio & Power Toggle
 //
-
 const radio = document.getElementById("radio");
 const radioToggle = document.getElementById("radio-toggle");
 
-radioToggle.addEventListener("click", () => {
-    if (radio.paused) {
-        radio.play()
-            .then(() => {
-                radioToggle.classList.add("active");
-                console.log("Radio playing");
-            })
-            .catch(err => console.log("Radio playback error:", err));
-    } else {
-        radio.pause();
-        radioToggle.classList.remove("active");
-        console.log("Radio paused");
-    }
-});
+if (radioToggle) {
+    radioToggle.addEventListener("click", () => {
+        if (radio.paused) {
+            radio.play()
+                .then(() => {
+                    radioToggle.classList.add("active");
+                    console.log("Radio playing");
+                })
+                .catch(err => console.log("Radio playback error:", err));
+        } else {
+            radio.pause();
+            radioToggle.classList.remove("active");
+            console.log("Radio paused");
+        }
+    });
+}
 
 //
 // Clock (French)
 //
-
 function updateClock() {
     const now = new Date();
 
-    document.getElementById("clock").textContent =
-        now.toLocaleTimeString(
-            "fr-FR",
-            {
-                hour: "2-digit",
-                minute: "2-digit",
-                timeZone: "Europe/Zurich"
-            }
-        ) + " • Genève";
+    const t = now.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "Europe/Zurich"
+    });
+    document.getElementById("clock").textContent = t + " • Genève";
 
-    const dateStr = new Intl.DateTimeFormat(
-        "fr-FR",
-        {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            timeZone: "Europe/Zurich"
-        }
-    ).formatToParts(now).map(part =>
+    const parts = new Intl.DateTimeFormat("fr-FR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        timeZone: "Europe/Zurich"
+    }).formatToParts(now).map(part =>
         (part.type === "weekday" || part.type === "month")
             ? part.value.charAt(0).toUpperCase() + part.value.slice(1)
             : part.value
     ).join("");
-    document.getElementById("date").textContent = dateStr;
+    document.getElementById("date").textContent = parts;
 }
 
 updateClock();
@@ -191,7 +185,6 @@ setInterval(updateClock, 1000);
 //
 // Weather (French)
 //
-
 function describeWeatherFr(code) {
     if (code === 0) return "Ciel dégagé";
     if (code === 1) return "Plutôt dégagé";
@@ -236,9 +229,8 @@ updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// News Ticker & Live Geneva Alerts
+// News Ticker & Live Geneva Alerts (ticker at bottom of viewport)
 //
-
 const ticker = document.getElementById("ticker");
 
 async function fetchTpgAlerts() {
@@ -247,7 +239,7 @@ async function fetchTpgAlerts() {
         if (res.ok) {
             const data = await res.json();
             if (data && Array.isArray(data.stationboard)) {
-                const delayed = data.stationboard.filter(item => item.stop.delay > 0);
+                const delayed = data.stationboard.filter(item => item.stop && item.stop.delay > 0);
                 if (delayed.length > 0) {
                     return delayed.slice(0, 2).map(item => `TPG / CFF : Ligne ${item.category}${item.number} vers ${item.to} — Retard de ${item.stop.delay} min`);
                 }
@@ -308,7 +300,6 @@ async function fetchFeedXml(url) {
 //
 // Radio Lac - Derniers titres widget & Tram Ticker (Grange-Canal)
 //
-
 const SONGS_URL = "https://www.radiolac.ch/cache/lac.json";
 const SONGS_REFRESH_MS = 30000;
 const GRANGE_CANAL_STOP_ID = "8592833";
@@ -332,8 +323,11 @@ const DEPARTURES_TICKER_SPEED = 91.8;
     let lastDepartureText = "";
 
     const placeTramTicker = () => {
+        // Ensure tram ticker is attached to the clock box (and only once)
         if (!clockBox) return;
-        clockBox.appendChild(tramTicker);
+        if (tramTicker.parentElement !== clockBox) {
+            clockBox.appendChild(tramTicker);
+        }
     };
 
     const renderTramTicker = (text) => {
@@ -342,18 +336,31 @@ const DEPARTURES_TICKER_SPEED = 91.8;
         const loopText = text + "   •   ";
         tramTrack.textContent = loopText + loopText;
         placeTramTicker();
-        if (tramAnimation) tramAnimation.cancel();
+        if (tramAnimation) {
+            try { tramAnimation.cancel(); } catch (e) {}
+            tramAnimation = null;
+        }
 
+        // Respect prefers-reduced-motion
+        const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduced) {
+            // No animation; ensure the content is visible and static
+            tramTrack.style.transform = "translateX(0)";
+            return;
+        }
+
+        // Animate using the Web Animations API so we can cancel/resize on window changes
         requestAnimationFrame(() => {
             const copyWidth = tramTrack.getBoundingClientRect().width / 2;
             if (!copyWidth) return;
+            const duration = (copyWidth / DEPARTURES_TICKER_SPEED) * 1000;
             tramAnimation = tramTrack.animate(
                 [
                     { transform: "translateX(0px)" },
                     { transform: `translateX(-${copyWidth}px)` }
                 ],
                 {
-                    duration: (copyWidth / DEPARTURES_TICKER_SPEED) * 1000,
+                    duration: Math.max(6000, Math.round(duration)),
                     iterations: Infinity,
                     easing: "linear"
                 }
@@ -380,7 +387,7 @@ const DEPARTURES_TICKER_SPEED = 91.8;
                     const departure = (stop.prognosis && stop.prognosis.departure) || stop.departure;
                     return { item, stop, departure, timestamp: departure ? Date.parse(departure) : NaN };
                 })
-                .filter(row => String(row.item.category || "").toUpperCase() === "T" &&
+                .filter(row => String(row.item && row.item.category || "").toUpperCase() === "T" &&
                     Number.isFinite(row.timestamp) && row.timestamp >= now && row.timestamp <= cutoff)
                 .sort((a, b) => a.timestamp - b.timestamp)
                 .map(row => {
@@ -410,15 +417,6 @@ const DEPARTURES_TICKER_SPEED = 91.8;
     } else {
         document.body.appendChild(box);
     }
-
-    // Optional: ensure tram ticker lives in the clock box on load
-document.addEventListener('DOMContentLoaded', () => {
-    const tram = document.getElementById('tram-ticker');
-    const clockBox = document.getElementById('clockBox');
-    if (tram && clockBox && tram.parentElement !== clockBox) {
-        clockBox.appendChild(tram);
-    }
-}
 
     const el = (tag, cls, text) => {
         const n = document.createElement(tag);
@@ -490,12 +488,17 @@ document.addEventListener('DOMContentLoaded', () => {
             refreshTramDepartures();
         }
     });
+
+    // Ensure the tram ticker lives in the clock box after initial DOM complete
+    document.addEventListener('DOMContentLoaded', () => {
+        placeTramTicker();
+        if (lastDepartureText) renderTramTicker(lastDepartureText);
+    });
 })();
 
 //
-// Ticker rotation
+// Ticker rotation (bottom of viewport)
 //
-
 let feedBatches = [];
 let rotationOffset = 0;
 let cachedForecastText = "";
@@ -605,18 +608,30 @@ function renderNextRotationBatch() {
 }
 
 function startTickerSeamless() {
+    if (!ticker) return;
+
     if (currentAnimation) {
-        currentAnimation.cancel();
+        try { currentAnimation.cancel(); } catch (e) {}
+        currentAnimation = null;
     }
 
     const startPos = window.innerWidth;
     ticker.style.transform = `translateX(${startPos}px)`;
+
+    // If the user requests reduced motion, skip the smooth animation and use a timed text swap
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+        // keep the text static for a short time, then render next batch
+        setTimeout(renderNextRotationBatch, 10000);
+        return;
+    }
 
     requestAnimationFrame(() => {
         const width = ticker.offsetWidth;
         const distance = width + window.innerWidth;
         const isMobilePortrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
         const isMobileLandscape = window.matchMedia("(max-height: 500px) and (orientation: landscape)").matches;
+        // duration scale chosen to produce a comfortable reading speed; keep monotonic with distance
         const duration = isMobilePortrait ? distance * 14.25 : isMobileLandscape ? distance * 10.6666667 : distance * 8.0;
 
         currentAnimation = ticker.animate(
@@ -625,7 +640,7 @@ function startTickerSeamless() {
                 { transform: `translateX(-${width}px)` }
             ],
             {
-                duration: duration,
+                duration: Math.max(6000, Math.round(duration)),
                 iterations: 1,
                 easing: "linear"
             }

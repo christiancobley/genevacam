@@ -15,6 +15,7 @@ select,
 textarea {
     font: inherit;
 }
+
 #video {
     position: fixed;
     left: 0;
@@ -122,8 +123,9 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 20px;
+    padding: 20px 20px 54px;
     z-index: 9999;
+    position: relative;
 }
 
 #clock {
@@ -177,6 +179,43 @@ h1 {
 }
 
 /* ==========================================
+   TRAM TICKER INSIDE CLOCK BOX
+   ========================================== */
+
+#clockBox > #tram-ticker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    background: rgba(0, 0, 0, 0.08);
+    color: #fff;
+    font-size: clamp(10px, 1.6vw, 18px);
+    font-weight: 700;
+    line-height: 1;
+    z-index: 10;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+}
+
+#clockBox > #tram-ticker > #tram-ticker-track {
+    display: inline-block;
+    white-space: nowrap;
+    will-change: transform;
+}
+
+/* hide any ticker that still gets attached to the logo/songs area */
+#logoBox > #tram-ticker,
+#logoBox.has-songs > #tram-ticker {
+    display: none !important;
+}
+
+/* ==========================================
    MOBILE PORTRAIT MODE ONLY (Max Width 768px + Portrait)
    Boxes are wider (54vw) and text is larger for readability.
    ========================================== */
@@ -198,7 +237,7 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 8px;
+    padding: 8px 8px 24px;
     z-index: 9999;
 }
 
@@ -273,6 +312,17 @@ h1 {
     font-size: 20px;
 }
 
+/* clock ticker on phone portrait */
+#clockBox > #tram-ticker {
+    height: 20px;
+    padding: 0 6px;
+    font-size: clamp(7px, 2vw, 9px);
+}
+
+#clockBox #fullscreen-btn {
+    bottom: 5px;
+}
+
 }
 
 /* ==========================================
@@ -312,7 +362,7 @@ h1 {
 #clockBox {
     width: 250px;
     height: 110px;
-    padding: 8px;
+    padding: 8px 8px 18px;
     top: 10px;
     right: 10px;
 }
@@ -340,8 +390,18 @@ h1 {
     font-size: 18px;
 }
 
+/* clock ticker on landscape */
+#clockBox > #tram-ticker {
+    height: 14px;
+    padding: 0 8px;
+    font-size: clamp(7px, 1.1vw, 10px);
 }
 
+#clockBox #fullscreen-btn {
+    bottom: 6px;
+}
+
+}
 
 /* ==========================================
    RADIO LAC BOX + DERNIERS TITRES (combined)
@@ -357,6 +417,7 @@ h1 {
     gap: 6px;
     flex: none;
 }
+
 #radio-tagline {
     color: #ffffff;
     font-size: clamp(12px, 1.3vw, 16px);
@@ -365,6 +426,7 @@ h1 {
     text-align: center;
     white-space: nowrap;
 }
+
 /* DESKTOP: same top and height as before, wider, logo group on the left */
 #logoBox.has-songs {
     width: clamp(497px, calc(100vw - 691px), 820px);
@@ -375,7 +437,7 @@ h1 {
 }
 
 #logoBox.has-songs #logoMain {
-    width: 270px;                      /* width of the logo */
+    width: 270px;
 }
 
 /* Songs panel: a slightly darker inset so the white text is easier to read */
@@ -465,7 +527,7 @@ h1 {
 #credits {
     position: fixed;
     right: 20px;
-    bottom: 84px;                      /* 82px ticker + 2px gap */
+    bottom: 84px;
     max-width: calc(100vw - 40px);
     box-sizing: border-box;
     padding: 4px 10px;
@@ -498,841 +560,5 @@ h1 {
     border-radius: 6px;
     background: rgba(0, 0, 0, 0.55);
     color: #fff;
-    font-size: 13px;
-    line-height: 1.2;
-    cursor: pointer;
-}
-
-#overlay-toggle:hover,
-#overlay-toggle:focus-visible {
-    background: rgba(0, 0, 0, 0.8);
-    outline: 2px solid #fff;
-    outline-offset: 2px;
-}
-
-body.boxes-hidden #logoBox,
-body.boxes-hidden #clockBox {
-    display: none !important;
-}
-
-/* ==========================================
-   FULL SCREEN BUTTON (bottom right of the clock box)
-   ========================================== */
-
-#fullscreen-btn {
-    position: absolute;
-    right: 12px;
-    bottom: 12px;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: 2px solid rgba(255, 255, 255, 0.85);
-    border-radius: 50%;
-    color: #ffffff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    outline: none;
-}
-
-#fullscreen-btn[hidden] {
-    display: none;
-}
-
-#fullscreen-btn:hover {
-    border-color: #ffffff;
-    background: rgba(255, 255, 255, 0.25);
-}
-
-#fullscreen-btn:focus-visible {
-    outline: 2px solid #ffffff;
-    outline-offset: 2px;
-}
-
-#fullscreen-btn svg {
-    width: 20px;
-    height: 20px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2.4;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-#fullscreen-btn .fs-exit {
-    display: none;
-}
-
-#fullscreen-btn.is-fullscreen .fs-enter {
-    display: none;
-}
-
-#fullscreen-btn.is-fullscreen .fs-exit {
-    display: block;
-}
-
-/* ==========================================
-   TABLETS & SMALL LAPTOPS (769px - 1279px wide, not phone landscape)
-   Boxes scale with the screen so they never overlap.
-   ========================================== */
-
-@media screen and (min-width: 769px) and (max-width: 1279px) and (min-height: 501px) {
-
-#clockBox {
-    width: 36vw;
-}
-
-#clock {
-    font-size: 4.4vw;
-}
-
-#date {
-    font-size: 2.7vw;
-}
-
-#temperature {
-    font-size: 2.2vw;
-    white-space: normal;
-}
-
-#logo {
-    width: 200px;
-}
-
-#logoBox {
-    width: min(497px, calc(100vw - 36vw - 60px));
-}
-
-#logoBox.has-songs {
-    width: calc(100vw - 36vw - 60px);  /* fills the space up to the clock box */
-}
-
-#logoBox.has-songs #logoMain {
-    width: 200px;
-}
-
-#songs-widget img {
-    width: 44px;
-    height: 44px;
-}
-
-#songs-widget .sw-header {
-    font-size: 13px;
-}
-
-#songs-widget .sw-label {
-    font-size: 12px;
-}
-
-#songs-widget .sw-title {
-    font-size: 17px;
-}
-
-#songs-widget .sw-row.now .sw-title {
-    font-size: 20px;
-}
-
-#songs-widget .sw-artist {
-    font-size: 14px;
-}
-
-#credits {
-    font-size: 18px;
-}
-
-#fullscreen-btn {
-    right: 10px;
-    bottom: 10px;
-    width: 34px;
-    height: 34px;
-}
-
-#fullscreen-btn svg {
-    width: 17px;
-    height: 17px;
-}
-
-}
-
-/* Narrow tablets: drop the cover images to leave room for the song names */
-@media screen and (min-width: 769px) and (max-width: 900px) and (min-height: 501px) {
-
-#songs-widget img {
-    display: none;
-}
-
-}
-
-/* ==========================================
-   MOBILE PORTRAIT: separate box directly beneath the Radio Lac box, three songs
-   ========================================== */
-
-@media screen and (max-width: 768px) and (orientation: portrait) {
-
-#logoMain {
-    gap: 4px;
-}
-
-#logoBox.has-songs {
-    width: 54vw;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 4px;
-}
-
-#logoBox.has-songs #logoMain {
-    width: auto;
-}
-
-#songs-widget {
-    position: fixed;
-    top: calc(10px + 15vh + 6px + 15vh + 6px);   /* clock box + logo box + gaps */
-    left: 10px;
-    width: 54vw;
-    flex: none;
-    padding: 8px;
-    background: #3b9aa3;               /* darker teal for contrast */
-    border-radius: 8px;
-    z-index: 9999;
-}
-
-#songs-widget .sw-header {
-    font-size: 10px;
-    margin-bottom: 6px;
-}
-
-#songs-widget .sw-row {
-    gap: 8px;
-}
-
-#songs-widget .sw-row + .sw-row {
-    margin-top: 6px;
-}
-
-#songs-widget img {
-    width: 34px;
-    height: 34px;
-    border-radius: 4px;
-}
-
-#songs-widget .sw-label {
-    font-size: 10px;
-}
-
-#songs-widget .sw-title {
-    font-size: 12px;
-}
-
-#songs-widget .sw-row.now .sw-title {
-    font-size: 13px;
-}
-
-#songs-widget .sw-artist {
-    font-size: 11px;
-}
-
-/* Credits: one line only. Labels are hidden and "Sources :" is shown instead. */
-#credits {
-    right: 10px;
-    bottom: 52px;                      /* 50px ticker + 2px gap */
-    max-width: calc(100vw - 20px);
-    font-size: 2.1vw;
-    padding: 3px 8px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-#credits .cr-label {
-    display: none;
-}
-
-#credits .cr-sources {
-    display: inline;
-}
-
-#fullscreen-btn {
-    right: 5px;
-    bottom: 5px;
-    width: 22px;
-    height: 22px;
-    border-width: 1.5px;
-}
-
-#fullscreen-btn svg {
-    width: 12px;
-    height: 12px;
-}
-
-}
-
-/* ==========================================
-   MOBILE LANDSCAPE: combined box, same top and height as before, two songs
-   ========================================== */
-
-@media screen and (max-height: 500px) and (orientation: landscape) {
-
-#logoMain {
-    gap: 4px;
-}
-
-#logoBox.has-songs {
-    width: clamp(300px, calc(100vw - 280px), 380px);
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: stretch;
-    gap: 10px;
-}
-
-#logoBox.has-songs #logoMain {
-    width: 110px;                      /* width of the logo */
-}
-
-#songs-widget {
-    padding: 4px 8px;
-}
-
-#songs-widget .sw-header {
-    font-size: 9px;
-    margin-bottom: 3px;
-}
-
-#songs-widget .sw-row {
-    gap: 8px;
-}
-
-#songs-widget .sw-row + .sw-row {
-    margin-top: 4px;
-}
-
-#songs-widget .sw-row:nth-child(4) {
-    display: none;                     /* only the current song + one before */
-}
-
-#songs-widget img {
-    width: 30px;
-    height: 30px;
-    border-radius: 4px;
-}
-
-#songs-widget .sw-label {
-    font-size: 8px;
-}
-
-#songs-widget .sw-title {
-    font-size: 11px;
-}
-
-#songs-widget .sw-row.now .sw-title {
-    font-size: 12px;
-}
-
-#songs-widget .sw-artist {
-    font-size: 10px;
-}
-
-#credits {
-    left: 104px;
-    right: 10px;
-    bottom: 42px;                      /* 40px ticker + 2px gap */
-    max-width: calc(100vw - 124px);
-    font-size: 9px;
-    padding: 3px 8px;
-}
-
-#overlay-toggle {
-    left: 8px;
-    bottom: 46px;
-    padding: 5px 9px;
-    font-size: 10px;
-}
-
-#fullscreen-btn {
-    right: 6px;
-    bottom: 6px;
-    width: 24px;
-    height: 24px;
-    border-width: 1.5px;
-}
-
-#fullscreen-btn svg {
-    width: 13px;
-    height: 13px;
-}
-
-}
-/* 20% smaller overlay layout on phone portrait screens only */
-@media screen and (max-width: 768px) and (orientation: portrait) {
-
-#clockBox {
-    top: 8px;
-    left: 8px;
-    width: 43.2vw;
-    height: 12vh;
-    padding: 6.4px;
-    border-radius: 6.4px;
-}
-
-#clock {
-    font-size: 20.8px;
-}
-
-#date {
-    font-size: 10.4px;
-    margin-top: 1.6px;
-}
-
-#temperature {
-    font-size: 9.6px;
-    margin-top: 1.6px;
-}
-
-#logoBox,
-#logoBox.has-songs {
-    top: calc(8px + 12vh + 4.8px);
-    left: 8px;
-    width: 43.2vw;
-    height: 12vh;
-    padding: 3.2px;
-    border-radius: 6.4px;
-    gap: 3.2px;
-}
-
-#logo {
-    width: 68px;
-}
-
-#logoMain {
-    gap: 3.2px;
-}
-
-.power-btn {
-    width: 22.4px;
-    height: 22.4px;
-    border-width: 1.6px;
-}
-
-.power-icon {
-    width: 11.2px;
-    height: 11.2px;
-}
-
-.power-label {
-    font-size: 0.48rem;
-}
-
-#songs-widget {
-    top: calc(8px + 12vh + 4.8px + 12vh + 4.8px);
-    left: 8px;
-    width: 43.2vw;
-    padding: 6.4px;
-    border-radius: 6.4px;
-}
-
-#songs-widget .sw-header {
-    font-size: 8px;
-    margin-bottom: 4.8px;
-}
-
-#songs-widget .sw-row {
-    gap: 6.4px;
-}
-
-#songs-widget .sw-row + .sw-row {
-    margin-top: 4.8px;
-}
-
-#songs-widget img {
-    width: 27.2px;
-    height: 27.2px;
-    border-radius: 3.2px;
-}
-
-#songs-widget .sw-label {
-    font-size: 8px;
-}
-
-#songs-widget .sw-title {
-    font-size: 9.6px;
-}
-
-#songs-widget .sw-row.now .sw-title {
-    font-size: 10.4px;
-}
-
-#songs-widget .sw-artist {
-    font-size: 8.8px;
-}
-
-#credits {
-    left: 104px;
-    right: 8px;
-    bottom: 41.6px;
-    max-width: calc(100vw - 120px);
-    font-size: 1.68vw;
-    padding: 2.4px 6.4px;
-}
-
-#overlay-toggle {
-    left: 8px;
-    bottom: 46px;
-    padding: 5px 9px;
-    font-size: 10px;
-}
-
-#tickerContainer {
-    height: 40px;
-}
-
-#ticker {
-    line-height: 40px;
-    font-size: 16px;
-}
-
-#fullscreen-btn {
-    right: 4px;
-    bottom: 4px;
-    width: 17.6px;
-    height: 17.6px;
-    border-width: 1.2px;
-}
-
-#fullscreen-btn svg {
-    width: 9.6px;
-    height: 9.6px;
-}
-
-}
-
-/* Keep the Radio Lac tagline legible and on one line on mobile screens. */
-@media screen and (max-width: 768px) and (orientation: portrait) {
-    #radio-tagline {
-        font-size: clamp(6px, 2.2vw, 9px);
-    }
-}
-
-@media screen and (max-height: 500px) and (orientation: landscape) {
-    #radio-tagline {
-        font-size: clamp(5px, 1.6vw, 9px);
-    }
-}
-
-/* Tagline sits visually midway between the logo underline and the radio control. */
-#radio-tagline {
-    transform: translateY(-1em);
-}
-
-/* Mobile landscape: align all three cards and keep the complete radio control visible. */
-@media screen and (max-height: 500px) and (orientation: landscape) {
-    #logoBox.has-songs {
-        top: 10px;
-        height: 110px;
-        width: clamp(320px, calc(100vw - 260px), 400px);
-        padding: 0;
-        align-items: stretch;
-        gap: 8px;
-    }
-
-    #logoBox.has-songs #logoMain {
-        width: 130px;
-        flex: 0 0 130px;
-        gap: 2px;
-    }
-
-    #logoBox.has-songs #logo {
-        width: 100px;
-    }
-
-    #logoBox.has-songs #radio-tagline {
-        width: 100%;
-        max-width: 100%;
-        font-size: clamp(7px, 1.2vw, 8px);
-        transform: translateY(-0.75em);
-    }
-
-    #logoBox.has-songs .power-label {
-        font-size: 0.45rem;
-        white-space: nowrap;
-    }
-
-    #logoBox.has-songs #songs-widget {
-        align-self: stretch;
-        margin: 0;
-    }
-
-    #clockBox {
-        top: 10px;
-        height: 110px;
-    }
-}
-
-/* Desktop only: increase the tagline size by 20%. */
-@media screen and (min-width: 1280px) and (min-height: 501px) {
-    #radio-tagline {
-        font-size: clamp(14.4px, 1.56vw, 19.2px);
-    }
-}
-
-/* Alexa-inspired left panel and Grange-Canal departures ticker. */
-#logoBox.has-songs {
-    position: fixed;
-    overflow: hidden;
-    padding: 20px 20px 54px;
-}
-
-#logoBox.has-songs #logoMain {
-    width: 230px;
-    gap: 4px;
-}
-
-#logoBox.has-songs #logo {
-    width: min(200px, 100%);
-}
-
-#logoBox.has-songs .power-btn {
-    width: 50px;
-    height: 50px;
-}
-
-#logoBox.has-songs .power-label {
-    font-size: 1rem;
-}
-
-#radio-tagline {
-    margin-top: 4px;
-    transform: none;
-}
-
-#songs-widget {
-    background: transparent;
-    padding: 6px 10px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-}
-
-#songs-widget .sw-header {
-    font-size: 13px;
-    margin-bottom: 4px;
-}
-
-#songs-widget .sw-row {
-    gap: 10px;
-}
-
-#songs-widget .sw-row + .sw-row {
-    margin-top: 5px;
-}
-
-#songs-widget img {
-    width: 40px;
-    height: 40px;
-}
-
-#songs-widget .sw-label {
-    font-size: 11px;
-}
-
-#songs-widget .sw-title {
-    font-size: 16px;
-}
-
-#songs-widget .sw-row.now .sw-title {
-    font-size: 19px;
-}
-
-#songs-widget .sw-artist {
-    font-size: 13px;
-}
-
-#logoBox.has-songs > #tram-ticker,
-#songs-widget > #tram-ticker {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    height: 34px;
-    padding: 0 12px;
-    overflow: hidden;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.05);
-    font-size: clamp(10px, 1.6vw, 18px);
-    font-weight: 700;
-    line-height: 1;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-    white-space: nowrap;
-}
-
-#logoBox > #tram-ticker {
-    display: none;
-}
-
-#logoBox.has-songs > #tram-ticker {
-    display: flex;
-}
-
-#tram-ticker-track {
-    display: inline-block;
-    flex: none;
-    width: max-content;
-    white-space: nowrap;
-    will-change: transform;
-}
-
-@media screen and (min-width: 769px) and (min-height: 501px) {
-    #logoBox.has-songs {
-        padding-bottom: 54px;
-    }
-
-    #logoBox.has-songs #logoMain {
-        width: 220px;
-    }
-
-    #logoBox.has-songs #tram-ticker {
-        height: 34px;
-    }
-}
-
-@media screen and (max-width: 768px) and (orientation: portrait) {
-    #logoBox.has-songs {
-        overflow: visible;
-        padding: 3.2px;
-    }
-
-    #logoBox.has-songs #logoMain {
-        width: auto;
-        gap: 3.2px;
-    }
-
-    #logoBox.has-songs #logo {
-        width: 68px;
-    }
-
-    #logoBox.has-songs > #tram-ticker {
-        display: none;
-    }
-
-    #songs-widget {
-        position: fixed;
-        overflow: hidden;
-        padding: 6.4px 8px 24px;
-        padding-bottom: 24px;
-        background: #48bcc7;
-    }
-
-    #songs-widget > #tram-ticker {
-        height: 20px;
-        padding: 0 6px;
-        background: rgba(0, 0, 0, 0.05);
-        font-size: clamp(7px, 2vw, 9px);
-    }
-
-    #radio-tagline {
-        margin-top: 2px;
-    }
-}
-
-@media screen and (max-height: 500px) and (orientation: landscape) {
-    #logoBox.has-songs {
-        overflow: hidden;
-        padding: 0 0 14px;
-    }
-
-    #logoBox.has-songs #logoMain {
-        width: 130px;
-        flex: 0 0 130px;
-        gap: 2px;
-    }
-
-    #logoBox.has-songs #logo {
-        width: 100px;
-    }
-
-    #logoBox.has-songs .power-btn {
-        width: 22px;
-        height: 22px;
-    }
-
-    #logoBox.has-songs .power-label {
-        font-size: 0.45rem;
-    }
-
-    #logoBox.has-songs #tram-ticker {
-        height: 14px;
-        padding: 0 8px;
-        font-size: clamp(7px, 1.1vw, 10px);
-    }
-
-    /* phone portrait: smaller ticker */
-@media screen and (max-width: 768px) and (orientation: portrait) {
-    #clockBox { --clock-ticker-height: 20px; padding-bottom: calc(8px + var(--clock-ticker-height)); }
-    #clockBox > #tram-ticker { height: var(--clock-ticker-height); font-size: 12px; padding: 0 6px; }
-    #clockBox #fullscreen-btn { bottom: calc(5px + var(--clock-ticker-height)); }
-}
-
-/* small landscape: even smaller ticker */
-@media screen and (max-height: 500px) and (orientation: landscape) {
-    #clockBox { --clock-ticker-height: 14px; padding-bottom: calc(8px + var(--clock-ticker-height)); }
-    #clockBox > #tram-ticker { height: var(--clock-ticker-height); font-size: 11px; padding: 0 8px; }
-    #clockBox #fullscreen-btn { bottom: calc(6px + var(--clock-ticker-height)); }
-}
-
-    :root {
-    --clock-ticker-height: 34px;               /* default ticker height for desktop */
-    --clock-ticker-font: clamp(12px, 1.6vw, 18px);
-}
-
-/* Give the clock box extra bottom padding so the ticker doesn't overlap content.
-   We use the same padding value the clock box already uses (20px) + the ticker height. */
-#clockBox {
-    /* override/add only the bottom padding — other clockBox rules remain intact */
-    padding-bottom: calc(20px + var(--clock-ticker-height));
-    box-sizing: border-box;
-}
-
-/* Tram ticker inside the clock box: full width of the clock box, anchored to its bottom */
-#clockBox > #tram-ticker {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: var(--clock-ticker-height);
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    padding: 0 12px;
-    overflow: hidden;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.05);
-    font-size: var(--clock-ticker-font);
-    font-weight: 700;
-    line-height: 1;
-    white-space: nowrap;
-    z-index: 3; /* sits above clock content but below global overlays */
-    text-shadow: 0 1px 2px rgba(0,0,0,0.35);
-}
-
-/* ensure the track keeps its width behaviour (the JS measure/animation expects this) */
-#tram-ticker-track {
-    display: inline-block;
-    flex: none;
-    width: max-content;
-    white-space: nowrap;
-    will-change: transform;
-}
-
-/* move the clock's fullscreen button up so it is not covered by the ticker */
-#clockBox #fullscreen-btn {
-    bottom: calc(12px + var(--clock-ticker-height));
-}
-
-    #radio-tagline {
-        margin-top: 2px;
-    }
-}
+    font-size:*
+
