@@ -1,3 +1,6 @@
+// GenevaCam app.js (complete)
+// Keep this file in place of your existing app.js (or save as index.js if you prefer)
+
 console.log("GenevaCam loaded");
 
 //
@@ -312,7 +315,6 @@ const DEPARTURES_TICKER_SPEED = 91.8;
     const tramTicker = document.createElement("div");
     tramTicker.id = "tram-ticker";
     tramTicker.setAttribute("aria-label", "Départs des trams à Grange-Canal dans les 15 prochaines minutes");
-
     const tramTrack = document.createElement("span");
     tramTrack.id = "tram-ticker-track";
     tramTicker.appendChild(tramTrack);
@@ -321,6 +323,7 @@ const DEPARTURES_TICKER_SPEED = 91.8;
     let lastDepartureText = "";
 
     const placeTramTicker = () => {
+        // Ensure tram ticker is attached to the clock box (and only once)
         if (!clockBox) return;
         if (tramTicker.parentElement !== clockBox) {
             clockBox.appendChild(tramTicker);
@@ -330,26 +333,26 @@ const DEPARTURES_TICKER_SPEED = 91.8;
     const renderTramTicker = (text) => {
         if (text === lastDepartureText) return;
         lastDepartureText = text;
-
         const loopText = text + "   •   ";
         tramTrack.textContent = loopText + loopText;
         placeTramTicker();
-
         if (tramAnimation) {
             try { tramAnimation.cancel(); } catch (e) {}
             tramAnimation = null;
         }
 
+        // Respect prefers-reduced-motion
         const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (reduced) {
+            // No animation; ensure the content is visible and static
             tramTrack.style.transform = "translateX(0)";
             return;
         }
 
+        // Animate using the Web Animations API so we can cancel/resize on window changes
         requestAnimationFrame(() => {
             const copyWidth = tramTrack.getBoundingClientRect().width / 2;
             if (!copyWidth) return;
-
             const duration = (copyWidth / DEPARTURES_TICKER_SPEED) * 1000;
             tramAnimation = tramTrack.animate(
                 [
@@ -371,7 +374,6 @@ const DEPARTURES_TICKER_SPEED = 91.8;
             const response = await fetch(url);
             if (!response.ok) throw new Error("HTTP " + response.status);
             const data = await response.json();
-
             const now = Date.now();
             const cutoff = now + 15 * 60 * 1000;
             const formatter = new Intl.DateTimeFormat("fr-CH", {
@@ -379,36 +381,23 @@ const DEPARTURES_TICKER_SPEED = 91.8;
                 minute: "2-digit",
                 timeZone: "Europe/Zurich"
             });
-
             const departures = (data.stationboard || [])
                 .map(item => {
                     const stop = item.stop || {};
                     const departure = (stop.prognosis && stop.prognosis.departure) || stop.departure;
-                    return {
-                        item,
-                        stop,
-                        departure,
-                        timestamp: departure ? Date.parse(departure) : NaN
-                    };
+                    return { item, stop, departure, timestamp: departure ? Date.parse(departure) : NaN };
                 })
-                .filter(row =>
-                    String(row.item && row.item.category || "").toUpperCase() === "T" &&
-                    Number.isFinite(row.timestamp) &&
-                    row.timestamp >= now &&
-                    row.timestamp <= cutoff
-                )
+                .filter(row => String(row.item && row.item.category || "").toUpperCase() === "T" &&
+                    Number.isFinite(row.timestamp) && row.timestamp >= now && row.timestamp <= cutoff)
                 .sort((a, b) => a.timestamp - b.timestamp)
                 .map(row => {
                     const line = "T" + (row.item.number || "");
                     const delay = Number(row.stop.delay) > 0 ? " +" + row.stop.delay + " min" : "";
                     return `${line} → ${row.item.to || "destination inconnue"} ${formatter.format(new Date(row.timestamp))}${delay}`;
                 });
-
-            renderTramTicker(
-                departures.length
-                    ? "Grange-Canal : " + departures.join("   •   ")
-                    : "Grange-Canal : aucun tram prévu dans les 15 prochaines minutes"
-            );
+            renderTramTicker(departures.length
+                ? "Grange-Canal : " + departures.join("   •   ")
+                : "Grange-Canal : aucun tram prévu dans les 15 prochaines minutes");
         } catch (error) {
             console.warn("Tram departures error:", error);
             renderTramTicker("Départs à Grange-Canal temporairement indisponibles");
@@ -500,7 +489,8 @@ const DEPARTURES_TICKER_SPEED = 91.8;
         }
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
+    // Ensure the tram ticker lives in the clock box after initial DOM complete
+    document.addEventListener('DOMContentLoaded', () => {
         placeTramTicker();
         if (lastDepartureText) renderTramTicker(lastDepartureText);
     });
@@ -639,7 +629,6 @@ function startTickerSeamless() {
         const distance = width + window.innerWidth;
         const isMobilePortrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
         const isMobileLandscape = window.matchMedia("(max-height: 500px) and (orientation: landscape)").matches;
-
         const duration = isMobilePortrait ? distance * 14.25 : isMobileLandscape ? distance * 10.6666667 : distance * 8.0;
 
         currentAnimation = ticker.animate(
