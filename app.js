@@ -1,5 +1,6 @@
-// GenevaCam app.js (final)
-// Full file — includes tram ticker placement, increased ticker speeds (+15%), Masquer toggle handling.
+// GenevaCam app.js — final consolidated version
+// Implements: tram ticker, bottom ticker speed, songs widget (portrait: current + 1 previous),
+// Masquer/Afficher toggle (hides top boxes + credits), periodic weather/clock updates.
 
 console.log("GenevaCam loaded");
 
@@ -152,7 +153,7 @@ updateClock();
 setInterval(updateClock, 1000);
 
 //
-// Weather (French) - visible in clock box
+// Weather (French) - visible in clock box for all formats
 //
 function describeWeatherFr(code) {
     if (code === 0) return "Ciel dégagé";
@@ -192,7 +193,7 @@ updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// Tickers & Feeds (bottom news ticker / forecast / tpg alerts)
+// News ticker & feeds
 //
 const ticker = document.getElementById("ticker");
 
@@ -249,12 +250,12 @@ async function fetchFeedXml(url) {
 }
 
 //
-// Radio Lac songs widget + Tram Ticker (Grange-Canal)
+// Radio Lac songs widget & Tram ticker
 //
 const SONGS_URL = "https://www.radiolac.ch/cache/lac.json";
 const SONGS_REFRESH_MS = 30000;
 const GRANGE_CANAL_STOP_ID = "8592833";
-// increase tram speed by 15%
+// 15% faster tram ticker
 const DEPARTURES_TICKER_SPEED = 91.8 * 1.15;
 
 (function createSongsWidget() {
@@ -310,22 +311,25 @@ const DEPARTURES_TICKER_SPEED = 91.8 * 1.15;
             const now = Date.now();
             const cutoff = now + 15 * 60 * 1000;
             const formatter = new Intl.DateTimeFormat("fr-CH", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Zurich" });
-            const departures = (data.stationboard || []).map(item => {
-                const stop = item.stop || {};
-                const departure = (stop.prognosis && stop.prognosis.departure) || stop.departure;
-                return { item, stop, departure, timestamp: departure ? Date.parse(departure) : NaN };
-            }).filter(row => String(row.item && row.item.category || "").toUpperCase() === "T" &&
-                Number.isFinite(row.timestamp) && row.timestamp >= now && row.timestamp <= cutoff)
-                .sort((a,b) => a.timestamp - b.timestamp)
+            const departures = (data.stationboard || [])
+                .map(item => {
+                    const stop = item.stop || {};
+                    const departure = (stop.prognosis && stop.prognosis.departure) || stop.departure;
+                    return { item, stop, departure, timestamp: departure ? Date.parse(departure) : NaN };
+                })
+                .filter(row => String(row.item && row.item.category || "").toUpperCase() === "T" &&
+                    Number.isFinite(row.timestamp) && row.timestamp >= now && row.timestamp <= cutoff)
+                .sort((a, b) => a.timestamp - b.timestamp)
                 .map(row => {
                     const line = "T" + (row.item.number || "");
                     const delay = Number(row.stop.delay) > 0 ? " +" + row.stop.delay + " min" : "";
                     return `${line} → ${row.item.to || "destination inconnue"} ${formatter.format(new Date(row.timestamp))}${delay}`;
                 });
-
-            renderTramTicker(departures.length ? "Grange-Canal : " + departures.join("   •   ") : "Grange-Canal : aucun tram prévu dans les 15 prochaines minutes");
-        } catch (e) {
-            console.warn("Tram departures error:", e);
+            renderTramTicker(departures.length
+                ? "Grange-Canal : " + departures.join("   •   ")
+                : "Grange-Canal : aucun tram prévu dans les 15 prochaines minutes");
+        } catch (error) {
+            console.warn("Tram departures error:", error);
             renderTramTicker("Départs à Grange-Canal temporairement indisponibles");
         }
     }
@@ -344,17 +348,29 @@ const DEPARTURES_TICKER_SPEED = 91.8 * 1.15;
         document.body.appendChild(box);
     }
 
-    const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; };
+    const el = (tag, cls, text) => {
+        const n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (text !== undefined) n.textContent = text;
+        return n;
+    };
 
     const makeRow = (label, song, isNow) => {
         const row = el("div", "sw-row" + (isNow ? " now" : ""));
+
         const img = el("img");
         img.alt = "";
         img.src = song.imagexs || "";
         img.onerror = () => { img.style.visibility = "hidden"; };
+
         const text = el("div", "sw-text");
         const time = song.simpletime ? " • " + song.simpletime : "";
-        text.append(el("div", "sw-label", label + time), el("div", "sw-title", song.title || ""), el("div", "sw-artist", song.interpret || ""));
+        text.append(
+            el("div", "sw-label", label + time),
+            el("div", "sw-title", song.title || ""),
+            el("div", "sw-artist", song.interpret || "")
+        );
+
         row.append(img, text);
         return row;
     };
@@ -368,7 +384,11 @@ const DEPARTURES_TICKER_SPEED = 91.8 * 1.15;
             const json = await res.json();
 
             const now = json.live && json.live[0];
-            const prev = (json.played || []).slice(0,2);
+            // In portrait show current + 1 previous; otherwise show current + 2 previous
+            const isPortrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
+            const prevCount = isPortrait ? 1 : 2;
+            const prev = (json.played || []).slice(0, prevCount);
+
             if (!now) throw new Error("No live entry");
 
             box.classList.remove("stale");
@@ -377,9 +397,17 @@ const DEPARTURES_TICKER_SPEED = 91.8 * 1.15;
             if (key === lastKey) return;
             lastKey = key;
 
+            const children = [ el("div", "sw-header", "DERNIERS TITRES"), makeRow("En ce moment", now, true) ];
+            if (prev && prev.length) {
+                for (let i = 0; i < prev.length; i++) {
+                    const label = i === 0 ? "Juste avant" : "Avant cela";
+                    children.push(makeRow(label, prev[i], false));
+                }
+            }
+
             const list = document.createElement('div');
             list.className = 'sw-list';
-            list.append(el("div", "sw-header", "DERNIERS TITRES"), makeRow("En ce moment", now, true), ...prev.map((s,i) => makeRow(i===0 ? "Juste avant" : "Avant cela", s, false)));
+            children.forEach(c => list.appendChild(c));
             box.replaceChildren(list);
             box.hidden = false;
             if (logoBox) logoBox.classList.add("has-songs");
@@ -409,7 +437,7 @@ const DEPARTURES_TICKER_SPEED = 91.8 * 1.15;
 })();
 
 //
-// Ticker rotation (bottom) - make 15% faster (duration multiplier 0.85)
+// Ticker rotation (bottom) — 15% faster via multiplier
 //
 let feedBatches = [];
 let rotationOffset = 0;
@@ -447,6 +475,7 @@ async function updateTicker() {
     const twentyMinResults = await Promise.all(twentyMinPromises);
 
     feedBatches = [];
+
     feedBatches.push({
         name: "Geneva Cam",
         titles: [
@@ -455,46 +484,85 @@ async function updateTicker() {
         ]
     });
 
-    if (tpgResults && tpgResults.length > 0) feedBatches.push({ name: "Transports publics à Genève", titles: tpgResults });
+    if (tpgResults && tpgResults.length > 0) {
+        feedBatches.push({ name: "Transports publics à Genève", titles: tpgResults });
+    }
 
-    leTempsResults.forEach((titles, idx) => { if (titles && titles.length > 0) feedBatches.push({ name: leTempsFeeds[idx].name, titles }); });
-    twentyMinResults.forEach((titles, idx) => { if (titles && titles.length > 0) feedBatches.push({ name: twentyMinFeeds[idx].name, titles }); });
+    leTempsResults.forEach((titles, idx) => {
+        if (titles && titles.length > 0) {
+            feedBatches.push({
+                name: leTempsFeeds[idx].name,
+                titles: titles
+            });
+        }
+    });
+
+    twentyMinResults.forEach((titles, idx) => {
+        if (titles && titles.length > 0) {
+            feedBatches.push({
+                name: twentyMinFeeds[idx].name,
+                titles: titles
+            });
+        }
+    });
 
     renderNextRotationBatch();
 }
 
 function renderNextRotationBatch() {
     const headlines = [];
+
     if (feedBatches.length > 0) {
         const welcomeBatch = feedBatches[0];
         const total = welcomeBatch.titles.length;
-        if (total > 0) for (let i=0;i<Math.min(2,total);i++) headlines.push(`${welcomeBatch.name}: ${welcomeBatch.titles[(rotationOffset + i) % total]}`);
+        if (total > 0) {
+            for (let i = 0; i < Math.min(2, total); i++) {
+                const storyIndex = (rotationOffset + i) % total;
+                headlines.push(`${welcomeBatch.name}: ${welcomeBatch.titles[storyIndex]}`);
+            }
+        }
     }
-    if (cachedForecastText) headlines.push(cachedForecastText);
-    for (let b=1;b<feedBatches.length;b++) {
+
+    if (cachedForecastText) {
+        headlines.push(cachedForecastText);
+    }
+
+    for (let b = 1; b < feedBatches.length; b++) {
         const batch = feedBatches[b];
         const total = batch.titles.length;
-        if (total > 0) for (let i=0;i<Math.min(3,total);i++) headlines.push(`${batch.name}: ${batch.titles[(rotationOffset + i) % total]}`);
+        if (total > 0) {
+            for (let i = 0; i < Math.min(3, total); i++) {
+                const storyIndex = (rotationOffset + i) % total;
+                headlines.push(`${batch.name}: ${batch.titles[storyIndex]}`);
+            }
+        }
     }
+
     rotationOffset = (rotationOffset + 3) % 10;
 
     if (headlines.length > 0) {
-        const joined = headlines.join("   •   ").replace(/Genève/g, 'Geneva');
-        if (ticker) ticker.textContent = joined;
+        ticker.textContent = headlines.join("   •   ");
         startTickerSeamless();
     } else {
-        if (ticker) ticker.textContent = "Impossible de charger le flux d'actualités";
+        ticker.textContent = "Impossible de charger le flux d'actualités";
     }
 }
 
 function startTickerSeamless() {
     if (!ticker) return;
-    if (currentAnimation) { try { currentAnimation.cancel(); } catch (e) {} currentAnimation = null; }
+    if (currentAnimation) {
+        try { currentAnimation.cancel(); } catch (e) {}
+        currentAnimation = null;
+    }
+
     const startPos = window.innerWidth;
     ticker.style.transform = `translateX(${startPos}px)`;
 
     const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) { setTimeout(renderNextRotationBatch, 10000); return; }
+    if (reduced) {
+        setTimeout(renderNextRotationBatch, 10000);
+        return;
+    }
 
     requestAnimationFrame(() => {
         const width = ticker.offsetWidth;
@@ -503,7 +571,17 @@ function startTickerSeamless() {
         const isMobileLandscape = window.matchMedia("(max-height: 500px) and (orientation: landscape)").matches;
         const base = isMobilePortrait ? distance * 14.25 : isMobileLandscape ? distance * 10.6666667 : distance * 8.0;
         const duration = Math.max(4000, Math.round(base * NEWS_TICKER_DURATION_MULTIPLIER));
-        currentAnimation = ticker.animate([{ transform: `translateX(${startPos}px)` }, { transform: `translateX(-${width}px)` }], { duration, iterations: 1, easing: "linear" });
+        currentAnimation = ticker.animate(
+            [
+                { transform: `translateX(${startPos}px)` },
+                { transform: `translateX(-${width}px)` }
+            ],
+            {
+                duration,
+                iterations: 1,
+                easing: "linear"
+            }
+        );
         currentAnimation.onfinish = () => renderNextRotationBatch();
     });
 }
@@ -514,11 +592,15 @@ setInterval(updateTicker, 600000);
 (function setupOverlayToggle() {
     const button = document.getElementById("overlay-toggle");
     if (!button) return;
+
     button.addEventListener("click", () => {
         const hidden = document.body.classList.toggle("boxes-hidden");
         button.textContent = hidden ? "Afficher" : "Masquer";
         button.setAttribute("aria-expanded", String(!hidden));
-        button.setAttribute("aria-label", hidden ? "Afficher les panneaux d'information" : "Masquer les panneaux d'information");
+        button.setAttribute(
+            "aria-label",
+            hidden ? "Afficher les panneaux d'information" : "Masquer les panneaux d'information"
+        );
     });
 })();
 
@@ -526,6 +608,7 @@ setInterval(updateTicker, 600000);
     const credits = document.getElementById("credits");
     const button = document.getElementById("overlay-toggle");
     if (!credits || !button) return;
+
     const align = () => {
         const bounds = credits.getBoundingClientRect();
         button.style.top = `${bounds.top}px`;
@@ -538,8 +621,10 @@ setInterval(updateTicker, 600000);
         button.style.paddingTop = "0";
         button.style.paddingBottom = "0";
     };
+
     align();
     window.addEventListener("resize", align, { passive: true });
+
     if (typeof ResizeObserver === "function") {
         const observer = new ResizeObserver(align);
         observer.observe(credits);
