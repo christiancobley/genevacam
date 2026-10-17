@@ -1031,15 +1031,15 @@ body.boxes-hidden #clockBox {
     #logoBox.has-songs {
         top: 10px;
         height: 110px;
-    width: clamp(260px, calc(100vw - 420px), 320px);
+        width: clamp(320px, calc(100vw - 260px), 400px);
         padding: 0;
         align-items: stretch;
         gap: 8px;
     }
 
     #logoBox.has-songs #logoMain {
-    width: 120px;
-    flex: 0 0 120px;
+        width: 130px;
+        flex: 0 0 130px;
         gap: 2px;
     }
 
@@ -1111,7 +1111,7 @@ body.boxes-hidden #clockBox {
     background: transparent;
     padding: 6px 10px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-
+}
 
 #songs-widget .sw-header {
     font-size: 13px;
@@ -1245,8 +1245,8 @@ body.boxes-hidden #clockBox {
     }
 
     #logoBox.has-songs #logoMain {
-    width: 120px;
-    flex: 0 0 120px;
+        width: 130px;
+        flex: 0 0 130px;
         gap: 2px;
     }
 
@@ -1271,216 +1271,5 @@ body.boxes-hidden #clockBox {
 
     #radio-tagline {
         margin-top: 2px;
-    }
-}
-
-/* Final website layout: departures run inside the clock card on every format. */
-#clockBox {
-    overflow: hidden;
-    padding-bottom: 54px;
-}
-
-#clockBox > #tram-ticker {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    height: 44px;
-    padding: 0 12px;
-    overflow: hidden;
-    border-radius: 0 0 8px 8px;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.05);
-font-size: clamp(26px, 4.2vw, 46px);
-
-    font-weight: 700;
-    line-height: 1;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-    white-space: nowrap;
-}
-
-#tram-ticker-track {
-    display: inline-block;
-    flex: none;
-    width: max-content;
-    white-space: nowrap;
-    will-change: transform;
-}
-
-#fullscreen-btn {
-    top: 12px;
-    bottom: auto;
-}
-
-/* Raise the tagline by one text line while keeping it directly below the logo. */
-#logoBox.has-songs #radio-tagline {
-    transform: translateY(-1em);
-}
-
-
-
-/* Final device-specific refinements: keep songs readable, but contained. */
-@media screen and (max-width: 768px) and (orientation: portrait) {
-    /* Scale every part of the song list down 20% so three items fit cleanly. */
-    #songs-widget .sw-header { font-size: 6.4px; margin-bottom: 3.8px; }
-    #songs-widget .sw-row { gap: 5.1px; }
-    #songs-widget .sw-row + .sw-row { margin-top: 3.8px; }
-    #songs-widget img { width: 21.8px; height: 21.8px; }
-    #songs-widget .sw-label { font-size: 6.4px; }
-    #songs-widget .sw-title { font-size: 7.7px; }
-    #songs-widget .sw-row.now .sw-title { font-size: 8.3px; }
-    #songs-widget .sw-artist { font-size: 7px; }
-}
-
-/* Mobile landscape: song text -10% and the tram ticker text -5%. */
-@media screen and (max-height: 500px) and (orientation: landscape) {
-    #songs-widget .sw-header { font-size: 8.1px; }
-    #songs-widget .sw-label { font-size: 7.2px; }
-    #songs-widget .sw-title { font-size: 9.9px; }
-    #songs-widget .sw-row.now .sw-title { font-size: 10.8px; }
-    #songs-widget .sw-artist { font-size: 9px; }
-    html body #clockBox > #tram-ticker { font-size: clamp(13.3px, 2.09vw, 19px); }
-}
-
-
-
-/* Fire TV Silk uses TV-sized viewports even when its UA does not expose orientation. */
-html.silk-tv #logoBox.has-songs {
-    width: min(550px, calc(100vw - 28.8vw - 60px));
-}
-html.silk-tv #clockBox { width: min(505px, 28.8vw); }
-@media screen and (min-width: 1200px) and (min-height: 501px) {
-    html.silk-tv #logoBox.has-songs { width: 320px; }
-    html.silk-tv #clockBox { width: 505px; }
-    /* Silk on TV: -10% on song text and MARCHE / ARRÊT. */
-    html.silk-tv #logoBox.has-songs .power-label { font-size: 0.9rem; }
-    html.silk-tv #songs-widget .sw-header { font-size: 11.7px; }
-    html.silk-tv #songs-widget .sw-label { font-size: 9.9px; }
-    html.silk-tv #songs-widget .sw-title { font-size: 14.4px; }
-    html.silk-tv #songs-widget .sw-row.now .sw-title { font-size: 17.1px; }
-    html.silk-tv #songs-widget .sw-artist { font-size: 11.7px; }
-    html.silk-tv #clockBox > #tram-ticker { font-size: clamp(19px, 3.04vw, 34.2px); }
-}
-
-/* Silk devices in phone landscape use the -10% song and -5% tram adjustments too. */
-@media screen and (max-height: 500px) and (orientation: landscape) {
-    html.silk-tv #logoBox.has-songs .power-label { font-size: 0.405rem; }
-    html.silk-tv #songs-widget .sw-header { font-size: 8.1px; }
-    html.silk-tv #songs-widget .sw-label { font-size: 7.2px; }
-    html.silk-tv #songs-widget .sw-title { font-size: 9.9px; }
-    html.silk-tv #songs-widget .sw-row.now .sw-title { font-size: 10.8px; }
-    html.silk-tv #songs-widget .sw-artist { font-size: 9px; }
-    html.silk-tv #clockBox > #tram-ticker { font-size: clamp(13.3px, 2.09vw, 19px); }
-}
-
-@media screen and (max-width: 768px) and (orientation: portrait) {
-    #clockBox {
-        height: 14vh;
-        padding: 6.4px 6px 26px;
-    }
-
-    #logoBox.has-songs {
-        top: calc(8px + 14vh + 4.8px);
-        height: 16vh;
-        justify-content: center;
-        align-items: center;
-    }
-
-    #logoMain {
-        gap: 6px;
-    }
-
-    #logoBox.has-songs #logo {
-        width: 72px;
-    }
-
-    #radio-tagline {
-        font-size: 8px;
-        line-height: 1.2;
-        margin-top: 0;
-    }
-
-    #logoBox.has-songs .power-btn {
-        width: 26px;
-        height: 26px;
-    }
-
-    #logoBox.has-songs .power-label {
-        font-size: 0.55rem;
-        text-align: center;
-        white-space: nowrap;
-    }
-
-    #songs-widget {
-        top: calc(8px + 14vh + 4.8px + 16vh + 4.8px);
-    }
-}
-
-    #clockBox > #tram-ticker {
-        height: 22px;
-        padding: 0 6px;
-        font-size: clamp(14px, 4vw, 18px);
-    }
-
-    #fullscreen-btn {
-        top: 4px;
-        right: 4px;
-        bottom: auto;
-    }
-}
-
-@media screen and (max-height: 500px) and (orientation: landscape) {
-    #clockBox {
-        padding: 8px 8px 30px;
-    }
-
-    #clockBox > #tram-ticker {
-        height: 22px;
-        padding: 0 8px;
-        font-size: clamp(14px, 2.2vw, 20px);
-    }
-
-    #fullscreen-btn {
-        top: 6px;
-        right: 6px;
-        bottom: auto;
-    }
-}
-
-/* Keep the former left-card ticker reservation removed now that departures are in the clock card. */
-#logoBox.has-songs {
-    padding-bottom: 20px;
-}
-
-@media screen and (max-width: 768px) and (orientation: portrait) {
-    #songs-widget {
-        padding: 6.4px 8px;
-    }
-}
-
-@media screen and (max-height: 500px) and (orientation: landscape) {
-    #logoBox.has-songs {
-        padding: 0;
-    }
-}
-
-/* On LG webOS browser, halve the song panel's available width and reduce the clock by 20%. */
-@media screen and (min-width: 1280px) and (min-height: 501px) {
-    html.lg-webos-tv #clockBox {
-        width: 505px;
-    }
-
-    html.lg-webos-tv #logoBox.has-songs {
-        width: 320px;
-    }
-}
-
-@media screen and (min-width: 769px) and (max-width: 1279px) and (min-height: 501px) {
-    html.lg-webos-tv #clockBox {
-        width: 28.8vw;
     }
 }

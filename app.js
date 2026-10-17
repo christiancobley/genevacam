@@ -148,34 +148,12 @@ setInterval(() => {
 const radio = document.getElementById("radio");
 const radioToggle = document.getElementById("radio-toggle");
 
-// Some television browsers pause inline video when a second audio stream starts.
-// When that happens, try to resume the muted camera without stopping the radio.
-let lastCameraResumeAttempt = 0;
-function keepCameraPlayingAlongsideRadio() {
-    const isTvBrowser = document.documentElement.classList.contains("lg-webos-tv") ||
-        document.documentElement.classList.contains("silk-tv");
-    if (!isTvBrowser || radio.paused || !video || !video.paused || document.hidden) return;
-    const now = Date.now();
-    if (now - lastCameraResumeAttempt < 4000) return;
-    lastCameraResumeAttempt = now;
-    video.play().catch(err => console.warn("Camera resume while radio is playing:", err));
-}
-
-radio.addEventListener("playing", () => setTimeout(keepCameraPlayingAlongsideRadio, 250));
-video.addEventListener("pause", () => setTimeout(keepCameraPlayingAlongsideRadio, 250));
-
 radioToggle.addEventListener("click", () => {
     if (radio.paused) {
-        // Some TV browsers pause background video when audio starts; resume it in the same user action.
-        const video = document.getElementById("video");
-        if (video && video.paused) video.play().catch(() => {});
         radio.play()
             .then(() => {
                 radioToggle.classList.add("active");
                 console.log("Radio playing");
-                // Retry once after radio playback begins in case the TV browser
-                // paused the muted livestream while switching media pipelines.
-                setTimeout(keepCameraPlayingAlongsideRadio, 250);
             })
             .catch(err => console.log("Radio playback error:", err));
     } else {
@@ -349,16 +327,7 @@ async function fetchFeedXml(url) {
 const SONGS_URL = "https://www.radiolac.ch/cache/lac.json";
 const SONGS_REFRESH_MS = 30000; // refresh every 30 seconds
 const GRANGE_CANAL_STOP_ID = "8592833";
-const DEPARTURES_TICKER_SPEED = 66.1; // 
-
-// Identify television browsers so they can use compact TV-specific sizing.
-const userAgent = navigator.userAgent || "";
-if (/(web0s|webos)/i.test(userAgent)) {
-    document.documentElement.classList.add("lg-webos-tv");
-}
-if (/silk/i.test(userAgent) && (/(aft|fire\s?tv)/i.test(userAgent) || window.matchMedia("(min-width: 1024px)").matches)) {
-    document.documentElement.classList.add("silk-tv");
-}
+const DEPARTURES_TICKER_SPEED = 91.8; // pixels per second, matching the Alexa ticker pace
 
 (function createSongsWidget() {
     // Container: lives inside the Radio Lac box (#logoBox), beside the logo and power button
@@ -368,32 +337,42 @@ if (/silk/i.test(userAgent) && (/(aft|fire\s?tv)/i.test(userAgent) || window.mat
     box.hidden = true; // stays hidden until we have data
     const tramTicker = document.createElement("div");
     tramTicker.id = "tram-ticker";
-    tramTicker.setAttribute("aria-label", "Départs des trams à Grange-Canal dans les 30 prochaines minutes");
+    tramTicker.setAttribute("aria-label", "Départs des trams à Grange-Canal dans les 15 prochaines minutes");
     const tramTrack = document.createElement("span");
     tramTrack.id = "tram-ticker-track";
     tramTicker.appendChild(tramTrack);
-    let tramFrame = 0;
+    let tramAnimation = null;
     let lastDepartureText = "";
+
+    const placeTramTicker = () => {
+        if (!logoBox) return;
+        const portrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
+        const parent = portrait && !box.hidden ? box : logoBox;
+        parent.appendChild(tramTicker);
+    };
 
     const renderTramTicker = (text) => {
         if (text === lastDepartureText) return;
         lastDepartureText = text;
         const loopText = text + "   •   ";
         tramTrack.textContent = loopText + loopText;
-        if (tramFrame) cancelAnimationFrame(tramFrame);
+        placeTramTicker();
+        if (tramAnimation) tramAnimation.cancel();
 
         requestAnimationFrame(() => {
             const copyWidth = tramTrack.getBoundingClientRect().width / 2;
             if (!copyWidth) return;
-            const duration = (copyWidth / DEPARTURES_TICKER_SPEED) * 1000;
-            const startedAt = performance.now();
-            const animate = (now) => {
-                const elapsed = (now - startedAt) % duration;
-                const offset = (elapsed / duration) * copyWidth;
-                tramTrack.style.transform = `translateX(-${offset}px)`;
-                tramFrame = requestAnimationFrame(animate);
-            };
-            tramFrame = requestAnimationFrame(animate);
+            tramAnimation = tramTrack.animate(
+                [
+                    { transform: "translateX(0px)" },
+                    { transform: `translateX(-${copyWidth}px)` }
+                ],
+                {
+                    duration: (copyWidth / DEPARTURES_TICKER_SPEED) * 1000,
+                    iterations: Infinity,
+                    easing: "linear"
+                }
+            );
         });
     };
 
@@ -404,7 +383,7 @@ if (/silk/i.test(userAgent) && (/(aft|fire\s?tv)/i.test(userAgent) || window.mat
             if (!response.ok) throw new Error("HTTP " + response.status);
             const data = await response.json();
             const now = Date.now();
-            const cutoff = now + 30 * 60 * 1000;
+            const cutoff = now + 15 * 60 * 1000;
             const formatter = new Intl.DateTimeFormat("fr-CH", {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -426,22 +405,28 @@ if (/silk/i.test(userAgent) && (/(aft|fire\s?tv)/i.test(userAgent) || window.mat
                 });
             renderTramTicker(departures.length
                 ? "Grange-Canal : " + departures.join("   •   ")
-                : "Grange-Canal : aucun tram prévu dans les 30 prochaines minutes");
+                : "Grange-Canal : aucun tram prévu dans les 15 prochaines minutes");
         } catch (error) {
             console.warn("Tram departures error:", error);
             renderTramTicker("Départs à Grange-Canal temporairement indisponibles");
         }
     }
 
+    const portraitLayout = window.matchMedia("(max-width: 768px) and (orientation: portrait)");
+    const relocateTramTicker = () => {
+        placeTramTicker();
+        if (lastDepartureText) renderTramTicker(lastDepartureText);
+    };
+    if (portraitLayout.addEventListener) portraitLayout.addEventListener("change", relocateTramTicker);
+    else portraitLayout.addListener(relocateTramTicker);
+    window.addEventListener("resize", relocateTramTicker, { passive: true });
+
     if (logoBox) {
         // Wrap the existing logo / power button / label so they can sit on the left
         const main = document.createElement("div");
         main.id = "logoMain";
         while (logoBox.firstChild) main.appendChild(logoBox.firstChild);
-        logoBox.append(main, box);
-        const clockBox = document.getElementById("clockBox");
-        if (clockBox) clockBox.appendChild(tramTicker);
-        else document.body.appendChild(tramTicker);
+        logoBox.append(main, box, tramTicker);
     } else {
         document.body.appendChild(box);
     }
@@ -499,6 +484,7 @@ if (/silk/i.test(userAgent) && (/(aft|fire\s?tv)/i.test(userAgent) || window.mat
             );
             box.hidden = false;
             if (logoBox) logoBox.classList.add("has-songs");
+            placeTramTicker();
         } catch (e) {
             console.warn("Songs error:", e);
             // Keep showing the last known songs, but dim them so it's clear they may be old
@@ -562,7 +548,7 @@ async function updateTicker() {
 
     // 1. Welcome batch
     feedBatches.push({
-        name: "Geneva Cam",
+        name: "Genève Cam",
         titles: [
             "Bienvenue sur Geneva Cam 😃 Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
             "Actualités en direct de Genève, de Suisse et du monde, ainsi que les dernières informations sur l'économie, le sport, la météo et les transports publics à Genève"
