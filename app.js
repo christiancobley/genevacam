@@ -4,8 +4,6 @@ console.log("GenevaCam loaded");
 // Settings
 //
 
-// Your Cloudflare Worker address (keep the trailing slash).
-// Replace YOURNAME with your own workers.dev name.
 const PROXY_BASE = "https://genevacam-rss.christian-cobley.workers.dev/";
 
 const proxied = (url) => `${PROXY_BASE}?url=${encodeURIComponent(url)}`;
@@ -25,7 +23,6 @@ function isFullscreen() {
     const root = document.documentElement;
     const canFullscreen = document.fullscreenEnabled || document.webkitFullscreenEnabled;
 
-    // iPhone Safari can't do this for web pages: hide the button rather than show a dead one
     if (!canFullscreen) {
         btn.hidden = true;
         return;
@@ -68,18 +65,15 @@ const STREAM_URL = "https://edge16.vedge.infomaniak.com/livecast/ik:sig2/chunkli
 let hls = null;
 
 function startStream() {
-    // Tear down any previous attempt first
     if (hls) {
         hls.destroy();
         hls = null;
     }
 
     if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        // Safari and other browsers with native HLS support
         video.src = STREAM_URL;
         video.load();
     } else if (window.Hls && Hls.isSupported()) {
-        // Chrome, Firefox, Edge: play HLS through hls.js
         hls = new Hls();
         hls.on(Hls.Events.ERROR, (event, data) => {
             if (!data.fatal) return;
@@ -95,20 +89,17 @@ function startStream() {
         hls.loadSource(STREAM_URL);
         hls.attachMedia(video);
     } else {
-        // Last resort
         video.src = STREAM_URL;
     }
 
     video.play().catch(() => {});
 }
 
-// Native playback failed: try again shortly
 video.addEventListener("error", () => {
     console.warn("Video error, retrying in 5 seconds");
     setTimeout(startStream, 5000);
 });
 
-// Watchdog: if the picture has frozen for 30 seconds, restart the stream
 let lastVideoTime = -1;
 setInterval(() => {
     if (video.paused) {
@@ -124,8 +115,6 @@ setInterval(() => {
 
 startStream();
 
-// Reload the whole page once a night (04:00 Geneva time) to keep a 24/7 display fresh.
-// Skipped while in full screen, because a reload would drop out of full screen.
 const pageLoadedAt = Date.now();
 setInterval(() => {
     const parts = new Intl.DateTimeFormat("en-GB", {
@@ -180,7 +169,6 @@ function updateClock() {
             }
         ) + " • Genève";
 
-    // Capitalise the first letter of the weekday and of the month (e.g. "Jeudi 15 Octobre")
     const dateStr = new Intl.DateTimeFormat(
         "fr-FR",
         {
@@ -204,7 +192,6 @@ setInterval(updateClock, 1000);
 // Weather (French)
 //
 
-// Open-Meteo (WMO) weather codes, in French. Used by both the clock box and the forecast.
 function describeWeatherFr(code) {
     if (code === 0) return "Ciel dégagé";
     if (code === 1) return "Plutôt dégagé";
@@ -254,7 +241,6 @@ setInterval(updateWeather, 600000);
 
 const ticker = document.getElementById("ticker");
 
-// CORS-friendly Swiss Transport API for Geneva TPG station alerts
 async function fetchTpgAlerts() {
     try {
         const res = await fetch('https://transport.opendata.ch/v1/stationboard?station=Geneve,Gare%20Cornavin&limit=5');
@@ -294,7 +280,6 @@ const getForecast = async () => {
     }
 };
 
-// RSS fetch via our own Cloudflare Worker + native DOMParser
 async function fetchFeedXml(url) {
     try {
         const response = await fetch(proxied(url));
@@ -321,34 +306,34 @@ async function fetchFeedXml(url) {
 }
 
 //
-// Radio Lac - Derniers titres widget (French)
+// Radio Lac - Derniers titres widget & Tram Ticker (Grange-Canal)
 //
 
 const SONGS_URL = "https://www.radiolac.ch/cache/lac.json";
-const SONGS_REFRESH_MS = 30000; // refresh every 30 seconds
+const SONGS_REFRESH_MS = 30000;
 const GRANGE_CANAL_STOP_ID = "8592833";
-const DEPARTURES_TICKER_SPEED = 91.8; // pixels per second, matching the Alexa ticker pace
+const DEPARTURES_TICKER_SPEED = 91.8;
 
 (function createSongsWidget() {
-    // Container: lives inside the Radio Lac box (#logoBox), beside the logo and power button
     const logoBox = document.getElementById("logoBox");
+    const clockBox = document.getElementById("clockBox");
     const box = document.createElement("div");
     box.id = "songs-widget";
-    box.hidden = true; // stays hidden until we have data
+    box.hidden = true;
+
     const tramTicker = document.createElement("div");
     tramTicker.id = "tram-ticker";
     tramTicker.setAttribute("aria-label", "Départs des trams à Grange-Canal dans les 15 prochaines minutes");
     const tramTrack = document.createElement("span");
     tramTrack.id = "tram-ticker-track";
     tramTicker.appendChild(tramTrack);
+
     let tramAnimation = null;
     let lastDepartureText = "";
 
     const placeTramTicker = () => {
-        if (!logoBox) return;
-        const portrait = window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches;
-        const parent = portrait && !box.hidden ? box : logoBox;
-        parent.appendChild(tramTicker);
+        if (!clockBox) return;
+        clockBox.appendChild(tramTicker);
     };
 
     const renderTramTicker = (text) => {
@@ -412,21 +397,16 @@ const DEPARTURES_TICKER_SPEED = 91.8; // pixels per second, matching the Alexa t
         }
     }
 
-    const portraitLayout = window.matchMedia("(max-width: 768px) and (orientation: portrait)");
-    const relocateTramTicker = () => {
+    window.addEventListener("resize", () => {
         placeTramTicker();
         if (lastDepartureText) renderTramTicker(lastDepartureText);
-    };
-    if (portraitLayout.addEventListener) portraitLayout.addEventListener("change", relocateTramTicker);
-    else portraitLayout.addListener(relocateTramTicker);
-    window.addEventListener("resize", relocateTramTicker, { passive: true });
+    }, { passive: true });
 
     if (logoBox) {
-        // Wrap the existing logo / power button / label so they can sit on the left
         const main = document.createElement("div");
         main.id = "logoMain";
         while (logoBox.firstChild) main.appendChild(logoBox.firstChild);
-        logoBox.append(main, box, tramTicker);
+        logoBox.append(main, box);
     } else {
         document.body.appendChild(box);
     }
@@ -472,7 +452,6 @@ const DEPARTURES_TICKER_SPEED = 91.8; // pixels per second, matching the Alexa t
 
             box.classList.remove("stale");
 
-            // Only rebuild the widget when the song actually changes
             const key = [now, ...prev].map(s => s.playtime || s.title).join("|");
             if (key === lastKey) return;
             lastKey = key;
@@ -487,7 +466,6 @@ const DEPARTURES_TICKER_SPEED = 91.8; // pixels per second, matching the Alexa t
             placeTramTicker();
         } catch (e) {
             console.warn("Songs error:", e);
-            // Keep showing the last known songs, but dim them so it's clear they may be old
             if (!box.hidden) box.classList.add("stale");
         }
     }
@@ -497,7 +475,6 @@ const DEPARTURES_TICKER_SPEED = 91.8; // pixels per second, matching the Alexa t
     refreshTramDepartures();
     setInterval(refreshTramDepartures, SONGS_REFRESH_MS);
 
-    // Refresh straight away when the tab becomes visible again
     document.addEventListener("visibilitychange", () => {
         if (!document.hidden) {
             refreshSongs();
@@ -546,7 +523,6 @@ async function updateTicker() {
 
     feedBatches = [];
 
-    // 1. Welcome batch
     feedBatches.push({
         name: "Genève Cam",
         titles: [
@@ -555,12 +531,10 @@ async function updateTicker() {
         ]
     });
 
-    // 2. Geneva public transport alerts
     if (tpgResults && tpgResults.length > 0) {
         feedBatches.push({ name: "Transports publics à Genève", titles: tpgResults });
     }
 
-    // 3. Le Temps batches (All 5 feeds)
     leTempsResults.forEach((titles, idx) => {
         if (titles && titles.length > 0) {
             feedBatches.push({
@@ -570,7 +544,6 @@ async function updateTicker() {
         }
     });
 
-    // 4. 20 Minutes batches (All 7 feeds)
     twentyMinResults.forEach((titles, idx) => {
         if (titles && titles.length > 0) {
             feedBatches.push({
@@ -586,7 +559,6 @@ async function updateTicker() {
 function renderNextRotationBatch() {
     const headlines = [];
 
-    // 1. Welcome messages
     if (feedBatches.length > 0) {
         const welcomeBatch = feedBatches[0];
         const total = welcomeBatch.titles.length;
@@ -598,12 +570,10 @@ function renderNextRotationBatch() {
         }
     }
 
-    // 2. Weather forecast
     if (cachedForecastText) {
         headlines.push(cachedForecastText);
     }
 
-    // 3. News and travel alert batches
     for (let b = 1; b < feedBatches.length; b++) {
         const batch = feedBatches[b];
         const total = batch.titles.length;
@@ -661,7 +631,6 @@ function startTickerSeamless() {
 updateTicker();
 setInterval(updateTicker, 600000);
 
-// Toggle the camera information panels without interrupting the video or ticker.
 (function setupOverlayToggle() {
     const button = document.getElementById("overlay-toggle");
     if (!button) return;
@@ -677,7 +646,6 @@ setInterval(updateTicker, 600000);
     });
 })();
 
-// Match the Masquer/Afficher control to the credits strip in every viewport.
 (function alignOverlayToggleWithCredits() {
     const credits = document.getElementById("credits");
     const button = document.getElementById("overlay-toggle");
