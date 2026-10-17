@@ -224,13 +224,13 @@ h1 {
 }
 
 /* ==========================================
-   FULL SCREEN BUTTON (Bottom Right of Clock Box)
+   FULL SCREEN BUTTON (Top Right of Clock Box)
    ========================================== */
 
 #fullscreen-btn {
     position: absolute;
     right: 12px;
-    bottom: 12px;
+    top: 12px;
     width: 40px;
     height: 40px;
     padding: 0;
@@ -493,7 +493,7 @@ body.boxes-hidden #clockBox {
 
 #fullscreen-btn {
     right: 10px;
-    bottom: 10px;
+    top: 10px;
     width: 34px;
     height: 34px;
 }
@@ -674,7 +674,7 @@ body.boxes-hidden #clockBox {
 
 #fullscreen-btn {
     right: 4px;
-    bottom: 4px;
+    top: 4px;
     width: 24px;
     height: 24px;
     border-width: 1.2px;
@@ -822,7 +822,7 @@ body.boxes-hidden #clockBox {
 
 #fullscreen-btn {
     right: 6px;
-    bottom: 6px;
+    top: 6px;
     width: 24px;
     height: 24px;
     border-width: 1.2px;
