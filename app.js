@@ -1,8 +1,5 @@
-// GenevaCam app.js (updated)
-// Keeps original behaviour, plus:
-// - Replaces "Genève" with "Geneva" in the bottom information ticker
-// - Restores weather description into #weather so it shows inside the clock box
-// - Leaves tram ticker and songs logic intact (CSS handles presentation)
+// GenevaCam app.js (updated - full)
+// Includes: weather restored, bottom ticker uses "Geneva", songs widget + tram ticker behavior intact.
 
 console.log("GenevaCam loaded");
 
@@ -270,7 +267,7 @@ const getForecast = async () => {
             const desc = describeWeatherFr(d.weather_code[i]);
             return label + ' : ' + (desc ? desc + ', ' : '') + Math.round(d.temperature_2m_min[i]) + ' à ' + Math.round(d.temperature_2m_max[i]) + ' °C';
         });
-        // replace the word "Genève" with "Geneva" in the forecast heading if present
+        // ensure "Genève" replaced with "Geneva"
         return ('Prévisions pour Genève : ' + parts.join('   |   ')).replace(/Genève/g, 'Geneva');
     } catch (e) {
         console.log('Forecast fetch error:', e);
@@ -329,7 +326,6 @@ const DEPARTURES_TICKER_SPEED = 91.8;
     let lastDepartureText = "";
 
     const placeTramTicker = () => {
-        // Ensure tram ticker is attached to the clock box (and only once)
         if (!clockBox) return;
         if (tramTicker.parentElement !== clockBox) {
             clockBox.appendChild(tramTicker);
@@ -347,15 +343,12 @@ const DEPARTURES_TICKER_SPEED = 91.8;
             tramAnimation = null;
         }
 
-        // Respect prefers-reduced-motion
         const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (reduced) {
-            // No animation; ensure the content is visible and static
             tramTrack.style.transform = "translateX(0)";
             return;
         }
 
-        // Animate using the Web Animations API so we can cancel/resize on window changes
         requestAnimationFrame(() => {
             const copyWidth = tramTrack.getBoundingClientRect().width / 2;
             if (!copyWidth) return;
@@ -469,7 +462,6 @@ const DEPARTURES_TICKER_SPEED = 91.8;
             if (key === lastKey) return;
             lastKey = key;
 
-            // build song list inside a container so it can scroll if long
             const list = document.createElement('div');
             list.className = 'sw-list';
             list.append(
@@ -500,7 +492,6 @@ const DEPARTURES_TICKER_SPEED = 91.8;
         }
     });
 
-    // Ensure the tram ticker lives in the clock box after initial DOM complete
     document.addEventListener('DOMContentLoaded', () => {
         placeTramTicker();
         if (lastDepartureText) renderTramTicker(lastDepartureText);
@@ -508,7 +499,7 @@ const DEPARTURES_TICKER_SPEED = 91.8;
 })();
 
 //
-// Ticker rotation
+// Ticker rotation (bottom news ticker) — ensures "Genève" replaced with "Geneva"
 //
 let feedBatches = [];
 let rotationOffset = 0;
@@ -546,7 +537,6 @@ async function updateTicker() {
 
     feedBatches = [];
 
-    // Welcome batch: show "Geneva Cam" here (replace Genève -> Geneva)
     feedBatches.push({
         name: "Geneva Cam",
         titles: [
@@ -612,7 +602,7 @@ function renderNextRotationBatch() {
     rotationOffset = (rotationOffset + 3) % 10;
 
     if (headlines.length > 0) {
-        // join and replace any remaining "Genève" with "Geneva" so bottom ticker uses "Geneva"
+        // replace remaining "Genève" with "Geneva" for bottom ticker
         const joined = headlines.join("   •   ").replace(/Genève/g, 'Geneva');
         ticker.textContent = joined;
         startTickerSeamless();
@@ -663,7 +653,7 @@ function startTickerSeamless() {
     });
 }
 
-// Start ticker rotation
+// initial tickers
 updateTicker();
 setInterval(updateTicker, 600000);
 
