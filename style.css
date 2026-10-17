@@ -1,10 +1,10 @@
 :root{
   --panel-top: 22px;               /* top offset for cards */
-  --panel-height: 356px;          /* increased card height so content fits */
+  --panel-height: 380px;           /* increased card height so content fits */
   --clock-width: 631px;
-  --left-gap: 20px;
-  --ticker-height: 82px;          /* bottom information ticker (half of the doubled value) */
-  --tram-ticker-height: 34px;     /* height of the tram ticker inside the clock card */
+  --left-gap: 8px;                 /* moved left column further to the left */
+  --ticker-height: 82px;           /* bottom information ticker */
+  --tram-ticker-height: 68px;      /* doubled from previous 34px */
 }
 
 /* Basic page */
@@ -67,7 +67,8 @@ h1{ display:none; }
 
 /* logo image sizing */
 #logo{
-  width: 270px;
+  width: 230px;
+  max-width:100%;
   display:block;
 }
 
@@ -90,28 +91,30 @@ h1{ display:none; }
 .power-btn.active{ border-color:#2ed573; background:rgba(46,213,115,0.35); }
 .power-icon{ width:29px; height:29px; fill:#fff; transition:fill .2s ease; }
 
-.power-label{ font-size:1rem; font-weight:700; color:#fff; text-transform:uppercase; }
+.power-label{ font-size:1rem; font-weight:700; color:#fff; text-transform:uppercase; margin-top:0.25rem; }
 .power-label::before{ content:"MARCHE / ARRÊT"; }
 
+/* move tagline up one line */
 #radio-tagline{
   color:#fff;
   font-size:clamp(12px,1.3vw,16px);
   font-weight:700;
   text-align:center;
   line-height:1;
-  margin-top:4px;
+  margin-top: 0;                 /* moved up */
+  transform: translateY(-0.6em); /* lift up visually by about one line */
   white-space:nowrap;
 }
 
-/* Songs widget to the right of the logoMain, fills available left-column width */
+/* Songs widget to the right of the logoMain, fill left-column width */
 #songs-widget{
   flex:1 1 auto;
   min-width:180px;
   max-width:calc(100vw - var(--clock-width) - 120px);
-  background: rgba(0,0,0,0.18);
+  background: #48bcc7;           /* same colour as the other top boxes */
   color:#fff;
   border-radius:8px;
-  padding:10px 14px;
+  padding:14px;
   box-sizing:border-box;
   display:flex;
   flex-direction:column;
@@ -122,17 +125,18 @@ h1{ display:none; }
 /* ensure the songs list fits inside the panel and scrolls if needed */
 #songs-widget .sw-list {
   overflow:auto;
-  max-height: calc(var(--panel-height) - 60px); /* allow header/padding room */
+  max-height: calc(var(--panel-height) - 70px); /* allow header/padding room */
 }
 
-/* songs layout */
+/* songs layout: larger, fills more space */
 #songs-widget[hidden]{ display:none; }
-#songs-widget .sw-header{ font-size:15px; font-weight:700; text-transform:uppercase; margin-bottom:8px; }
-#songs-widget .sw-row{ display:flex; align-items:center; gap:12px; margin-bottom:8px; }
-#songs-widget img{ width:40px; height:40px; border-radius:6px; object-fit:cover; background:rgba(255,255,255,0.2); flex:0 0 40px; }
-#songs-widget .sw-text{ min-width:0; }
-#songs-widget .sw-title{ font-size:16px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-#songs-widget .sw-artist{ font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#songs-widget .sw-header{ font-size:17px; font-weight:800; text-transform:uppercase; margin-bottom:10px; color:#ffffff; }
+#songs-widget .sw-row{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+#songs-widget img{ width:52px; height:52px; border-radius:6px; object-fit:cover; background:rgba(255,255,255,0.15); flex:0 0 52px; }
+#songs-widget .sw-text{ min-width:0; display:flex; flex-direction:column; gap:4px; }
+#songs-widget .sw-label{ font-size:13px; opacity:0.95; }
+#songs-widget .sw-title{ font-size:18px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff; }
+#songs-widget .sw-artist{ font-size:15px; color:#f0f0f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 /* -----------------------------
    CLOCK BOX (right)
@@ -152,15 +156,17 @@ h1{ display:none; }
   display:flex;
   flex-direction:column;
   justify-content:center;
-  padding:20px 20px calc(20px + var(--tram-ticker-height) + 8px); /* leave space for tram ticker */
+  padding:20px 20px calc(20px + var(--tram-ticker-height) + 10px); /* leave space for tram ticker */
   z-index:10001;
 }
 
 /* clock text */
 #clock{ font-size:56px; font-weight:700; color:#fff; line-height:1.1; }
 #date{ font-size:34px; margin-top:6px; color:#fff; }
-#temperature{ font-size:31px; margin-top:8px; font-weight:600; color:#fff; }
-#weather{ display:none; }
+
+/* Reinstate weather display (visible) */
+#temperature{ font-size:28px; margin-top:10px; font-weight:700; color:#fff; }
+#weather{ font-size:16px; margin-top:6px; color:#ffffffcc; }
 
 /* fullscreen move: top-right of clock card */
 #fullscreen-btn{
@@ -187,6 +193,7 @@ h1{ display:none; }
 /* -----------------------------
    TRAM TICKER inside the CLOCK BOX
    anchored to bottom of #clockBox
+   (doubled size requested)
    ----------------------------- */
 
 #clockBox > #tram-ticker{
@@ -197,13 +204,13 @@ h1{ display:none; }
   height:var(--tram-ticker-height);
   display:flex;
   align-items:center;
-  padding:0 12px;
+  padding:0 14px;
   box-sizing:border-box;
   overflow:hidden;
   white-space:nowrap;
-  background: rgba(0,0,0,0.06);
+  background: rgba(0,0,0,0.08);
   color:#fff;
-  font-size: clamp(10px, 1.4vw, 16px);
+  font-size: clamp(14px, 1.6vw, 22px); /* larger so it fills bigger tram ticker */
   font-weight:700;
   z-index:10003;
   border-bottom-left-radius:8px;
@@ -224,7 +231,7 @@ h1{ display:none; }
 #songs-widget > #tram-ticker { display:none !important; }
 
 /* -----------------------------
-   Bottom information ticker (viewport bottom) — HALVED to 82px
+   Bottom information ticker (viewport bottom)
    ----------------------------- */
 
 #tickerContainer{
@@ -294,7 +301,7 @@ h1{ display:none; }
   #logoBox{ left:12px; padding:12px; gap:12px; }
   #logoMain{ flex:0 0 180px; padding:12px; }
   #logo{ width:140px; }
-  #songs-widget{ padding:8px; min-width:140px; max-width: calc(100vw - 420px); }
+  #songs-widget{ padding:10px; min-width:140px; max-width: calc(100vw - 420px); }
   #clockBox{ right:12px; padding:12px 12px calc(12px + var(--tram-ticker-height) + 6px); width:min(420px, calc(100vw - 220px)); }
   #clock{ font-size:40px; }
   #date{ font-size:20px; }
@@ -305,7 +312,7 @@ h1{ display:none; }
 
 /* phone portrait: stack left column, smaller panels */
 @media screen and (max-width:768px) and (orientation:portrait){
-  :root{ --panel-top:10px; --panel-height:12vh; --ticker-height:50px; --tram-ticker-height:20px; }
+  :root{ --panel-top:10px; --panel-height:12vh; --ticker-height:50px; --tram-ticker-height:32px; }
 
   #logoBox{
     position:fixed;
@@ -348,7 +355,7 @@ h1{ display:none; }
 
 /* mobile landscape */
 @media screen and (max-height:500px) and (orientation: landscape){
-  :root{ --panel-top:10px; --panel-height:110px; --ticker-height:40px; --tram-ticker-height:14px; }
+  :root{ --panel-top:10px; --panel-height:110px; --ticker-height:40px; --tram-ticker-height:24px; }
   #logoBox{ top:var(--panel-top); left:10px; height:var(--panel-height); }
   #clockBox{ top:var(--panel-top); right:10px; height:var(--panel-height); width:250px; padding:8px 8px calc(8px + var(--tram-ticker-height) + 6px); }
   #tickerContainer{ height:var(--ticker-height); }
@@ -363,11 +370,11 @@ h1{ display:none; }
   #clock{ font-size:4.4vw; }
   #date{ font-size:2.7vw; }
   #temperature{ font-size:2.2vw; }
-  #logoBox{ width: min(497px, calc(100vw - 36vw - 60px)); left:20px; }
+  #logoBox{ width: min(497px, calc(100vw - 36vw - 60px)); left:var(--left-gap); }
   #songs-widget img{ width:44px; height:44px; }
 }
 
 /* large screens tweak */
 @media screen and (min-width:1280px) and (min-height:501px){
-  #radio-tagline{ font-size:clamp(14.4px,1.56vw,19.2px); }
+  #radio-tagline{ font-size:clamp(14.4px,1.56vw,19.2px); transform: translateY(-0.6em); }
 }

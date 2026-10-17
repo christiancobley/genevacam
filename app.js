@@ -1,5 +1,8 @@
-// GenevaCam app.js (complete)
-// Keep this file in place of your existing app.js (or save as index.js if you prefer)
+// GenevaCam app.js (updated)
+// Keeps original behaviour, plus:
+// - Replaces "Genève" with "Geneva" in the bottom information ticker
+// - Restores weather description into #weather so it shows inside the clock box
+// - Leaves tram ticker and songs logic intact (CSS handles presentation)
 
 console.log("GenevaCam loaded");
 
@@ -164,7 +167,8 @@ function updateClock() {
         hour12: false,
         timeZone: "Europe/Zurich"
     });
-    document.getElementById("clock").textContent = t + " • Genève";
+    const clockEl = document.getElementById("clock");
+    if (clockEl) clockEl.textContent = t + " • Genève";
 
     const parts = new Intl.DateTimeFormat("fr-FR", {
         weekday: "long",
@@ -176,14 +180,15 @@ function updateClock() {
             ? part.value.charAt(0).toUpperCase() + part.value.slice(1)
             : part.value
     ).join("");
-    document.getElementById("date").textContent = parts;
+    const dateEl = document.getElementById("date");
+    if (dateEl) dateEl.textContent = parts;
 }
 
 updateClock();
 setInterval(updateClock, 1000);
 
 //
-// Weather (French)
+// Weather (French) — restore visible weather in #weather
 //
 function describeWeatherFr(code) {
     if (code === 0) return "Ciel dégagé";
@@ -212,13 +217,13 @@ async function updateWeather() {
         const data = await response.json();
 
         const condition = describeWeatherFr(data.current.weather_code);
+        const temp = Math.round(data.current.temperature_2m) + "°C";
+        const wind = Math.round(data.current.wind_speed_10m) + " km/h";
 
-        const parts = [Math.round(data.current.temperature_2m) + "°C"];
-        if (condition) parts.push(condition);
-        parts.push(Math.round(data.current.wind_speed_10m) + " km/h");
-
-        document.getElementById("temperature").textContent = parts.join(" • ");
-        document.getElementById("weather").textContent = "";
+        const tempEl = document.getElementById("temperature");
+        const weatherEl = document.getElementById("weather");
+        if (tempEl) tempEl.textContent = temp;
+        if (weatherEl) weatherEl.textContent = condition ? `${condition} • ${wind}` : wind;
 
     } catch (error) {
         console.log("Weather error:", error);
@@ -265,7 +270,8 @@ const getForecast = async () => {
             const desc = describeWeatherFr(d.weather_code[i]);
             return label + ' : ' + (desc ? desc + ', ' : '') + Math.round(d.temperature_2m_min[i]) + ' à ' + Math.round(d.temperature_2m_max[i]) + ' °C';
         });
-        return 'Prévisions pour Genève : ' + parts.join('   |   ');
+        // replace the word "Genève" with "Geneva" in the forecast heading if present
+        return ('Prévisions pour Genève : ' + parts.join('   |   ')).replace(/Genève/g, 'Geneva');
     } catch (e) {
         console.log('Forecast fetch error:', e);
         return null;
@@ -463,11 +469,16 @@ const DEPARTURES_TICKER_SPEED = 91.8;
             if (key === lastKey) return;
             lastKey = key;
 
-            box.replaceChildren(
+            // build song list inside a container so it can scroll if long
+            const list = document.createElement('div');
+            list.className = 'sw-list';
+            list.append(
                 el("div", "sw-header", "DERNIERS TITRES"),
                 makeRow("En ce moment", now, true),
                 ...prev.map((s, i) => makeRow(i === 0 ? "Juste avant" : "Avant cela", s, false))
             );
+
+            box.replaceChildren(list);
             box.hidden = false;
             if (logoBox) logoBox.classList.add("has-songs");
             placeTramTicker();
@@ -535,11 +546,12 @@ async function updateTicker() {
 
     feedBatches = [];
 
+    // Welcome batch: show "Geneva Cam" here (replace Genève -> Geneva)
     feedBatches.push({
-        name: "Genève Cam",
+        name: "Geneva Cam",
         titles: [
             "Bienvenue sur Geneva Cam 😃 Bonne écoute de Radio Lac, le meilleur de la musique 🎵",
-            "Actualités en direct de Genève, de Suisse et du monde, ainsi que les dernières informations sur l'économie, le sport, la météo et les transports publics à Genève"
+            "Actualités en direct de Geneva, de Suisse et du monde, ainsi que les dernières informations sur l'économie, le sport, la météo et les transports publics à Geneva"
         ]
     });
 
@@ -600,7 +612,9 @@ function renderNextRotationBatch() {
     rotationOffset = (rotationOffset + 3) % 10;
 
     if (headlines.length > 0) {
-        ticker.textContent = headlines.join("   •   ");
+        // join and replace any remaining "Genève" with "Geneva" so bottom ticker uses "Geneva"
+        const joined = headlines.join("   •   ").replace(/Genève/g, 'Geneva');
+        ticker.textContent = joined;
         startTickerSeamless();
     } else {
         ticker.textContent = "Impossible de charger le flux d'actualités";
@@ -649,6 +663,7 @@ function startTickerSeamless() {
     });
 }
 
+// Start ticker rotation
 updateTicker();
 setInterval(updateTicker, 600000);
 
