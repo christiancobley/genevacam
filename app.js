@@ -411,6 +411,15 @@ const DEPARTURES_TICKER_SPEED = 91.8;
         document.body.appendChild(box);
     }
 
+    // Optional: ensure tram ticker lives in the clock box on load
+document.addEventListener('DOMContentLoaded', () => {
+    const tram = document.getElementById('tram-ticker');
+    const clockBox = document.getElementById('clockBox');
+    if (tram && clockBox && tram.parentElement !== clockBox) {
+        clockBox.appendChild(tram);
+    }
+}
+
     const el = (tag, cls, text) => {
         const n = document.createElement(tag);
         if (cls) n.className = cls;

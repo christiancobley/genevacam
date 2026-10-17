@@ -1269,6 +1269,69 @@ body.boxes-hidden #clockBox {
         font-size: clamp(7px, 1.1vw, 10px);
     }
 
+    /* phone portrait: smaller ticker */
+@media screen and (max-width: 768px) and (orientation: portrait) {
+    #clockBox { --clock-ticker-height: 20px; padding-bottom: calc(8px + var(--clock-ticker-height)); }
+    #clockBox > #tram-ticker { height: var(--clock-ticker-height); font-size: 12px; padding: 0 6px; }
+    #clockBox #fullscreen-btn { bottom: calc(5px + var(--clock-ticker-height)); }
+}
+
+/* small landscape: even smaller ticker */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    #clockBox { --clock-ticker-height: 14px; padding-bottom: calc(8px + var(--clock-ticker-height)); }
+    #clockBox > #tram-ticker { height: var(--clock-ticker-height); font-size: 11px; padding: 0 8px; }
+    #clockBox #fullscreen-btn { bottom: calc(6px + var(--clock-ticker-height)); }
+}
+
+    :root {
+    --clock-ticker-height: 34px;               /* default ticker height for desktop */
+    --clock-ticker-font: clamp(12px, 1.6vw, 18px);
+}
+
+/* Give the clock box extra bottom padding so the ticker doesn't overlap content.
+   We use the same padding value the clock box already uses (20px) + the ticker height. */
+#clockBox {
+    /* override/add only the bottom padding — other clockBox rules remain intact */
+    padding-bottom: calc(20px + var(--clock-ticker-height));
+    box-sizing: border-box;
+}
+
+/* Tram ticker inside the clock box: full width of the clock box, anchored to its bottom */
+#clockBox > #tram-ticker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--clock-ticker-height);
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0 12px;
+    overflow: hidden;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.05);
+    font-size: var(--clock-ticker-font);
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    z-index: 3; /* sits above clock content but below global overlays */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+}
+
+/* ensure the track keeps its width behaviour (the JS measure/animation expects this) */
+#tram-ticker-track {
+    display: inline-block;
+    flex: none;
+    width: max-content;
+    white-space: nowrap;
+    will-change: transform;
+}
+
+/* move the clock's fullscreen button up so it is not covered by the ticker */
+#clockBox #fullscreen-btn {
+    bottom: calc(12px + var(--clock-ticker-height));
+}
+
     #radio-tagline {
         margin-top: 2px;
     }
