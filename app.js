@@ -1,8 +1,5 @@
 // GenevaCam app.js (final)
-// - Restores weather display
-// - Ensures bottom ticker uses "Geneva"
-// - Tram ticker placed in clockBox and animated (speed increased by 15%)
-// - Bottom ticker animation made 15% faster
+// Full file — includes tram ticker placement, increased ticker speeds (+15%), Masquer toggle handling.
 
 console.log("GenevaCam loaded");
 
@@ -195,7 +192,7 @@ updateWeather();
 setInterval(updateWeather, 600000);
 
 //
-// News ticker (bottom) and feeds
+// Tickers & Feeds (bottom news ticker / forecast / tpg alerts)
 //
 const ticker = document.getElementById("ticker");
 
@@ -252,7 +249,7 @@ async function fetchFeedXml(url) {
 }
 
 //
-// Radio Lac songs widget + tram ticker
+// Radio Lac songs widget + Tram Ticker (Grange-Canal)
 //
 const SONGS_URL = "https://www.radiolac.ch/cache/lac.json";
 const SONGS_REFRESH_MS = 30000;
